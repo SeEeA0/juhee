@@ -21,17 +21,18 @@
       font-family:'Pretendard', -apple-system, sans-serif;
       background:var(--bg);
       color:white;
-      height:100dvh; /* 고정 높이로 스크롤 억제 */
+      height:100dvh;
       display:flex;
       flex-direction:column;
       overflow:hidden;
     }
 
-    /* 상단 헤더 정리 */
+    /* 상단 헤더 */
     .top {
       padding: 15px 15px 5px;
       position: relative;
       text-align: center;
+      flex-shrink: 0;
     }
     .back-link {
       position: absolute;
@@ -47,36 +48,34 @@
     .title { font-size:20px; font-weight:800; color:var(--primary); margin-top: 25px; }
     .sub { color:var(--muted); font-size:10px; letter-spacing:0.5px; margin-top: 2px; }
 
-    /* 뷰 컨테이너 */
+    /* 뷰 컨테이너 공통 */
     #question-view, #game-view, #advance-view, #final-intro-view, #winner-view {
       width:100%;
       flex:1;
       display:none;
+      flex-direction: column;
       animation:fadeIn 0.3s ease;
-      overflow-y: auto; /* 내용이 많을 때만 스크롤 */
+      overflow-y: auto;
     }
 
     @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
     /* 메인 선택 화면 */
-    #question-view {
-      display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; padding:20px;
-    }
+    #question-view { justify-content:center; align-items:center; gap:12px; padding:20px; }
     .question-card {
       width:100%; max-width:400px; padding:25px 20px; border-radius:20px;
       background:var(--card-bg); border:1px solid #333; text-align:center;
     }
-    .question-card h2 { font-size:18px; margin-bottom:4px; word-break:keep-all; }
 
-    /* 게임 화면 핵심 (가로 배치) */
+    /* 게임 화면 가로 배치 */
     #match-container {
       display: flex;
-      flex-direction: row; /* 가로로 배치 */
+      flex-direction: row;
       align-items: center;
       justify-content: center;
       gap: 8px;
       padding: 10px;
-      height: 70%; /* 이미지 영역 높이 제한 */
+      flex: 1;
     }
 
     .card {
@@ -88,38 +87,51 @@
       border: 1.5px solid #333;
       display: flex;
       flex-direction: column;
+      transition: var(--transition);
     }
 
     .card img {
       width: 100%;
-      aspect-ratio: 1 / 1; /* 정사각형으로 고정해서 한눈에 보이게 */
+      aspect-ratio: 1 / 1;
       object-fit: cover;
     }
 
-    .card-body { padding: 10px; text-align: center; }
-    .menu-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; word-break: keep-all; height: 2.7em; overflow: hidden; }
-    .menu-info { display: flex; flex-direction: column; gap: 3px; align-items: center; }
+    .card-body { padding: 12px 8px; text-align: center; }
+    .menu-name { 
+      font-size: 14px; font-weight: 700; margin-bottom: 8px; 
+      word-break: keep-all; height: 2.8em; overflow: hidden; 
+      display: flex; align-items: center; justify-content: center;
+    }
+    
+    /* 영양 정보 영역: 정보가 없어도 높이 유지 */
+    .menu-info { 
+      display: flex; flex-direction: column; gap: 4px; align-items: center; 
+      min-height: 55px; justify-content: flex-start;
+    }
     .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); }
-    .badge.price { color: var(--primary); font-weight: bold; }
+    .badge.price { color: var(--primary); font-weight: bold; background: rgba(25,164,99,0.1); }
+    .badge.nutri { color: #aaa; }
 
-    .vs { font-size: 16px; font-weight: 900; color: #ff5252; font-style: italic; }
+    .vs { font-size: 18px; font-weight: 900; color: #ff5252; font-style: italic; flex-shrink: 0; }
 
-    .match-refresh-wrap { text-align: center; padding: 10px; }
-    .btn-refresh { 
-      background: none; border: 1px solid #444; color: var(--muted); 
-      padding: 8px 15px; border-radius: 10px; font-size: 12px; 
+    /* 결과 및 우승 화면 중앙 정렬 강화 */
+    #final-intro-view, #winner-view {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
     }
 
-    /* 우승 화면 등 나머지 */
-    .winner-card { max-width: 250px; margin: 0 auto; border: 2px solid var(--gold) !important; }
-    .btn { border:none; color:white; padding:14px; border-radius:15px; font-weight:700; cursor:pointer; }
-    .btn-primary { background:var(--primary); width:100%; }
-    .btn-secondary { background:#333; width:100%; }
+    .winner-card { width: 220px; margin: 0 auto; border: 2px solid var(--gold) !important; box-shadow: 0 0 20px rgba(255, 213, 79, 0.2); }
+    
+    .btn-wrap { display: flex; gap: 10px; width: 100%; max-width: 300px; margin: 25px auto 0; }
+    .btn { border:none; color:white; padding:14px; border-radius:15px; font-weight:700; cursor:pointer; flex: 1; }
+    .btn-primary { background:var(--primary); }
+    .btn-secondary { background:#333; }
 
     .grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; padding:15px; }
-    .grid-item { background:var(--card-bg); border-radius:12px; overflow:hidden; font-size: 11px; text-align: center; }
+    .grid-item { background:var(--card-bg); border-radius:12px; overflow:hidden; font-size: 11px; text-align: center; border: 1px solid #222; }
     .grid-item img { width: 100%; aspect-ratio: 1; object-fit: cover; }
-    .grid-item p { padding: 5px; }
+    .grid-item p { padding: 8px 5px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -130,59 +142,57 @@
     <div class="sub">SALADIA SELECTION LAB</div>
   </div>
 
+  <!-- 시작 화면 -->
   <div id="question-view">
     <div class="question-card" onclick="startWith('light')">
-      <h2>🥗 가벼운 식단</h2>
-      <small>샐러드 · 샌드위치 · 요거트</small>
+      <h2 style="font-size: 22px; margin-bottom: 5px;">🥗 가벼운 식단</h2>
+      <p style="color: var(--muted); font-size: 13px;">샐러드 · 샌드위치 · 요거트</p>
     </div>
     <div class="question-card" onclick="startWith('heavy')">
-      <h2>🍱 든든한 한끼</h2>
-      <small>도시락 · 포케 · 푸드</small>
+      <h2 style="font-size: 22px; margin-bottom: 5px;">🍱 든든한 한끼</h2>
+      <p style="color: var(--muted); font-size: 13px;">도시락 · 포케 · 푸드</p>
     </div>
   </div>
 
+  <!-- 게임 화면 -->
   <div id="game-view">
     <div id="match-container"></div>
-    <div id="match-refresh-wrap" class="match-refresh-wrap" style="display:none;">
-      <button id="match-refresh-btn" class="btn-refresh" onclick="refreshCurrentMatch()">
+    <div id="match-refresh-wrap" style="text-align: center; padding-bottom: 20px; display:none;">
+      <button id="match-refresh-btn" style="background:none; border:1px solid #444; color:var(--muted); padding:8px 15px; border-radius:10px; font-size:12px;" onclick="refreshCurrentMatch()">
         🔄 다른 메뉴 보기
       </button>
     </div>
   </div>
 
-  <!-- 나머지 뷰들은 기존 로직 유지 (CSS로 스타일만 보정됨) -->
+  <!-- 중간 결과 (진출 메뉴) -->
   <div id="advance-view">
-    <div style="text-align:center; padding-top:20px;">
-      <h3 id="advance-title" style="color:var(--gold)">진출 메뉴</h3>
-      <p id="advance-sub" style="font-size:12px; color:var(--muted)">다음 라운드 진출!</p>
+    <div style="text-align:center; padding: 20px 0 10px;">
+      <h3 id="advance-title" style="color:var(--gold); font-size: 20px;">진출 메뉴</h3>
+      <p id="advance-sub" style="font-size:12px; color:var(--muted)">다음 라운드로 이동합니다.</p>
     </div>
     <div class="grid" id="advance-grid"></div>
-    <div style="padding:0 20px 20px;">
-      <button class="btn btn-primary" id="advance-next-btn" onclick="confirmAndNextRound()">다음 시작</button>
+    <div style="padding:15px 20px 30px;">
+      <button class="btn btn-primary" style="width:100%" onclick="confirmAndNextRound()">다음 라운드 시작</button>
     </div>
   </div>
 
+  <!-- 결승전 진입 연출 -->
   <div id="final-intro-view">
-    <div style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-      <h1 style="color:var(--gold); font-size:30px;">결승전</h1>
-      <p style="color:var(--muted)">진정한 우승 메뉴는?</p>
-    </div>
+      <h1 style="color:var(--gold); font-size:40px; margin-bottom: 10px; letter-spacing: 2px;">결승전</h1>
+      <p style="color:var(--muted); font-size: 16px;">진정한 우승 메뉴는?</p>
   </div>
 
+  <!-- 우승 결과 화면 -->
   <div id="winner-view">
-    <div style="padding:20px;">
-      <h2 style="color:var(--gold); margin-bottom:15px;">🏆 최종 우승 🏆</h2>
-      <div id="winner-card-slot"></div>
-      <div style="display:flex; gap:10px; margin-top:20px;">
+      <h2 style="color:var(--gold); margin-bottom:20px; font-size: 24px;">🏆 최종 우승 🏆</h2>
+      <div id="winner-card-slot" style="display: flex; justify-content: center; width: 100%;"></div>
+      <div class="btn-wrap">
         <button class="btn btn-primary" onclick="location.reload()">다시하기</button>
         <button class="btn btn-secondary" onclick="location.href='index.html'">홈으로</button>
       </div>
-    </div>
   </div>
 
   <script>
-    /* 스크립트 부분은 기존 로직을 그대로 사용하되, 
-       createCard 함수에서 배지 스타일 등을 미세 조정함 */
     let allData = {};
     let currentType = null;
     let pool = [];
@@ -193,10 +203,11 @@
     let refreshChances = 3;
     let pendingNextPool = [];
 
+    // 데이터 로드
     fetch('./data.json')
       .then(res => res.json())
       .then(data => { allData = data; })
-      .catch(() => { alert('data.json 로딩 실패'); });
+      .catch(() => { console.error('data.json 로딩 실패'); });
 
     function getMenus(type) {
       const cats = type === 'light' ? ['샐러드', '샌드위치', '그릭요거트', '랩'] : ['단백질 도시락', '포케', '푸드'];
@@ -211,10 +222,9 @@
     function startWith(type) {
       currentType = type;
       const menus = shuffle(getMenus(type));
-      if (menus.length < 16) { alert('메뉴가 부족합니다.'); return; }
+      if (menus.length < 16) { alert('메뉴가 부족하여 16강을 진행할 수 없습니다.'); return; }
       pool = menus.slice(0, 16);
       sparePool = menus.slice(16);
-      currentIndex = 0;
       currentRoundSize = 16;
       refreshChances = 3;
       switchView('game-view');
@@ -240,6 +250,7 @@
     function renderMatch() {
       const container = document.getElementById('match-container');
       if (currentIndex >= pool.length) { finishRound(); return; }
+      
       container.style.opacity = '0';
       setTimeout(() => {
         const item1 = pool[currentIndex];
@@ -250,18 +261,23 @@
           ${createCard(item2, 1)}
         `;
         container.style.opacity = '1';
-      }, 100);
+      }, 150);
     }
 
+    // 카드 생성 (칼로리, 단백질 추가 및 높이 고정)
     function createCard(item, side, isWinner = false) {
+      const kcalTag = item.kcal ? `<span class="badge nutri">🔥 ${item.kcal}kcal</span>` : '';
+      const proteinTag = item.protein ? `<span class="badge nutri">💪 단백질 ${item.protein}g</span>` : '';
+      
       return `
         <div class="card ${isWinner ? 'winner-card' : ''}" ${side !== null ? `onclick="pick(${side})"` : ''}>
           <img src="${item.image}" alt="${item.name}">
           <div class="card-body">
             <div class="menu-name">${item.name}</div>
             <div class="menu-info">
-              ${item.price ? `<span class="badge price">${item.price}</span>` : ''}
-              ${item.kcal ? `<span class="badge">🔥 ${item.kcal}kcal</span>` : ''}
+              ${item.price ? `<span class="badge price">${item.price}원</span>` : ''}
+              ${kcalTag}
+              ${proteinTag}
             </div>
           </div>
         </div>
@@ -287,7 +303,7 @@
     function finishRound() {
       if (winners.length === 1) { showWinner(winners[0]); return; }
       if (winners.length === 8 || winners.length === 4) {
-        showAdvancePage(winners, `🔥 ${winners.length*2}강 통과!`, '다음 라운드로 진출합니다.');
+        showAdvancePage(winners, `🔥 ${winners.length*2}강 통과!`, '다음 라운드에 진출할 메뉴들입니다.');
       } else if (winners.length === 2) {
         showFinalIntro(winners);
       } else {
@@ -312,19 +328,25 @@
     function showFinalIntro(items) {
       pendingNextPool = [...items];
       switchView('final-intro-view');
-      setTimeout(() => { confirmAndNextRound(); }, 1500);
+      setTimeout(() => { confirmAndNextRound(); }, 1800);
     }
 
     function showWinner(item) {
       document.getElementById('round-title').innerText = '결과 발표';
       document.getElementById('winner-card-slot').innerHTML = createCard(item, null, true);
       switchView('winner-view');
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#19a463', '#ffd54f', '#ffffff'] });
     }
 
     function switchView(id) {
-      ['question-view', 'game-view', 'advance-view', 'final-intro-view', 'winner-view'].forEach(v => {
-        document.getElementById(v).style.display = (v === id) ? (id.includes('view') && id !== 'game-view' && id !== 'advance-view' ? 'flex' : 'block') : 'none';
+      const views = ['question-view', 'game-view', 'advance-view', 'final-intro-view', 'winner-view'];
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (v === id) {
+          el.style.display = 'flex';
+        } else {
+          el.style.display = 'none';
+        }
       });
     }
 

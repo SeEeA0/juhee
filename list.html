@@ -16,7 +16,7 @@
         body { 
             font-family: 'Pretendard', -apple-system, sans-serif; 
             background: var(--bg-gray); margin: 0; padding: 0; 
-            scroll-behavior: smooth; /* 부드러운 스크롤 */
+            scroll-behavior: smooth;
         }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
@@ -26,21 +26,30 @@
         .back-link { text-decoration: none; color: var(--text-sub); font-size: 14px; font-weight: 500; transition: 0.2s; }
         .back-link:hover { color: var(--main-green); }
 
-        /* 🟢 카테고리 빠른 이동 바 (Sticky LNB) */
+        /* 🟢 카테고리 네비게이션 바 개선 */
         .category-nav {
             position: sticky; top: 0; background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px); z-index: 100;
             padding: 15px 0; border-bottom: 1px solid #eee;
             display: flex; justify-content: center; gap: 10px; overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .nav-item {
             padding: 8px 18px; border-radius: 20px; font-size: 13px;
             color: var(--text-sub); text-decoration: none; font-weight: 600;
             white-space: nowrap; transition: 0.3s; border: 1px solid #eee;
+            background: white;
         }
-        .nav-item:hover { background: var(--accent-green); color: var(--main-green); }
 
-        .category-group { margin-top: 60px; scroll-margin-top: 80px; }
+        /* ✨ 활성화된 버튼 스타일 */
+        .nav-item.active {
+            background: var(--main-green);
+            color: white;
+            border-color: var(--main-green);
+            box-shadow: 0 4px 10px rgba(29, 122, 77, 0.2);
+        }
+
+        .category-group { margin-top: 60px; scroll-margin-top: 100px; } /* 위치 조정 */
         .category-header { 
             display: flex; align-items: center; gap: 15px; margin-bottom: 25px; 
         }
@@ -53,7 +62,6 @@
             display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; 
         }
 
-        /* 🟢 아이템 카드 스타일 개선 */
         .item-card { 
             background: white; border-radius: 20px; overflow: hidden; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f0f0f0;
@@ -71,7 +79,6 @@
             color: var(--text-main); line-height: 1.4; min-height: 48px;
         }
 
-        /* 🟢 영양 정보 태그화 */
         .nutri-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
         .nutri-badge { 
             font-size: 11px; padding: 3px 8px; border-radius: 5px; 
@@ -97,7 +104,6 @@
         <h1>Premium Menu Guide</h1>
     </header>
 
-    <!-- 카테고리 네비게이션 바 -->
     <nav class="category-nav" id="cat-nav"></nav>
 
     <div class="container">
@@ -115,10 +121,10 @@
                     const catId = `category-${index}`;
                     
                     // 네비게이션 아이템 추가
-                    nav.innerHTML += `<a href="#${catId}" class="nav-item">${cat.categoryName}</a>`;
+                    nav.innerHTML += `<a href="#${catId}" class="nav-item" data-id="${catId}">${cat.categoryName}</a>`;
 
                     let section = `
-                        <div class="category-group" id="${catId}">
+                        <div class="category-group" id="${catId}" data-section="${catId}">
                             <div class="category-header">
                                 <span class="category-name">${cat.categoryName}</span>
                                 <div class="category-line"></div>
@@ -126,7 +132,6 @@
                             <div class="menu-grid">`;
                     
                     cat.items.forEach(item => {
-                        // 영양 성분이 있을 때만 렌더링
                         let nutriHTML = '';
                         if(item.kcal) nutriHTML += `<span class="nutri-badge">${item.kcal}kcal</span>`;
                         if(item.protein) nutriHTML += `<span class="nutri-badge">단백질 ${item.protein}g</span>`;
@@ -147,6 +152,36 @@
                     section += `</div></div>`;
                     container.innerHTML += section;
                 });
+
+                // 🌟 스크롤 감지 및 버튼 활성화 로직
+                const sections = document.querySelectorAll('.category-group');
+                const navItems = document.querySelectorAll('.nav-item');
+
+                const options = {
+                    root: null,
+                    rootMargin: '-10% 0px -80% 0px', // 화면 상단 부근에 왔을 때 감지
+                    threshold: 0
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            
+                            // 모든 버튼에서 active 제거 후 해당 버튼에만 추가
+                            navItems.forEach(item => {
+                                item.classList.remove('active');
+                                if (item.getAttribute('data-id') === id) {
+                                    item.classList.add('active');
+                                    // 클릭된 버튼이 화면 밖으로 나가지 않게 자동 스크롤 (가로바 전용)
+                                    item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                                }
+                            });
+                        }
+                    });
+                }, options);
+
+                sections.forEach(section => observer.observe(section));
             });
     </script>
 </body>

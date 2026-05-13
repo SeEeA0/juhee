@@ -34,7 +34,7 @@
       animation:fadeIn 0.3s ease; overflow-y: auto;
     }
 
-    /* [수정] 요약 화면: 위에서부터 정렬하고 충분한 하단 여백 확보 */
+    /* 요약 화면 */
     #advance-view {
       justify-content: flex-start; 
       padding: 20px 20px 100px 20px; 
@@ -77,15 +77,14 @@
     .grid-item .sum-name { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .grid-item img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; border: 1px solid #333; }
 
-    /* [수정] 버튼 스타일: 늘어남 방지 핵심 속성 추가 */
+    /* 버튼 공통 스타일 */
     .btn { 
       display: flex; align-items: center; justify-content: center;
       border:none; color:white; 
-      height: 56px !important;    /* 높이 강제 고정 */
-      min-height: 56px !important; 
+      height: 56px !important; 
       padding: 0 24px;
       border-radius:15px; font-weight:700; cursor:pointer; font-size: 16px; 
-      flex-shrink: 0 !important;   /* 부모 flex에 의해 늘어나는 것 방지 */
+      flex-shrink: 0;
     }
     .btn-primary { background:var(--primary); }
     .btn-secondary { background:#333; }
@@ -95,8 +94,21 @@
 
     /* 최종 우승 화면 */
     #winner-view { text-align: center; justify-content: center; }
-    .winner-card { width: 320px !important; border: 3px solid var(--gold) !important; box-shadow: 0 0 30px rgba(255,213,79,0.2); }
-    .btn-wrap { display:flex; gap:12px; width: 100%; max-width: 400px; margin-top: 30px; padding: 0 20px; flex-shrink: 0; }
+    .winner-card { width: 320px !important; border: 3px solid var(--gold) !important; box-shadow: 0 0 30px rgba(255,213,79,0.2); margin: 0 auto; }
+    
+    /* [수정] 버튼 래퍼: 중앙 정렬 속성 강화 */
+    .btn-wrap { 
+      display:flex; 
+      justify-content: center; /* 가로 중앙 정렬 */
+      align-items: center; 
+      gap:12px; 
+      width: 100%; 
+      max-width: 400px; 
+      margin: 30px auto 40px auto; /* 마진 auto로 좌우 중앙 배치 */
+      padding: 0 20px; 
+      flex-shrink: 0; 
+    }
+    .btn-wrap .btn { flex: 1; } /* 버튼들이 공간을 동일하게 나눠가짐 */
 
     @media (max-width: 600px) {
       .vs { font-size: 18px; margin: 0 -10px; z-index: 10; }
@@ -138,8 +150,7 @@
     <h3 id="advance-title" style="color:var(--gold); font-size: 26px; margin-bottom: 5px; flex-shrink: 0;">라운드 통과!</h3>
     <p style="color:var(--muted); margin-bottom: 10px; flex-shrink: 0;">다음 라운드 진출 메뉴</p>
     <div class="grid" id="advance-grid"></div>
-    <!-- 고정 높이 적용 -->
-    <button class="btn btn-primary" style="margin: 20px 0; width: 100%; max-width: 300px;" onclick="confirmAndNextRound()">다음 라운드 시작</button>
+    <button class="btn btn-primary" style="margin: 20px auto; width: 100%; max-width: 300px;" onclick="confirmAndNextRound()">다음 라운드 시작</button>
   </div>
 
   <div id="final-intro-view">
@@ -149,7 +160,7 @@
 
   <div id="winner-view">
       <h2 style="color:var(--gold); margin-bottom:25px; font-size: 32px; flex-shrink: 0;">🏆 최종 우승 🏆</h2>
-      <div id="winner-card-slot" style="flex-shrink: 0;"></div>
+      <div id="winner-card-slot" style="flex-shrink: 0; width: 100%;"></div>
       <div class="btn-wrap">
         <button class="btn btn-secondary" onclick="location.reload()">다시하기</button>
         <button class="btn btn-primary" onclick="location.href='index.html'">홈으로</button>
@@ -263,7 +274,6 @@
       ['question-view', 'game-view', 'advance-view', 'final-intro-view', 'winner-view'].forEach(v => {
         document.getElementById(v).style.display = (v === id) ? 'flex' : 'none';
       });
-      // 뷰 전환 시 최상단으로 스크롤 리셋
       document.getElementById(id).scrollTop = 0;
     }
 

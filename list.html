@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Salaria - 전체 메뉴판</title>
+    <style>
+        :root { --main-green: #1D7A4D; --bg-gray: #f4f7f4; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg-gray); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: var(--main-green); text-align: center; margin-bottom: 40px; }
+        .category-group { margin-bottom: 50px; }
+        .category-name { background: var(--main-green); color: white; padding: 10px 20px; border-radius: 30px; display: inline-block; margin-bottom: 20px; font-weight: bold; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .item-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; }
+        .item-card:hover { transform: translateY(-5px); }
+        .item-img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+        .item-info { padding: 15px; }
+        .item-name { font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #333; height: 40px; display: flex; align-items: center; }
+        .item-nutri { font-size: 13px; color: #888; margin-bottom: 10px; }
+        .item-price { color: var(--main-green); font-weight: 800; font-size: 18px; }
+        .back-link { display: inline-block; margin-bottom: 20px; text-decoration: none; color: var(--main-green); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 메인으로</a>
+        <h1>📋 전체 메뉴 가이드</h1>
+        <div id="menu-container"><!-- JSON 데이터가 여기에 들어옵니다 --></div>
+    </div>
+
+    <script>
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('menu-container');
+                data.categories.forEach(cat => {
+                    let section = `<div class="category-group">
+                        <div class="category-name">${cat.categoryName}</div>
+                        <div class="menu-grid">`;
+                    
+                    cat.items.forEach(item => {
+                        const nutriText = item.kcal ? `${item.kcal}kcal | 단백질 ${item.protein}g` : '정보 준비 중';
+                        section += `
+                            <div class="item-card">
+                                <img src="${item.image}" class="item-img" onerror="this.src='https://via.placeholder.com/250x200?text=Salaria'">
+                                <div class="item-info">
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-nutri">${nutriText}</div>
+                                    <div class="item-price">${item.price}원</div>
+                                </div>
+                            </div>`;
+                    });
+                    section += `</div></div>`;
+                    container.innerHTML += section;
+                });
+            });
+    </script>
+</body>
+</html>

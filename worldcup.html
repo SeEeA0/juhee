@@ -2,94 +2,188 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Salaria - 취향 맞춤 월드컵</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salaria - 취향 저격 메뉴 월드컵</title>
+    <!-- 이미지 저장을 위한 라이브러리 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        :root { --main-green: #1D7A4D; --accent-red: #ff5252; }
-        body { font-family: 'Pretendard', sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; overflow-x: hidden; }
-        .round-info { font-size: 40px; font-weight: bold; margin: 30px 0; color: var(--main-green); text-shadow: 0 0 10px rgba(29, 122, 77, 0.5); }
-        .match-area { display: flex; justify-content: center; align-items: center; gap: 30px; padding: 20px; transition: 0.5s; }
-        .card { flex: 1; max-width: 450px; background: #2a2a2a; border-radius: 25px; overflow: hidden; cursor: pointer; border: 4px solid transparent; transition: 0.3s; position: relative; }
-        .card:hover { border-color: var(--main-green); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .card img { width: 100%; height: 350px; object-fit: cover; }
-        .card-info { padding: 25px; background: linear-gradient(to top, #1a1a1a, transparent); }
-        .vs { font-size: 50px; font-weight: 900; color: var(--accent-red); font-style: italic; }
+        :root { 
+            --main-green: #1D7A4D; 
+            --accent-red: #ff5252; 
+            --dark-bg: #1a1a1a;
+            --card-bg: #2a2a2a;
+        }
         
-        /* 질문지 스타일 */
-        .question-card { background: var(--main-green) !important; display: flex; flex-direction: column; justify-content: center; height: 300px; padding: 20px; }
-        .question-card h2 { font-size: 28px; line-height: 1.4; }
+        body { 
+            font-family: 'Pretendard', -apple-system, sans-serif; 
+            background: var(--dark-bg); 
+            color: white; 
+            text-align: center; 
+            margin: 0; 
+            overflow-x: hidden;
+        }
 
-        #winner-view { display: none; padding: 80px 0; animation: fadeIn 1s; }
+        /* 헤더 및 라운드 정보 */
+        .round-info { 
+            font-size: clamp(24px, 5vw, 40px); 
+            font-weight: bold; 
+            margin: 30px 0; 
+            color: var(--main-green); 
+            text-shadow: 0 0 15px rgba(29, 122, 77, 0.3);
+        }
+
+        /* 대진 영역 */
+        .match-area { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 20px; 
+            padding: 10px; 
+            max-width: 1000px; 
+            margin: 0 auto;
+            transition: opacity 0.4s ease;
+        }
+
+        /* 카드 공통 스타일 */
+        .card { 
+            flex: 1; 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            border: 3px solid transparent; 
+            transition: all 0.3s ease; 
+            position: relative;
+        }
+        .card:hover { 
+            border-color: var(--main-green); 
+            transform: translateY(-10px); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+        .card img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; }
+        .card-info { padding: 20px; }
+        .card-info h2 { font-size: 1.2rem; margin: 10px 0 5px; word-break: keep-all; }
+        .card-info p { font-size: 1rem; color: #aaa; margin: 0; }
+
+        /* VS 텍스트 */
+        .vs { font-size: clamp(30px, 8vw, 60px); font-weight: 900; color: var(--accent-red); font-style: italic; z-index: 10; }
+
+        /* 취향 선택 질문 카드 */
+        .question-card { 
+            background: var(--main-green) !important; 
+            height: 250px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            padding: 20px;
+        }
+        .question-card h2 { font-size: 1.5rem; line-height: 1.4; color: white; }
+
+        /* 결과 화면 */
+        #winner-view { display: none; padding: 50px 10px; animation: fadeIn 0.8s; }
+        #capture-area { padding: 30px; border-radius: 30px; background: var(--dark-bg); display: inline-block; }
+        
+        /* 버튼 그룹 */
+        .button-group { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+        button { 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            border: none; 
+            border-radius: 8px; 
+            transition: 0.2s;
+        }
+        .btn-main { background: var(--main-green); color: white; }
+        .btn-save { background: #E91E63; color: white; }
+        .btn-home { background: #555; color: white; }
+        button:hover { opacity: 0.9; transform: scale(1.05); }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; background: var(--main-green); color: white; border: none; border-radius: 10px; margin-top: 20px; }
+
+        @media (max-width: 600px) {
+            .match-area { flex-direction: column; }
+            .vs { margin: -10px 0; }
+        }
     </style>
 </head>
 <body>
+
     <div id="game-view">
-        <div class="round-info" id="round-title">오늘의 점심 탐색 중...</div>
+        <div class="round-info" id="round-title">로딩 중...</div>
         <div class="match-area" id="match-container"></div>
     </div>
 
     <div id="winner-view">
-        <h1 style="color: #FFD700; font-size: 50px;">🏆 오늘의 우승! 🏆</h1>
-        <div id="winner-card-container" style="display:flex; justify-content:center; margin: 30px 0;"></div>
-        <button onclick="location.href='index.html'">다시 하기</button>
+        <div id="capture-area">
+            <h1 style="color: #FFD700; margin-bottom: 5px;">🏆 오늘의 픽 🏆</h1>
+            <p style="color: #888; margin-bottom: 20px;">Salaria Lunch Manager</p>
+            <div id="winner-card-container"></div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="saveAsImage()" class="btn-save">📸 이미지 저장</button>
+            <button onclick="location.reload()" class="btn-main">다시 하기</button>
+            <button onclick="location.href='index.html'" class="btn-home">🏠 메인으로</button>
+        </div>
     </div>
 
     <script>
         let allData = {};
-        let pool = []; // 현재 라운드 진행 대상
-        let winners = []; // 다음 라운드 진출자
+        let pool = []; 
+        let winners = []; 
         let currentIdx = 0;
-        let isQuestionRound = true; // 초반 질문 단계 여부
 
-        // 1. 데이터 로드
+        // 1. 데이터 불러오기
         fetch('data.json')
             .then(res => res.json())
             .then(data => {
                 allData = data;
-                startQuestionRound();
+                showFirstQuestion();
+            })
+            .catch(err => {
+                document.getElementById('round-title').innerText = "데이터를 불러올 수 없습니다.";
             });
 
-        // 2. 초기 질문 단계 (16강/8강 수준의 필터링)
-        function startQuestionRound() {
-            isQuestionRound = true;
+        // 2. 1단계: 취향 질문 (가벼움 vs 든든함)
+        function showFirstQuestion() {
+            document.getElementById('round-title').innerText = "어떤 스타일이 당기시나요?";
             const container = document.getElementById('match-container');
-            document.getElementById('round-title').innerText = "내 취향 찾기 (1단계)";
-            
-            // 질문 셋팅 (가벼움 vs 헤비함)
             container.innerHTML = `
-                <div class="card question-card" onclick="filterMenu('가벼운거')">
-                    <h2>🥗 오늘은 좀<br>가볍게 먹고 싶어</h2>
-                    <p>(샌드위치, 샐러드 위주)</p>
+                <div class="card question-card" onclick="filterAndStart('light')">
+                    <h2>🥗 오늘은 가볍게!<br>속 편한 메뉴</h2>
+                    <p>(샌드위치, 샐러드, 요거트)</p>
                 </div>
-                <div class="vs">OR</div>
-                <div class="card question-card" onclick="filterMenu('헤비한거')">
-                    <h2>🥩 오늘 제대로<br>든든하게 먹을래</h2>
-                    <p>(포케, 단백질 도시락 위주)</p>
+                <div class="vs">VS</div>
+                <div class="card question-card" onclick="filterAndStart('heavy')">
+                    <h2>🥩 오늘 제대로!<br>든든한 보충</h2>
+                    <p>(도시락, 포케, 볶음밥)</p>
                 </div>
             `;
         }
 
-        // 3. 필터링 로직
-        function filterMenu(type) {
-            let selectedItems = [];
+        // 3. 필터링 및 토너먼트 구성
+        function filterAndStart(type) {
+            let filtered = [];
             const cats = allData.categories;
 
-            if (type === '가벼운거') {
-                selectedItems = [...cats.find(c => c.categoryName === '샌드위치').items, 
-                                 ...cats.find(c => c.categoryName === '샐러드').items];
+            if (type === 'light') {
+                filtered = [...getMenu(cats, '샌드위치'), ...getMenu(cats, '샐러드'), ...getMenu(cats, '그릭요거트'), ...getMenu(cats, '랩')];
             } else {
-                selectedItems = [...cats.find(c => c.categoryName === '포케').items, 
-                                 ...cats.find(c => c.categoryName === '단백질 도시락').items];
+                filtered = [...getMenu(cats, '단백질 도시락'), ...getMenu(cats, '포케'), ...getMenu(cats, '푸드')];
             }
 
-            // 섞기 후 8개 혹은 4개 추출 (메뉴 수에 따라 조절)
-            pool = selectedItems.sort(() => Math.random() - 0.5).slice(0, 8);
-            isQuestionRound = false;
+            // 무작위로 8개 추출 (8강 기준)
+            pool = filtered.sort(() => Math.random() - 0.5).slice(0, 8);
             startTournament();
         }
 
-        // 4. 토너먼트 시작
+        function getMenu(cats, name) {
+            const found = cats.find(c => c.categoryName === name);
+            return found ? found.items : [];
+        }
+
+        // 4. 토너먼트 로직
         function startTournament() {
             currentIdx = 0;
             winners = [];
@@ -99,9 +193,10 @@
 
         function updateRoundTitle() {
             const title = document.getElementById('round-title');
-            if (pool.length === 8) title.innerText = "8강";
-            else if (pool.length === 4) title.innerText = "4강";
-            else if (pool.length === 2) title.innerText = "결승전";
+            const len = pool.length;
+            if (len === 8) title.innerText = "8강";
+            else if (len === 4) title.innerText = "4강";
+            else if (len === 2) title.innerText = "결승전";
         }
 
         function showMatch() {
@@ -114,13 +209,15 @@
         }
 
         function renderCard(item, idx) {
-            return `<div class="card" onclick="pick(${idx})">
-                <img src="${item.image}" onerror="this.src='https://via.placeholder.com/450x350?text=Salaria'">
-                <div class="card-info">
-                    <h2>${item.name}</h2>
-                    <p>${item.price}원 | ${item.kcal || '??'}kcal</p>
+            return `
+                <div class="card" onclick="pick(${idx})">
+                    <img src="${item.image}" onerror="this.src='https://via.placeholder.com/400x300?text=Salaria'">
+                    <div class="card-info">
+                        <h2>${item.name}</h2>
+                        <p>${item.price}원</p>
+                    </div>
                 </div>
-            </div>`;
+            `;
         }
 
         function pick(side) {
@@ -131,23 +228,47 @@
                 pool = [...winners];
                 winners = [];
                 currentIdx = 0;
-                updateRoundTitle();
                 
-                // 다음 라운드 전환 효과
-                document.querySelector('.match-area').style.opacity = 0;
+                const area = document.querySelector('.match-area');
+                area.style.opacity = 0;
                 setTimeout(() => {
+                    updateRoundTitle();
                     showMatch();
-                    document.querySelector('.match-area').style.opacity = 1;
+                    area.style.opacity = 1;
                 }, 400);
             } else {
                 showMatch();
             }
         }
 
+        // 5. 최종 결과 및 이미지 저장
         function showWinner(item) {
             document.getElementById('game-view').style.display = 'none';
             document.getElementById('winner-view').style.display = 'block';
-            document.getElementById('winner-card-container').innerHTML = renderCard(item, 0);
+            
+            const winnerHtml = `
+                <div class="card" style="border: 4px solid #FFD700; max-width: 400px; margin: 0 auto; cursor: default;">
+                    <img src="${item.image}" onerror="this.src='https://via.placeholder.com/400x300?text=Salaria'">
+                    <div class="card-info">
+                        <h2 style="font-size: 24px; color: white;">${item.name}</h2>
+                        <p style="font-size: 20px; color: #4CAF50; font-weight: bold;">${item.price}원</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('winner-card-container').innerHTML = winnerHtml;
+        }
+
+        function saveAsImage() {
+            const area = document.getElementById('capture-area');
+            html2canvas(area, {
+                backgroundColor: "#1a1a1a",
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'salaria-lunch.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
         }
     </script>
 </body>

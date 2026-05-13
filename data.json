@@ -4,81 +4,92 @@
       "categoryName": "단백질 도시락",
       "items": [
         {
-          "name": "스팀 닭가슴살 단백질 도시락",
-          "price": "8,400",
-          "image": "protein_01.jpg",
-          "kcal": 450,
-          "protein": 35
-        },
-        {
-          "name": "스팀 매콤 닭가슴살 단백질 도시락",
-          "price": "8,400",
-          "image": "protein_01_spicy.jpg",
-          "kcal": 460,
-          "protein": 35
-        },
-        {
-          "name": "수비드 닭다리살 단백질 도시락",
-          "price": "8,900",
-          "image": "protein_04.jpg",
-          "kcal": 480,
-          "protein": 32
-        },
-        {
-          "name": "수비드 매콤 닭다리살 단백질 도시락",
-          "price": "8,900",
-          "image": "protein_05.jpg",
-          "kcal": 490,
-          "protein": 32
-        },
-        {
-          "name": "훈제오리 단백질 도시락",
+          "name": "훈제오리 단백질도시락",
           "price": "9,000",
-          "image": "protein_06.jpg",
-          "kcal": 520,
-          "protein": 24
+          "image": "images/protein_06.jpg",
+          "weight": 468,
+          "kcal": 878,
+          "protein": 8
         },
         {
-          "name": "목살 단백질 도시락",
-          "price": "9,400",
-          "image": "protein_07.jpg",
-          "kcal": 540,
-          "protein": 28
-        },
-        {
-          "name": "소불고기 단백질 도시락",
-          "price": "10,400",
-          "image": "protein_02.jpg",
-          "kcal": 480,
-          "protein": 30
-        },
-        {
-          "name": "수비드 풀드포크 단백질 도시락",
+          "name": "수비드 통삼겹 단백질도시락",
           "price": "11,000",
-          "image": "protein_08.jpg",
-          "kcal": 560,
-          "protein": 30
+          "image": "images/protein_09.jpg",
+          "weight": 468,
+          "kcal": 846,
+          "protein": 8
         },
         {
-          "name": "수비드 통삼겹 단백질 도시락",
+          "name": "수비드 우삼겹 단백질도시락",
           "price": "11,000",
-          "image": "protein_09.jpg",
-          "kcal": 620,
-          "protein": 27
+          "image": "images/protein_10.jpg",
+          "weight": 468,
+          "kcal": 923,
+          "protein": 7
         },
         {
-          "name": "수비드 우삼겹 단백질 도시락",
-          "price": "11,000",
-          "image": "protein_10.jpg",
-          "kcal": 610,
-          "protein": 28
-        },
-        {
-          "name": "부채살 단백질 도시락",
+          "name": "부채살 단백질도시락",
           "price": "11,400",
-          "image": "protein_03.jpg",
-          "kcal": 510,
-          "protein": 32
+          "image": "images/protein_03.jpg",
+          "weight": 468,
+          "kcal": 792,
+          "protein": 9
+        },
+        {
+          "name": "목살 단백질도시락",
+          "price": "9,400",
+          "image": "images/protein_07.jpg",
+          "weight": 468,
+          "kcal": 822,
+          "protein": 9
+        },
+        {
+          "name": "소불고기 단백질도시락",
+          "price": "10,400",
+          "image": "images/protein_02.jpg",
+          "weight": 448,
+          "kcal": 740,
+          "protein": 9
+        },
+        {
+          "name": "수비드 풀드포크 단백질도시락",
+          "price": "11,000",
+          "image": "images/protein_08.jpg",
+          "weight": 468,
+          "kcal": 805,
+          "protein": 9
+        },
+        {
+          "name": "수비드 매콤 닭다리살 단백질도시락",
+          "price": "8,900",
+          "image": "images/protein_05.jpg",
+          "weight": 448,
+          "kcal": 720,
+          "protein": 8
+        },
+        {
+          "name": "수비드 닭다리살 단백질도시락",
+          "price": "8,900",
+          "image": "images/protein_04.jpg",
+          "weight": 448,
+          "kcal": 712,
+          "protein": 8
+        },
+        {
+          "name": "매콤 스팀 닭가슴살 단백질도시락",
+          "price": "8,400",
+          "image": "images/protein_01_spicy.jpg",
+          "weight": 448,
+          "kcal": 688,
+          "protein": 9
+        },
+        {
+          "name": "스팀 닭가슴살 단백질도시락",
+          "price": "8,400",
+          "image": "images/protein_01.jpg",
+          "weight": 448,
+          "kcal": 676,
+          "protein": 9
         }
       ]
     },
@@ -86,74 +97,76 @@
       "categoryName": "샐러드",
       "items": [
         {
-          "name": "들기름 메밀면 샐러드",
-          "price": "8,900",
-          "image": "salad_01.jpg",
-          "kcal": null,
-          "protein": null
-        },
-        {
-          "name": "케일와사비 샐러드",
-          "price": "8,500",
-          "image": "salad_02.jpg",
-          "kcal": null,
-          "protein": null
-        },
-        {
-          "name": "단호박 샐러드",
-          "price": "8,500",
-          "image": "salad_03.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "베이컨크림파스타 샐러드",
+          "price": "9,900",
+          "image": "images/salad_01.jpg",
+          "weight": 415,
+          "kcal": 540,
+          "protein": 6
         },
         {
           "name": "리코타치즈 샐러드",
           "price": "8,900",
-          "image": "salad_04.jpg",
-          "kcal": null,
-          "protein": null
+          "image": "images/salad_04.jpg",
+          "weight": 370,
+          "kcal": 464,
+          "protein": 5
         },
         {
-          "name": "스팀 닭가슴살 샐러드",
-          "price": "8,900",
-          "image": "salad_05.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "게살와사비 샐러드",
+          "price": "8,500",
+          "image": "images/salad_02.jpg",
+          "weight": 355,
+          "kcal": 391,
+          "protein": 5
         },
         {
-          "name": "매콤 닭가슴살 샐러드",
-          "price": "8,900",
-          "image": "salad_06.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "할라피뇨 스팀 닭가슴살 샐러드",
+          "price": "9,500",
+          "image": "images/salad_10.jpg",
+          "weight": 380,
+          "kcal": 273,
+          "protein": 7
         },
         {
-          "name": "수비드 닭다리살 샐러드",
-          "price": "9,400",
-          "image": "salad_07.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "단호박 샐러드",
+          "price": "8,500",
+          "image": "images/salad_03.jpg",
+          "weight": 360,
+          "kcal": 356,
+          "protein": 3
         },
         {
-          "name": "수비드 매콤닭다리살 샐러드",
-          "price": "9,400",
-          "image": "salad_08.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "훈제연어 샐러드",
+          "price": "10,900",
+          "image": "images/salad_16.jpg",
+          "weight": 370,
+          "kcal": 405,
+          "protein": 7
+        },
+        {
+          "name": "생연어 샐러드",
+          "price": "10,500",
+          "image": "images/salad_17.jpg",
+          "weight": 390,
+          "kcal": 366,
+          "protein": 3
+        },
+        {
+          "name": "통통쉬림프 샐러드",
+          "price": "9,900",
+          "image": "images/salad_13.jpg",
+          "weight": 355,
+          "kcal": 278,
+          "protein": 7
         },
         {
           "name": "케이준 샐러드",
           "price": "9,500",
-          "image": "salad_09.jpg",
-          "kcal": null,
-          "protein": null
-        },
-        {
-          "name": "할라피뇨 닭가슴살 샐러드",
-          "price": "9,500",
-          "image": "salad_10.jpg",
-          "kcal": null,
-          "protein": null
+          "image": "images/salad_09.jpg",
+          "weight": 365,
+          "kcal": 408,
+          "protein": 6
         }
       ]
     },
@@ -161,164 +174,129 @@
       "categoryName": "포케",
       "items": [
         {
-          "name": "스팀 닭가슴살 포케",
-          "price": "11,400",
-          "image": "poke_03.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "훈제연어 아보카도 포케",
+          "price": "15,900",
+          "image": "images/poke_14.jpg",
+          "weight": 533,
+          "kcal": 766,
+          "protein": 5
         },
         {
-          "name": "매콤 닭가슴살 포케",
-          "price": "11,400",
-          "image": "poke_04.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "훈제연어 포케",
+          "price": "13,900",
+          "image": "images/poke_11.jpg",
+          "weight": 453,
+          "kcal": 606,
+          "protein": 6
         },
         {
-          "name": "수비드 닭다리살 포케",
-          "price": "11,900",
-          "image": "poke_05.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "생연어 포케",
+          "price": "13,900",
+          "image": "images/poke_19.jpg",
+          "weight": 473,
+          "kcal": 567,
+          "protein": 3
         },
         {
-          "name": "수비드 매콤닭다리살 포케",
-          "price": "11,900",
-          "image": "poke_06.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "통통쉬림프 포케",
+          "price": "12,900",
+          "image": "images/poke_08.jpg",
+          "weight": 438,
+          "kcal": 479,
+          "protein": 6
+        },
+        {
+          "name": "케이준 포케",
+          "price": "12,500",
+          "image": "images/poke_07.jpg",
+          "weight": 448,
+          "kcal": 609,
+          "protein": 6
         },
         {
           "name": "훈제오리 포케",
-          "price": "12,500/16,500",
-          "image": "poke_02.jpg",
-          "kcal": 520,
-          "protein": 22
-        },
-        {
-          "name": "수비드 부채살 스테이크 포케",
-          "price": "14,900/18,900",
-          "image": "poke_01.jpg",
-          "kcal": 550,
-          "protein": 28
+          "price": "12,500",
+          "image": "images/poke_02.jpg",
+          "weight": 443,
+          "kcal": 669,
+          "protein": 6
         }
       ]
     },
     {
-      "categoryName": "샌드위치",
+      "categoryName": "랩 & 샌드위치",
       "items": [
         {
-          "name": "온리 에그마요 샌드위치",
-          "price": "5,900",
-          "image": "sand_01.jpg",
-          "kcal": 380,
-          "protein": 12
-        },
-        {
-          "name": "온리 리코타 샌드위치",
-          "price": "6,900",
-          "image": "sand_03.jpg",
-          "kcal": null,
-          "protein": null
-        },
-        {
-          "name": "햄치즈 샌드위치",
-          "price": "6,900",
-          "image": "sand_02.jpg",
-          "kcal": 410,
-          "protein": 15
-        },
-        {
-          "name": "게살와사비 마요 샌드위치",
-          "price": "7,500",
-          "image": "sand_04.jpg",
-          "kcal": null,
-          "protein": null
-        },
-        {
-          "name": "단호박 샌드위치",
-          "price": "7,500",
-          "image": "sand_05.jpg",
-          "kcal": null,
-          "protein": null
-        }
-      ]
-    },
-    {
-      "categoryName": "랩",
-      "items": [
-        {
-          "name": "데리야끼 닭가슴살 랩",
+          "name": "베이컨에그듬뿍 랩",
           "price": "7,900",
-          "image": "wrap_01.jpg",
-          "kcal": null,
-          "protein": null
+          "image": "images/wrap_03.jpg",
+          "weight": 352,
+          "kcal": 613,
+          "protein": 9
+        },
+        {
+          "name": "훈제연어리코타 랩",
+          "price": "9,500",
+          "image": "images/wrap_05.jpg",
+          "weight": 317,
+          "kcal": 676,
+          "protein": 9
+        },
+        {
+          "name": "생연어리코타 랩",
+          "price": "11,500",
+          "image": "images/wrap_06.jpg",
+          "weight": 317,
+          "kcal": 613,
+          "protein": 5
         },
         {
           "name": "치킨텐더 랩",
           "price": "7,900",
-          "image": "wrap_02.jpg",
-          "kcal": null,
-          "protein": null
+          "image": "images/wrap_02.jpg",
+          "weight": 317,
+          "kcal": 632,
+          "protein": 7
         },
         {
-          "name": "베이컨에그 랩",
+          "name": "소불고기에그 랩",
+          "price": "8,900",
+          "image": "images/wrap_04.jpg",
+          "weight": 332,
+          "kcal": 696,
+          "protein": 10
+        },
+        {
+          "name": "데리야끼 닭가슴살 랩",
           "price": "7,900",
-          "image": "wrap_03.jpg",
-          "kcal": null,
-          "protein": null
-        }
-      ]
-    },
-    {
-      "categoryName": "그릭요거트",
-      "items": [
-        {
-          "name": "온리그래놀라 그릭요거트",
-          "price": "7,500",
-          "image": "yogurt_01.jpg",
-          "kcal": null,
-          "protein": null
+          "image": "images/wrap_01.jpg",
+          "weight": 334,
+          "kcal": 651,
+          "protein": 9
         },
         {
-          "name": "망고 그래놀라 그릭요거트",
-          "price": "8,500",
-          "image": "yogurt_02.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "생연어리코타 샌드위치",
+          "price": "12,500",
+          "image": "images/sand_19.jpg",
+          "weight": 400,
+          "kcal": 735,
+          "protein": 4
         },
         {
-          "name": "블루베리바나나 그릭요거트",
-          "price": "8,500",
-          "image": "yogurt_03.jpg",
-          "kcal": null,
-          "protein": null
-        }
-      ]
-    },
-    {
-      "categoryName": "푸드",
-      "items": [
-        {
-          "name": "체다치즈 듬뿍 떡볶이 (순한맛/매운맛)",
-          "price": "6,000",
-          "image": "food_01.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "치킨텐더 샌드위치",
+          "price": "8,900",
+          "image": "images/sand_13.jpg",
+          "weight": 345,
+          "kcal": 639,
+          "protein": 6
         },
         {
-          "name": "김치 볶음밥",
-          "price": "6,900",
-          "image": "food_02.jpg",
-          "kcal": null,
-          "protein": null
-        },
-        {
-          "name": "목살 김치 볶음밥",
-          "price": "9,900",
-          "image": "food_03.jpg",
-          "kcal": null,
-          "protein": null
+          "name": "매콤닭가슴살 샌드위치",
+          "price": "7,900",
+          "image": "images/sand_07.jpg",
+          "weight": 305,
+          "kcal": 477,
+          "protein": 8
         }
       ]
     }

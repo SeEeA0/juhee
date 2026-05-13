@@ -1,253 +1,398 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>점심 메뉴 월드컵</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>점심 메뉴 월드컵</title>
 
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
+<style>
 
-    body{
-      font-family:'Pretendard',sans-serif;
-      background:#121212;
-      color:white;
-      overflow-x:hidden;
-    }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-    .top{
-      text-align:center;
-      padding:30px 20px 10px;
-    }
+body{
+  font-family:'Pretendard',sans-serif;
+  background:#121212;
+  color:white;
+  overflow-x:hidden;
+}
 
-    .title{
-      font-size:38px;
-      font-weight:800;
-      color:#19a463;
-      margin-bottom:10px;
-    }
+.top{
+  text-align:center;
+  padding:30px 20px 10px;
+}
 
-    .sub{
-      color:#888;
-      font-size:15px;
-    }
+.title{
+  font-size:38px;
+  font-weight:800;
+  color:#19a463;
+  margin-bottom:10px;
+}
 
-    #match-container{
-      width:100%;
-      max-width:1400px;
-      margin:0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:30px;
-      padding:30px;
-    }
+.sub{
+  color:#888;
+  font-size:15px;
+}
 
-    .card{
-      width:100%;
-      max-width:500px;
-      background:#1e1e1e;
-      border-radius:30px;
-      overflow:hidden;
-      cursor:pointer;
-      transition:.25s;
-      border:3px solid transparent;
-    }
+#match-container{
+  width:100%;
+  max-width:1400px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:30px;
+  padding:30px;
+}
 
-    .card:hover{
-      transform:translateY(-5px);
-      border-color:#19a463;
-    }
+.card{
+  width:100%;
+  max-width:500px;
+  background:#1e1e1e;
+  border-radius:30px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.25s;
+  border:3px solid transparent;
+}
 
-    .card img{
-      width:100%;
-      aspect-ratio:1/1;
-      object-fit:cover;
-      display:block;
-      background:#2a2a2a;
-    }
+.card:hover{
+  transform:translateY(-5px);
+  border-color:#19a463;
+}
 
-    .card-body{
-      padding:24px;
-    }
+.card img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+  background:#2a2a2a;
+}
 
-    .menu-name{
-      font-size:26px;
-      font-weight:700;
-      line-height:1.4;
-      margin-bottom:15px;
-      word-break:keep-all;
-    }
+.card-body{
+  padding:24px;
+}
 
-    .menu-info{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
+.menu-name{
+  font-size:26px;
+  font-weight:700;
+  line-height:1.4;
+  margin-bottom:15px;
+  word-break:keep-all;
+}
 
-    .badge{
-      background:#2c2c2c;
-      border-radius:999px;
-      padding:8px 14px;
-      font-size:15px;
-      color:#ddd;
-    }
+.menu-info{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
 
-    .price{
-      color:#19a463;
-      font-weight:700;
-    }
+.badge{
+  background:#2c2c2c;
+  border-radius:999px;
+  padding:8px 14px;
+  font-size:15px;
+  color:#ddd;
+}
 
-    .vs{
-      font-size:60px;
-      font-weight:900;
-      color:#ff5252;
-      min-width:120px;
-      text-align:center;
-    }
+.price{
+  color:#19a463;
+  font-weight:700;
+}
 
-    .question-wrap{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:20px;
-      padding:50px 20px;
-      flex-wrap:wrap;
-    }
+.vs{
+  font-size:60px;
+  font-weight:900;
+  color:#ff5252;
+  min-width:120px;
+  text-align:center;
+}
 
-    .question-card{
-      width:100%;
-      max-width:420px;
-      min-height:280px;
-      border-radius:30px;
-      background:#1e1e1e;
-      border:3px solid #19a463;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:30px;
-      cursor:pointer;
-      transition:.25s;
-    }
+.question-wrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:20px;
+  padding:50px 20px;
+  flex-wrap:wrap;
+}
 
-    .question-card:hover{
-      transform:translateY(-5px);
-      background:#232323;
-    }
+.question-card{
+  width:100%;
+  max-width:420px;
+  min-height:280px;
+  border-radius:30px;
+  background:#1e1e1e;
+  border:3px solid #19a463;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px;
+  cursor:pointer;
+  transition:.25s;
+}
 
-    .question-card h2{
-      font-size:34px;
-      line-height:1.5;
-    }
+.question-card:hover{
+  transform:translateY(-5px);
+  background:#232323;
+}
 
-    .question-card small{
-      display:block;
-      margin-top:15px;
-      color:#999;
-      font-size:18px;
-      line-height:1.5;
-    }
+.question-card h2{
+  font-size:34px;
+  line-height:1.5;
+}
 
-    #winner-view{
-      display:none;
-      padding:50px 20px;
-      text-align:center;
-    }
+.question-card small{
+  display:block;
+  margin-top:15px;
+  color:#999;
+  font-size:18px;
+  line-height:1.5;
+}
 
-    .winner-title{
-      font-size:46px;
-      font-weight:900;
-      color:#ffd54f;
-      margin-bottom:30px;
-    }
+#winner-view{
+  display:none;
+  padding:50px 20px;
+  text-align:center;
+}
 
-    .winner-card{
-      width:100%;
-      max-width:550px;
-      margin:0 auto;
-      background:#1e1e1e;
-      border-radius:30px;
-      overflow:hidden;
-      border:4px solid #ffd54f;
-    }
+.winner-title{
+  font-size:46px;
+  font-weight:900;
+  color:#ffd54f;
+  margin-bottom:30px;
+}
 
-    .winner-card img{
-      width:100%;
-      aspect-ratio:1/1;
-      object-fit:cover;
-      display:block;
-    }
+.winner-card{
+  width:100%;
+  max-width:550px;
+  margin:0 auto;
+  background:#1e1e1e;
+  border-radius:30px;
+  overflow:hidden;
+  border:4px solid #ffd54f;
+}
 
-    .btn-wrap{
-      margin-top:35px;
-      display:flex;
-      justify-content:center;
-      gap:15px;
-      flex-wrap:wrap;
-    }
+.winner-card img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+}
 
-    button{
-      border:none;
-      padding:15px 24px;
-      border-radius:14px;
-      font-size:16px;
-      font-weight:700;
-      cursor:pointer;
-      transition:.2s;
-      color:white;
-    }
+.btn-wrap{
+  margin-top:35px;
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
 
-    .save-btn{
-      background:#e91e63;
-    }
+.retry-btn{
+  background:#19a463;
+}
 
-    .retry-btn{
-      background:#19a463;
-    }
+.home-btn{
+  background:#444;
+}
 
-    .home-btn{
-      background:#444;
-    }
+button{
+  border:none;
+  padding:15px 24px;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+  color:white;
+}
 
-    button:hover{
-      opacity:.9;
-      transform:translateY(-2px);
-    }
+button:hover{
+  opacity:.9;
+  transform:translateY(-2px);
+}
 
-    @media(max-width:900px){
+.round-preview-wrap{
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  padding:10px;
+}
 
-      #match-container{
-        flex-direction:column;
-        gap:15px;
-      }
+.round-preview-title{
+  font-size:34px;
+  font-weight:800;
+  margin-bottom:30px;
+  text-align:center;
+  color:#19a463;
+}
 
-      .vs{
-        font-size:40px;
-        min-width:auto;
-      }
+.round-preview-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+}
 
-      .title{
-        font-size:30px;
-      }
+.round-preview-card{
+  background:#1e1e1e;
+  border-radius:22px;
+  overflow:hidden;
+  border:2px solid #2a2a2a;
+}
 
-      .menu-name{
-        font-size:22px;
-      }
+.round-preview-card img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+}
 
-      .question-card h2{
-        font-size:28px;
-      }
+.round-preview-name{
+  padding:14px 10px;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.4;
+  text-align:center;
+  word-break:keep-all;
+}
 
-    }
-  </style>
+.round-start-btn{
+  margin:40px auto 0;
+  display:block;
+  background:#19a463;
+  border:none;
+  color:white;
+  padding:16px 30px;
+  border-radius:14px;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+@media(max-width:900px){
+
+  .top{
+    padding:18px 10px 5px;
+  }
+
+  .title{
+    font-size:28px;
+  }
+
+  .sub{
+    font-size:12px;
+  }
+
+  #match-container{
+    flex-direction:row;
+    gap:8px;
+    padding:8px;
+    align-items:stretch;
+  }
+
+  .card{
+    flex:1;
+    max-width:none;
+    border-radius:18px;
+  }
+
+  .card img{
+    aspect-ratio:0.82/1;
+  }
+
+  .card-body{
+    padding:12px;
+  }
+
+  .menu-name{
+    font-size:15px;
+    line-height:1.35;
+    margin-bottom:8px;
+  }
+
+  .menu-info{
+    gap:5px;
+  }
+
+  .badge{
+    font-size:10px;
+    padding:5px 8px;
+  }
+
+  .vs{
+    min-width:28px;
+    font-size:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .question-wrap{
+    flex-direction:row;
+    gap:8px;
+    padding:15px 8px;
+  }
+
+  .question-card{
+    flex:1;
+    min-height:150px;
+    padding:14px;
+    border-radius:18px;
+  }
+
+  .question-card h2{
+    font-size:18px;
+    line-height:1.4;
+  }
+
+  .question-card small{
+    font-size:11px;
+    margin-top:8px;
+  }
+
+  .winner-title{
+    font-size:32px;
+  }
+
+  .winner-card{
+    border-radius:22px;
+  }
+
+  button{
+    font-size:14px;
+    padding:12px 18px;
+  }
+
+  .round-preview-title{
+    font-size:26px;
+    margin-bottom:20px;
+  }
+
+  .round-preview-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+
+  .round-preview-name{
+    font-size:12px;
+    padding:10px 6px;
+  }
+
+  .round-start-btn{
+    width:100%;
+    font-size:16px;
+    padding:14px;
+  }
+
+}
+
+</style>
 </head>
 
 <body>
@@ -258,11 +403,13 @@
 </div>
 
 <div id="question-view" class="question-wrap">
+
   <div class="question-card" onclick="prepareTournament('light')">
     <div>
       <h2>
         🥗 가볍게 먹고싶다
       </h2>
+
       <small>
         샐러드 · 샌드위치 · 그릭요거트 · 랩
       </small>
@@ -274,11 +421,13 @@
       <h2>
         🍖 든든하게 먹고싶다
       </h2>
+
       <small>
         단백질도시락 · 포케 · 푸드
       </small>
     </div>
   </div>
+
 </div>
 
 <div id="game-view" style="display:none;">
@@ -286,17 +435,31 @@
 </div>
 
 <div id="winner-view">
-  <div id="capture-area">
-    <div class="winner-title">🏆 오늘의 메뉴 🏆</div>
 
-    <div class="winner-card" id="winner-card"></div>
+  <div class="winner-title">
+    🏆 오늘의 메뉴 🏆
   </div>
+
+  <div class="winner-card" id="winner-card"></div>
 
   <div class="btn-wrap">
-    <button class="save-btn" onclick="saveImage()">📸 이미지 저장</button>
-    <button class="retry-btn" onclick="location.reload()">🔄 다시하기</button>
-    <button class="home-btn" onclick="location.reload()">🏠 홈</button>
+
+    <button
+      class="retry-btn"
+      onclick="location.reload()"
+    >
+      🔄 다시하기
+    </button>
+
+    <button
+      class="home-btn"
+      onclick="location.href='index.html'"
+    >
+      🏠 홈
+    </button>
+
   </div>
+
 </div>
 
 <script>
@@ -307,23 +470,34 @@ let winners = [];
 let currentIndex = 0;
 
 fetch('./data.json')
-  .then(res => {
-    if(!res.ok){
-      throw new Error('data.json not found');
-    }
-    return res.json();
-  })
-  .then(data => {
-    allData = data;
-    console.log('JSON 로드 완료');
-  })
-  .catch(err => {
-    console.error(err);
-    alert('data.json 파일을 찾을 수 없습니다.');
-  });
+
+.then(res => {
+
+  if(!res.ok){
+    throw new Error('data.json not found');
+  }
+
+  return res.json();
+
+})
+
+.then(data => {
+
+  allData = data;
+
+})
+
+.catch(err => {
+
+  console.error(err);
+  alert('data.json 파일을 찾을 수 없습니다.');
+
+});
 
 function getCategory(name){
+
   return allData.categories.find(c => c.categoryName === name)?.items || [];
+
 }
 
 function prepareTournament(type){
@@ -332,27 +506,34 @@ function prepareTournament(type){
   document.getElementById('game-view').style.display='block';
 
   if(type === 'light'){
+
     pool = [
       ...getCategory('샌드위치'),
       ...getCategory('샐러드'),
       ...getCategory('그릭요거트'),
       ...getCategory('랩')
     ];
+
   }else{
+
     pool = [
       ...getCategory('단백질 도시락'),
       ...getCategory('포케'),
       ...getCategory('푸드')
     ];
+
   }
 
   pool = shuffle(pool).slice(0,16);
 
   startRound();
+
 }
 
 function shuffle(arr){
+
   return [...arr].sort(() => Math.random() - 0.5);
+
 }
 
 function startRound(){
@@ -361,23 +542,96 @@ function startRound(){
   winners = [];
 
   updateRoundTitle();
-  showMatch();
+
+  showRoundIntro();
+
 }
 
 function updateRoundTitle(){
 
   if(pool.length === 2){
+
     document.getElementById('round-title').innerText = '🔥 결승전';
+
   }else{
+
     document.getElementById('round-title').innerText = `🍽 ${pool.length}강`;
+
   }
+
+}
+
+function showRoundIntro(){
+
+  const container = document.getElementById('match-container');
+
+  const currentRound = pool.length;
+
+  let title = '';
+
+  if(currentRound === 16){
+    title = '🔥 16강 진출 메뉴';
+  }else if(currentRound === 8){
+    title = '⚔️ 8강 진출 메뉴';
+  }else if(currentRound === 4){
+    title = '🏅 4강 진출 메뉴';
+  }else if(currentRound === 2){
+    title = '👑 결승 진출 메뉴';
+  }
+
+  container.innerHTML = `
+
+    <div class="round-preview-wrap">
+
+      <div class="round-preview-title">
+        ${title}
+      </div>
+
+      <div class="round-preview-grid">
+
+        ${pool.map(item => `
+
+          <div class="round-preview-card">
+
+            <img
+              src="${item.image}"
+              referrerpolicy="no-referrer"
+              onerror="
+                this.onerror=null;
+                this.src='https://images.weserv.nl/?url=${encodeURIComponent(item.image.replace('https://',''))}';
+              "
+            >
+
+            <div class="round-preview-name">
+              ${item.name}
+            </div>
+
+          </div>
+
+        `).join('')}
+
+      </div>
+
+      <button
+        class="round-start-btn"
+        onclick="showMatch()"
+      >
+        ▶ 시작하기
+      </button>
+
+    </div>
+
+  `;
+
 }
 
 function showMatch(){
 
   if(pool.length === 1){
+
     showWinner(pool[0]);
     return;
+
   }
 
   const item1 = pool[currentIndex];
@@ -386,10 +640,17 @@ function showMatch(){
   const container = document.getElementById('match-container');
 
   container.innerHTML = `
+  
     ${renderCard(item1,0)}
-    <div class="vs">VS</div>
+
+    <div class="vs">
+      VS
+    </div>
+
     ${renderCard(item2,1)}
+
   `;
+
 }
 
 function renderCard(item,index){
@@ -397,12 +658,17 @@ function renderCard(item,index){
   const imageUrl = item.image;
 
   return `
+  
     <div class="card" onclick="pick(${index})">
 
       <img
+
         src="${imageUrl}"
+
         loading="eager"
+
         referrerpolicy="no-referrer"
+
         onerror="
           this.onerror=null;
           this.src='https://images.weserv.nl/?url=${encodeURIComponent(imageUrl.replace('https://',''))}';
@@ -418,7 +684,7 @@ function renderCard(item,index){
         <div class="menu-info">
 
           <div class="badge price">
-            ${item.price}원
+            ${item.price ? item.price + '원' : ''}
           </div>
 
           ${
@@ -442,8 +708,11 @@ function renderCard(item,index){
         </div>
 
       </div>
+
     </div>
+
   `;
+
 }
 
 function pick(side){
@@ -462,6 +731,7 @@ function pick(side){
     showMatch();
 
   }
+
 }
 
 function showWinner(item){
@@ -470,9 +740,13 @@ function showWinner(item){
   document.getElementById('winner-view').style.display='block';
 
   document.getElementById('winner-card').innerHTML = `
+
     <img
+
       src="${item.image}"
+
       referrerpolicy="no-referrer"
+
       onerror="
         this.onerror=null;
         this.src='https://images.weserv.nl/?url=${encodeURIComponent(item.image.replace('https://',''))}';
@@ -488,7 +762,7 @@ function showWinner(item){
       <div class="menu-info">
 
         <div class="badge price">
-          ${item.price}원
+          ${item.price ? item.price + '원' : ''}
         </div>
 
         ${
@@ -512,6 +786,7 @@ function showWinner(item){
       </div>
 
     </div>
+
   `;
 
   confetti({
@@ -519,27 +794,7 @@ function showWinner(item){
     spread:90,
     origin:{y:0.6}
   });
-}
 
-async function saveImage(){
-
-  const target = document.getElementById('capture-area');
-
-  await new Promise(r => setTimeout(r,1000));
-
-  const canvas = await html2canvas(target,{
-    useCORS:true,
-    allowTaint:true,
-    backgroundColor:'#121212',
-    scale:2
-  });
-
-  const link = document.createElement('a');
-
-  link.download='lunch_worldcup.png';
-  link.href=canvas.toDataURL('image/png');
-
-  link.click();
 }
 
 </script>

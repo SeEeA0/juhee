@@ -2,24 +2,47 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>점심메뉴 고민 이제 그만! 간단하게 골라보세요</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: #f0f4f0; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
-        .main-card { background: white; padding: 50px; border-radius: 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        h1 { color: #1D7A4D; font-size: 48px; margin-bottom: 10px; }
-        .btn { display: block; padding: 15px 40px; margin: 15px 0; border-radius: 10px; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        .btn-green { background: #1D7A4D; color: white; }
+        /* 기존 스타일 유지 및 최적화 */
+        body { font-family: 'Pretendard', sans-serif; background: #f0f4f0; min-height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        .main-card { background: white; padding: 40px 30px; border-radius: 35px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        
+        h1 { color: #1D7A4D; font-size: 38px; margin-bottom: 5px; }
+        .sub-text { color: #666; font-size: 14px; margin-bottom: 30px; line-height: 1.5; }
+
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        .btn { display: block; padding: 18px 20px; border-radius: 15px; text-decoration: none; font-weight: bold; transition: 0.3s; font-size: 16px; }
+        
+        /* 월드컵 버튼 */
+        .btn-green { background: #1D7A4D; color: white; border: 2px solid #1D7A4D; }
+        
+        /* 슬롯머신 버튼 (강조 효과) */
+        .btn-slot { background: #ffd54f; color: #333; border: 2px solid #ffd54f; }
+        
+        /* 메뉴판 버튼 */
         .btn-outline { border: 2px solid #1D7A4D; color: #1D7A4D; }
-        .btn:hover { transform: translateY(-3px); opacity: 0.9; }
+        
+        .btn:hover { transform: translateY(-3px); opacity: 0.9; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .btn:active { transform: translateY(0); }
     </style>
 </head>
 <body>
     <div class="main-card">
-<h1>오늘 뭐 먹지?</h1>
-<p>선택장애 연구원분들을 위한 주희 제작사이트</p>
-        <a href="worldcup.html" class="btn btn-green">🏆 점심 메뉴 월드컵</a>
-        <a href="list.html" class="btn btn-outline">📋 전체 메뉴판 보기</a>
+        <h1>오늘 뭐 먹지?</h1>
+        <p class="sub-text">선택장애 연구원분들을 위한<br>주희 제작 샐러디아 전용 사이트</p>
+        
+        <div class="btn-group">
+            <!-- 1. 월드컵 모드 -->
+            <a href="worldcup.html" class="btn btn-green">🏆 점심 메뉴 월드컵 (16강)</a>
+            
+            <!-- 2. 신규: 슬롯머신 모드 -->
+            <a href="slot.html" class="btn btn-slot">🎰 점심 메뉴 랜덤 뽑기</a>
+            
+            <!-- 3. 기존: 메뉴판 보기 (유지) -->
+            <a href="list.html" class="btn btn-outline">📋 전체 메뉴판 보기</a>
+        </div>
     </div>
 </body>
 </html>

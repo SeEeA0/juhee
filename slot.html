@@ -2,33 +2,57 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>런치 슬롯 - 영양 정보 에디션</title>
     <style>
         :root {
             --primary-color: #1D7A4D;
             --bg-color: #F9FBFA;
+            --muted: #888;
         }
 
         body { 
             font-family: 'Pretendard', -apple-system, sans-serif; 
             background: var(--bg-color); 
-            margin: 0; padding: 20px; 
+            margin: 0; padding: 0; 
             display: flex; flex-direction: column; align-items: center; 
             color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 상단 헤더: 월드컵 페이지와 통일 */
+        .top-nav {
+            width: 100%;
+            padding: 15px 15px 5px;
+            position: relative;
+            text-align: center;
+            background: var(--bg-color);
+        }
+        .back-link {
+            position: absolute;
+            left: 15px;
+            top: 18px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 12px;
+            border: 1px solid #ddd;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: white;
         }
 
         .container { 
-            background: white; padding: 30px; border-radius: 30px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.05); 
-            width: 100%; max-width: 450px; box-sizing: border-box; 
+            background: white; padding: 25px 20px; border-radius: 30px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05); 
+            width: 92%; max-width: 450px; box-sizing: border-box; 
             border: 1px solid #f0f0f0;
+            margin-top: 10px;
         }
 
-        h2 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 25px; color: var(--primary-color); }
+        h2 { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 20px; color: var(--primary-color); }
 
-        .filter-section { margin-bottom: 15px; }
-        .filter-title { font-weight: 600; margin-bottom: 10px; display: block; color: #666; font-size: 13px; }
+        .filter-section { margin-bottom: 12px; }
+        .filter-title { font-weight: 600; margin-bottom: 8px; display: block; color: #666; font-size: 13px; }
         .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
         .chip { 
             padding: 6px 12px; border-radius: 10px; background: #f2f2f2; 
@@ -38,55 +62,61 @@
 
         /* 슬롯 머신 구역 */
         .slot-machine-v2 {
-            background: #fff; padding: 10px; border-radius: 20px;
-            border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            margin: 20px 0; position: relative;
+            background: #fff; padding: 8px; border-radius: 20px;
+            border: 1px solid #eee; box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            margin: 15px 0; position: relative;
         }
 
         .window {
-            height: 80px; background: #fdfdfd; border-radius: 12px;
+            height: 70px; background: #fdfdfd; border-radius: 12px;
             overflow: hidden; position: relative; display: flex;
             align-items: center; justify-content: center; border: 1px solid #f0f0f0;
         }
 
         .window::before, .window::after {
-            content: ''; position: absolute; left: 0; width: 100%; height: 35%; z-index: 2; pointer-events: none;
+            content: ''; position: absolute; left: 0; width: 100%; height: 30%; z-index: 2; pointer-events: none;
         }
         .window::before { top: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.9), transparent); }
         .window::after { bottom: 0; background: linear-gradient(to top, rgba(255,255,255,0.9), transparent); }
 
         .reel { display: flex; flex-direction: column; align-items: center; position: absolute; top: 0; width: 100%; }
-        .slot-item { height: 80px; line-height: 80px; text-align: center; font-size: 18px; font-weight: 700; color: #222; width: 100%; }
+        .slot-item { height: 70px; line-height: 70px; text-align: center; font-size: 17px; font-weight: 700; color: #222; width: 100%; }
 
-        /* 결과창 상세 정보 디자인 */
-        #final-result { text-align: center; min-height: 250px; margin-top: 10px; }
+        /* 결과창: min-height 제거로 밀림 방지 */
+        #final-result { text-align: center; margin-top: 0; transition: all 0.3s ease; }
         #result-img { 
-            width: 140px; height: 140px; border-radius: 20px; 
-            object-fit: cover; display: none; margin: 0 auto 15px; 
+            width: 120px; height: 120px; border-radius: 20px; 
+            object-fit: cover; display: none; margin: 10px auto 12px; 
             border: 1px solid #eee; animation: slideUp 0.5s ease;
         }
 
-        .info-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 10px; }
+        .info-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 8px; }
         .tag { 
-            background: #f8f9fa; border: 1px solid #eee; padding: 4px 10px; 
-            border-radius: 6px; font-size: 12px; color: #555; font-weight: 500;
+            background: #f8f9fa; border: 1px solid #eee; padding: 3px 8px; 
+            border-radius: 6px; font-size: 11px; color: #555; font-weight: 500;
         }
         .tag b { color: var(--primary-color); }
 
-        #result-price { font-size: 22px; color: var(--primary-color); font-weight: 800; margin-top: 5px; }
+        #result-price { font-size: 20px; color: var(--primary-color); font-weight: 800; margin-bottom: 15px; }
 
-        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .btn-spin {
-            width: 100%; padding: 18px; border: none; border-radius: 15px;
-            background: var(--primary-color); color: white; font-size: 18px; font-weight: 700;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(29,122,77,0.15);
+            width: 100%; padding: 16px; border: none; border-radius: 15px;
+            background: var(--primary-color); color: white; font-size: 17px; font-weight: 700;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 8px 15px rgba(29,122,77,0.15);
         }
         .btn-spin:disabled { background: #d1d1d1; cursor: wait; }
-        .btn-back { display: block; text-align: center; margin-top: 20px; color: #bbb; text-decoration: none; font-size: 13px; }
+        
+        /* 기존 하단 링크 제거 (상단으로 이동함) */
+        .btn-back-hidden { display: none; }
     </style>
 </head>
 <body>
+
+<div class="top-nav">
+    <a href="index.html" class="back-link">← HOME</a>
+</div>
 
 <div class="container">
     <h2>🥗 런치 슬롯</h2>
@@ -112,7 +142,7 @@
         </div>
     </div>
 
-    <!-- 데이터가 있을 때만 노출되는 결과 구역 -->
+    <!-- 결과 구역: 평소엔 높이를 차지하지 않음 -->
     <div id="final-result">
         <img id="result-img" src="">
         <div id="info-tags" class="info-tags"></div>
@@ -120,12 +150,12 @@
     </div>
 
     <button class="btn-spin" id="spin-btn" onclick="spin()">슬롯 돌리기!</button>
-    <a href="index.html" class="btn-back">처음으로 돌아가기</a>
 </div>
 
 <script>
     let menuData = [];
 
+    // 데이터 로드 및 칩 생성
     fetch('data.json').then(res => res.json()).then(data => {
         menuData = data.categories;
         const container = document.getElementById('category-chips');
@@ -190,8 +220,8 @@
         reel.appendChild(finalDiv);
 
         let startTime = null;
-        const duration = 2500; 
-        const itemHeight = 80;
+        const duration = 2000; // 조금 더 빠르게 조정
+        const itemHeight = 70; // 슬롯 아이템 높이와 일치
         const targetPos = -(spinCount * itemHeight);
 
         function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
@@ -206,13 +236,11 @@
             if (p < 1) {
                 requestAnimationFrame(step);
             } else {
-                // 결과 노출
                 if(finalMenu.image) { img.src = finalMenu.image; img.style.display = 'block'; }
                 
-                // 정보 태그 생성 (데이터가 있을 때만)
                 let tagHTML = '';
                 if(finalMenu.weight) tagHTML += `<div class="tag">중량: <b>${finalMenu.weight}</b></div>`;
-                if(finalMenu.calories) tagHTML += `<div class="tag">칼로리: <b>${finalMenu.calories}</b></div>`;
+                if(finalMenu.kcal) tagHTML += `<div class="tag">칼로리: <b>${finalMenu.kcal}</b></div>`;
                 if(finalMenu.protein) tagHTML += `<div class="tag">단백질: <b>${finalMenu.protein}</b></div>`;
                 tags.innerHTML = tagHTML;
 

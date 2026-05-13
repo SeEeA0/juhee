@@ -53,6 +53,7 @@
 
     #question-view,
     #game-view,
+    #advance-view,
     #winner-view {
       width:100%;
       flex:1;
@@ -192,6 +193,69 @@
       flex-shrink:0;
     }
 
+    #advance-view {
+      padding:22px 16px;
+      text-align:center;
+    }
+
+    .advance-title {
+      font-size:26px;
+      color:var(--gold);
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .advance-sub {
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:18px;
+    }
+
+    .advance-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:12px;
+      max-width:720px;
+      margin:0 auto 22px;
+    }
+
+    .advance-item {
+      background:var(--card-bg);
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid #333;
+    }
+
+    .advance-item img {
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      display:block;
+      background:#2a2a2a;
+    }
+
+    .advance-item p {
+      padding:9px 8px;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.3;
+      word-break:keep-all;
+    }
+
+    .basic-btn {
+      border:none;
+      color:white;
+      padding:13px 22px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:15px;
+      cursor:pointer;
+    }
+
+    .next-btn {
+      background:var(--primary);
+    }
+
     #winner-view {
       text-align:center;
       padding:24px 20px;
@@ -219,16 +283,6 @@
       flex-wrap:wrap;
     }
 
-    .basic-btn {
-      border:none;
-      color:white;
-      padding:13px 22px;
-      border-radius:12px;
-      font-weight:800;
-      font-size:15px;
-      cursor:pointer;
-    }
-
     .retry-btn {
       background:var(--primary);
     }
@@ -240,18 +294,25 @@
     @media(max-width:600px) {
       .top { padding:10px; }
       .title { font-size:20px; }
+
       #match-container {
         padding:5px;
         align-items:stretch;
         min-height:76dvh;
       }
+
       .card { height:100%; }
       .card img { aspect-ratio:1/1.1; }
       .menu-name { font-size:14px; }
       .vs { font-size:20px; }
+
       .badge {
         font-size:10px;
         padding:4px 6px;
+      }
+
+      .advance-grid {
+        gap:10px;
       }
     }
   </style>
@@ -285,6 +346,13 @@
     <div id="match-container"></div>
   </div>
 
+  <div id="advance-view">
+    <div class="advance-title" id="advance-title">진출 메뉴</div>
+    <div class="advance-sub" id="advance-sub">다음 라운드에 진출한 메뉴입니다.</div>
+    <div class="advance-grid" id="advance-grid"></div>
+    <button class="basic-btn next-btn" onclick="startAdvanceNextRound()">다음 라운드 시작하기</button>
+  </div>
+
   <div id="winner-view">
     <div class="winner-title">🏆 오늘의 우승 🏆</div>
     <div id="winner-card-slot"></div>
@@ -303,6 +371,7 @@
     let currentRoundSize = 16;
     let sparePool = [];
     let shuffleCount = 3;
+    let pendingNextPool = [];
 
     fetch('./data.json')
       .then(res => {
@@ -353,6 +422,7 @@
       shuffleCount = 3;
 
       document.getElementById('question-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'none';
       document.getElementById('winner-view').style.display = 'none';
       document.getElementById('game-view').style.display = 'block';
 
@@ -463,8 +533,48 @@
         return;
       }
 
+      if (winners.length === 4) {
+        showAdvanceView(winners, '🔥 4강 진출 메뉴', '8강에서 선택된 메뉴입니다.', 4);
+        return;
+      }
+
+      if (winners.length === 2) {
+        showAdvanceView(winners, '🏆 결승 진출 메뉴', '4강에서 선택된 최종 후보입니다.', 2);
+        return;
+      }
+
       pool = [...winners];
       currentRoundSize = pool.length;
+      startRound();
+    }
+
+    function showAdvanceView(items, title, sub, nextRoundSize) {
+      pendingNextPool = [...items];
+
+      document.getElementById('game-view').style.display = 'none';
+      document.getElementById('question-view').style.display = 'none';
+      document.getElementById('winner-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'block';
+
+      document.getElementById('round-title').innerText = title;
+      document.getElementById('advance-title').innerText = title;
+      document.getElementById('advance-sub').innerText = sub;
+
+      const grid = document.getElementById('advance-grid');
+      grid.innerHTML = items.map(item => `
+        <div class="advance-item">
+          ${imageTag(item.image, item.name)}
+          <p>${item.name}</p>
+        </div>
+      `).join('');
+    }
+
+    function startAdvanceNextRound() {
+      pool = [...pendingNextPool];
+      currentRoundSize = pool.length;
+
+      document.getElementById('advance-view').style.display = 'none';
+      document.getElementById('game-view').style.display = 'block';
 
       startRound();
     }
@@ -493,6 +603,7 @@
     function showFinalWinner(item) {
       document.getElementById('game-view').style.display = 'none';
       document.getElementById('question-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'none';
       document.getElementById('winner-view').style.display = 'block';
       document.getElementById('round-title').innerText = '월드컵 종료';
 
@@ -524,6 +635,7 @@
     function restartWorldcup() {
       document.getElementById('winner-view').style.display = 'none';
       document.getElementById('game-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'none';
       document.getElementById('question-view').style.display = 'flex';
       document.getElementById('round-title').innerText = '메뉴 월드컵';
     }

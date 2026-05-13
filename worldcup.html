@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Salaria - 메뉴 월드컵</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; padding: 20px; }
+        .round-info { font-size: 32px; font-weight: bold; margin: 20px 0; color: #4CAF50; }
+        .match-area { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 40px; }
+        .card { flex: 1; max-width: 400px; background: #2a2a2a; border-radius: 20px; overflow: hidden; cursor: pointer; border: 4px solid transparent; transition: 0.3s; }
+        .card:hover { border-color: #4CAF50; transform: translateY(-10px); }
+        .card img { width: 100%; height: 300px; object-fit: cover; }
+        .card-info { padding: 20px; }
+        .vs { font-size: 40px; font-weight: 900; color: #ff5252; }
+        #winner-view { display: none; padding: 50px 0; }
+        button { padding: 10px 20px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div id="game-view">
+        <div class="round-info" id="round-title">로딩 중...</div>
+        <div class="match-area" id="match-container"></div>
+    </div>
+
+    <div id="winner-view">
+        <h1 style="color: #FFD700;">오늘의 추천 메뉴!</h1>
+        <div id="winner-card-container" style="display:flex; justify-content:center; margin-bottom: 20px;"></div>
+        <button onclick="location.reload()">다시 하기</button>
+        <br><br>
+        <a href="index.html" style="color: #aaa; text-decoration: none;">메인으로 돌아가기</a>
+    </div>
+
+    <script>
+        let allItems = [];
+        let matches = [];
+        let winners = [];
+        let currentIdx = 0;
+
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                data.categories.forEach(cat => allItems.push(...cat.items));
+                items = allItems.sort(() => Math.random() - 0.5).slice(0, 8); // 8개 추출
+                startRound();
+            });
+
+        function startRound() {
+            currentIdx = 0;
+            winners = [];
+            showMatch();
+        }
+
+        function showMatch() {
+            const title = document.getElementById('round-title');
+            const container = document.getElementById('match-container');
+            
+            if (items.length === 1) {
+                showWinner(items[0]);
+                return;
+            }
+
+            title.innerText = items.length === 2 ? "결승전" : items.length + "강";
+            container.innerHTML = renderCard(items[currentIdx], 0) + '<div class="vs">VS</div>' + renderCard(items[currentIdx+1], 1);
+        }
+
+        function renderCard(item, idx) {
+            return `<div class="card" onclick="pick(${idx})">
+                <img src="${item.image}">
+                <div class="card-info">
+                    <h2>${item.name}</h2>
+                    <p>${item.price}원</p>
+                </div>
+            </div>`;
+        }
+
+        function pick(side) {
+            winners.push(items[currentIdx + side]);
+            currentIdx += 2;
+            if (currentIdx >= items.length) {
+                items = [...winners];
+                startRound();
+            } else {
+                showMatch();
+            }
+        }
+
+        function showWinner(item) {
+            document.getElementById('game-view').style.display = 'none';
+            document.getElementById('winner-view').style.display = 'block';
+            document.getElementById('winner-card-container').innerHTML = renderCard(item, 0);
+        }
+    </script>
+</body>
+</html>

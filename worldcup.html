@@ -9,224 +9,248 @@
   <style>
     :root {
       --main-green: #1D7A4D;
-      --accent-pink: #e91e63;
-      --dark-bg: #1a1a1a;
-      --card-bg: #2a2a2a;
+      --accent-pink: #FF4D8D;
+      --dark-bg: #121212;
+      --card-bg: rgba(255, 255, 255, 0.05);
       --gold: #FFD700;
+      --glass-border: rgba(255, 255, 255, 0.1);
     }
+
     body {
       font-family: 'Pretendard', -apple-system, sans-serif;
-      background: var(--dark-bg);
+      background: radial-gradient(circle at top, #1a3a2a 0%, #121212 100%);
       color: white;
       text-align: center;
       margin: 0;
       padding: 0;
+      min-height: 100vh;
       overflow-x: hidden;
       touch-action: manipulation;
     }
-    .round-info { font-size: 40px; font-weight: bold; margin: 40px 0 10px; color: var(--main-green); }
-    .shuffle-status { font-size: 14px; color: #888; margin-bottom: 20px; height: 20px; }
-    .match-area { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 20px; max-width: 1100px; margin: 0 auto; min-height: 500px; }
-    .card { flex: 1; background: var(--card-bg); border-radius: 30px; overflow: hidden; cursor: pointer; border: 4px solid transparent; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); max-width: 450px; }
-    .card:hover { border-color: var(--main-green); transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-    .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #333; display: block; }
-    .card-info { padding: 30px 20px; }
-    .card-info h2 { font-size: 24px; margin: 0 0 10px; word-break: keep-all; }
-    .card-info p { font-size: 20px; color: var(--main-green); font-weight: bold; margin: 0; }
-    .vs-container { display: flex; flex-direction: column; align-items: center; gap: 15px; min-width: 130px; }
-    .vs { font-size: 50px; font-weight: 900; color: #ff5252; font-style: italic; }
-    .btn-shuffle { background: #444; color: #eee; border: 1px solid #666; padding: 10px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; transition: 0.2s; }
-    .btn-shuffle:hover:not(:disabled) { background: #555; border-color: #888; }
-    .btn-shuffle:disabled { opacity: 0.2; cursor: default; }
-    #winner-view { display: none; padding: 40px 10px; animation: fadeIn 0.8s; }
-    #capture-area { padding: 40px 30px; background: var(--dark-bg); display: inline-block; border-radius: 40px; }
-    .button-group { display: flex; justify-content: center; gap: 12px; margin-top: 40px; flex-wrap: wrap; }
-    .btn { padding: 15px 25px; font-size: 17px; font-weight: bold; cursor: pointer; border: none; border-radius: 12px; display: flex; align-items: center; gap: 8px; color: white; }
-    .btn-save { background: var(--accent-pink); }
-    .btn-retry { background: var(--main-green); }
-    .btn-home { background: #4a4a4a; }
-    .question-card { background: var(--main-green) !important; height: 320px; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* 상단 영역 */
+    header { padding: 40px 20px 20px; }
+    .round-info { font-size: 42px; font-weight: 800; letter-spacing: -1px; color: var(--main-green); margin: 0; }
+    .shuffle-status { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 8px; }
+
+    /* 대진 영역 */
+    .match-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      perspective: 1000px;
+    }
+
+    /* 카드 업그레이드 */
+    .card {
+      flex: 1;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid var(--glass-border);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-width: 400px;
+      position: relative;
+    }
+
+    .card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8));
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: scale(1.03) translateY(-10px);
+      border-color: var(--main-green);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; transition: 0.5s; }
+    .card:hover img { transform: scale(1.1); }
+
+    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 25px; z-index: 2; text-align: left; }
+    .card-info h2 { font-size: 22px; margin: 0; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .card-info p { font-size: 18px; color: var(--main-green); font-weight: 600; margin: 5px 0 0; }
+
+    /* 중앙 인터페이스 */
+    .vs-container { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
+    .vs-circle {
+      width: 80px; height: 80px; background: white; color: black;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-style: italic; font-size: 24px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .btn-shuffle {
+      background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--glass-border);
+      padding: 12px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; font-size: 14px;
+    }
+    .btn-shuffle:hover:not(:disabled) { background: var(--main-green); border-color: transparent; }
+
+    /* 결과 뷰 강화 */
+    #winner-view { display: none; padding: 60px 20px; animation: slideUp 0.8s ease; }
+    #capture-area { padding: 40px; background: transparent; border-radius: 40px; position: relative; }
+    .winner-glow {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 300px; height: 300px; background: var(--main-green); filter: blur(150px); opacity: 0.3; z-index: -1;
+    }
+
+    /* 하단 고정 버튼 (모바일 최적화) */
+    .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+    .btn {
+      padding: 16px 32px; border-radius: 16px; font-weight: 700; border: none; cursor: pointer;
+      transition: 0.3s; font-size: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-save { background: var(--accent-pink); color: white; box-shadow: 0 8px 20px rgba(255, 77, 141, 0.3); }
+    .btn-retry { background: white; color: black; }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
     @media (max-width: 768px) {
-      .match-area { flex-direction: column; gap: 15px; }
-      .vs-container { order: 2; margin: 10px 0; }
-      .card { width: 90%; max-width: 350px; }
-      .card:nth-of-type(1) { order: 1; }
-      .card:nth-of-type(2) { order: 3; }
+      .match-area { flex-direction: column; gap: 20px; padding: 10px; }
+      .card { width: 100%; max-width: 320px; }
+      .vs-circle { width: 60px; height: 60px; font-size: 18px; }
+      .round-info { font-size: 32px; }
     }
   </style>
 </head>
 <body>
 
   <div id="game-view">
-    <div class="round-info" id="round-title">로딩 중...</div>
-    <div class="shuffle-status" id="shuffle-text"></div>
+    <header>
+      <div class="round-info" id="round-title">준비중...</div>
+      <div class="shuffle-status" id="shuffle-text">교체 기회: 3회</div>
+    </header>
     <div class="match-area" id="match-container"></div>
   </div>
 
   <div id="winner-view">
     <div id="capture-area">
-      <div style="font-size: 32px; color: var(--gold); margin-bottom: 5px;">🏆 오늘의 픽 🏆</div>
-      <div style="color: #888; margin-bottom: 25px; font-size: 18px;">Salaria Lunch Manager</div>
+      <div class="winner-glow"></div>
+      <div style="font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: 4px; margin-bottom: 10px;">WINNER</div>
+      <div style="font-size: 32px; font-weight: 800; margin-bottom: 30px;">오늘의 점심 메뉴</div>
       <div id="winner-card-container"></div>
     </div>
     <div class="button-group">
-      <button onclick="saveAsImage()" class="btn btn-save">📸 이미지 저장</button>
-      <button onclick="location.reload()" class="btn btn-retry">다시 하기</button>
-      <button onclick="location.href='index.html'" class="btn btn-home">🏠 메인으로</button>
+      <button onclick="saveAsImage()" class="btn btn-save">📸 결과 이미지 저장</button>
+      <button onclick="location.reload()" class="btn btn-retry">🔄 다시 하기</button>
     </div>
   </div>
 
   <script>
-    let allItems = []; // 필터링된 전체 메뉴 (원본 보존)
-    let pool = [];      // 현재 라운드 진출 메뉴
-    let usedInGame = new Set(); // 현재 대진표(8강 등)에 이미 편성된 메뉴들
+    let allItems = [];
+    let pool = [];
+    let usedInGame = new Set();
     let winners = [];
     let currentIdx = 0;
     let shuffleCount = 3;
 
-    fetch('data.json')
-      .then(res => res.json())
-      .then(data => {
-        const cats = data.categories;
-        // 모든 아이템을 미리 수집 (셔플 시 참조용)
-        allItems = cats.flatMap(c => c.items);
-        showInitialQuestion();
-      });
+    // 데이터 로드 및 초기 질문
+    fetch('data.json').then(res => res.json()).then(data => {
+      allItems = data.categories.flatMap(c => c.items);
+      showStart();
+    });
 
-    function showInitialQuestion() {
-      document.getElementById('round-title').innerText = "오늘 점심 스타일은?";
+    function showStart() {
       const container = document.getElementById('match-container');
       container.innerHTML = `
-        <div class="card question-card" onclick="setupGame('light')"><h2>🥗 가벼운 메뉴</h2></div>
-        <div class="vs-container"><div class="vs">OR</div></div>
-        <div class="card question-card" onclick="setupGame('heavy')"><h2>🥩 든든한 메뉴</h2></div>
+        <div class="card" onclick="setupGame('light')">
+          <div style="height:250px; background: var(--main-green); display:flex; align-items:center; justify-content:center; font-size:60px;">🥗</div>
+          <div class="card-info"><h2>가벼운 스타일</h2><p>샐러드, 샌드위치 등</p></div>
+        </div>
+        <div class="vs-container"><div class="vs-circle">OR</div></div>
+        <div class="card" onclick="setupGame('heavy')">
+          <div style="height:250px; background: #333; display:flex; align-items:center; justify-content:center; font-size:60px;">🥩</div>
+          <div class="card-info"><h2>든든한 스타일</h2><p>도시락, 포케 등</p></div>
+        </div>
       `;
     }
 
     function setupGame(style) {
-      // 1. 스타일 필터링
-      const lightCats = ['샌드위치', '샐러드', '그릭요거트', '랩'];
-      const heavyCats = ['단백질 도시락', '포케', '푸드'];
-      const targetCats = style === 'light' ? lightCats : heavyCats;
-      
-      const filtered = allItems.filter(item => {
-        // data.json의 구조에 따라 카테고리명을 확인하는 로직 (이름 기반 매칭)
-        return true; // 여기서는 단순화를 위해 전체에서 랜덤 추출 후 셔플 시 필터 적용
-      });
-
-      // 2. 8강 대진표 작성 (중복 없이 8개)
-      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+      // 실제 필터링 로직 (카테고리명 기반으로 보완 필요)
+      const shuffled = [...allItems].sort(() => Math.random() - 0.5);
       pool = shuffled.slice(0, 8);
-      
-      // 3. 현재 게임에 사용 중인 메뉴 추적 (셔플 시 중복 방지)
-      usedInGame = new Set(pool.map(item => item.name));
-      
-      document.getElementById('shuffle-text').innerText = `남은 교체 기회: ${shuffleCount}회`;
+      usedInGame = new Set(pool.map(i => i.name));
       startRound();
     }
 
     function startRound() {
-      currentIdx = 0;
-      winners = [];
-      const t = document.getElementById('round-title');
-      t.innerText = pool.length === 2 ? "결승전" : pool.length + "강";
-      showMatch();
+      currentIdx = 0; winners = [];
+      document.getElementById('round-title').innerText = pool.length === 2 ? "FINAL" : pool.length + " ROUND";
+      renderMatch();
     }
 
-    function showMatch() {
+    function renderMatch() {
       const container = document.getElementById('match-container');
       if (pool.length === 1) { showWinner(pool[0]); return; }
 
-      const item1 = pool[currentIdx];
-      const item2 = pool[currentIdx+1];
-
-      container.innerHTML = `
-        ${renderCard(item1, 0)}
-        <div class="vs-container">
-          <div class="vs">VS</div>
-          <button class="btn-shuffle" id="shuffle-btn" onclick="handleShuffle()" ${shuffleCount <= 0 ? 'disabled' : ''}>
-            🔄 다른 메뉴 보기
-          </button>
-        </div>
-        ${renderCard(item2, 1)}
-      `;
-    }
-
-    function renderCard(item, side) {
-      return `
-        <div class="card" onclick="selectWinner(${side})">
-          <img src="${item.image}" crossorigin="anonymous" onerror="this.src='https://via.placeholder.com/400?text=Salaria'">
-          <div class="card-info">
-            <h2>${item.name}</h2>
-            <p>${item.price}원</p>
+      container.style.opacity = 0; // 페이드 아웃 효과
+      setTimeout(() => {
+        container.innerHTML = `
+          ${drawCard(pool[currentIdx], 0)}
+          <div class="vs-container">
+            <div class="vs-circle">VS</div>
+            <button class="btn-shuffle" onclick="handleShuffle()" ${shuffleCount <= 0 ? 'disabled' : ''}>🔄 교체(${shuffleCount})</button>
           </div>
+          ${drawCard(pool[currentIdx+1], 1)}
+        `;
+        container.style.opacity = 1; // 페이드 인 효과
+      }, 300);
+    }
+
+    function drawCard(item, side) {
+      return `
+        <div class="card" onclick="pickWinner(${side})">
+          <img src="${item.image}" crossorigin="anonymous" onerror="this.src='https://via.placeholder.com/400?text=Salaria'">
+          <div class="card-info"><h2>${item.name}</h2><p>${item.price}원</p></div>
         </div>
       `;
     }
 
-    function selectWinner(side) {
+    function pickWinner(side) {
       winners.push(pool[currentIdx + side]);
       currentIdx += 2;
-      if (currentIdx >= pool.length) {
-        pool = [...winners];
-        // 새 라운드 시작 시 usedInGame 갱신 (이미 탈락하거나 올라간 메뉴들 관리)
-        usedInGame = new Set(pool.map(item => item.name));
-        startRound();
-      } else {
-        showMatch();
-      }
+      if (currentIdx >= pool.length) { pool = [...winners]; startRound(); }
+      else { renderMatch(); }
     }
 
     function handleShuffle() {
       if (shuffleCount <= 0) return;
-
-      // 1. 현재 대진표와 겹치지 않는 새로운 메뉴 후보 찾기
-      const candidates = allItems.filter(item => !usedInGame.has(item.name));
-      
-      if (candidates.length < 2) {
-        alert("교체할 수 있는 새로운 메뉴가 더 이상 없습니다!");
-        return;
-      }
-
-      // 2. 후보 중 랜덤 2개 추출
-      const newItems = candidates.sort(() => Math.random() - 0.5).slice(0, 2);
-
-      // 3. 현재 pool의 해당 위치 메뉴 교체 및 usedInGame 업데이트
-      pool[currentIdx] = newItems[0];
-      pool[currentIdx + 1] = newItems[1];
-      
-      newItems.forEach(item => usedInGame.add(item.name));
-
+      const candidates = allItems.filter(i => !usedInGame.has(i.name));
+      if (candidates.length < 2) return;
+      const news = candidates.sort(() => Math.random() - 0.5).slice(0, 2);
+      pool[currentIdx] = news[0]; pool[currentIdx+1] = news[1];
+      news.forEach(i => usedInGame.add(i.name));
       shuffleCount--;
-      document.getElementById('shuffle-text').innerText = `남은 교체 기회: ${shuffleCount}회`;
-      showMatch();
+      document.getElementById('shuffle-text').innerText = `교체 기회: ${shuffleCount}회`;
+      renderMatch();
     }
 
     function showWinner(item) {
       document.getElementById('game-view').style.display = 'none';
       document.getElementById('winner-view').style.display = 'block';
       document.getElementById('winner-card-container').innerHTML = `
-        <div class="card" style="border: 4px solid var(--gold); margin: 0 auto; cursor: default;">
+        <div class="card" style="border: 2px solid var(--gold); margin: 0 auto; cursor: default; transform: scale(1.1);">
           <img src="${item.image}" crossorigin="anonymous">
           <div class="card-info"><h2>${item.name}</h2><p>${item.price}원</p></div>
         </div>
       `;
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#1D7A4D', '#FFD700', '#ff5252'] });
+      confetti({ particleCount: 200, spread: 80, origin: { y: 0.7 }, colors: ['#1D7A4D', '#FFD700', '#ffffff'] });
     }
 
     async function saveAsImage() {
       const area = document.getElementById('capture-area');
-      const btn = document.querySelector('.btn-save');
-      btn.innerText = "⏳ 저장 중...";
-      try {
-        const canvas = await html2canvas(area, { backgroundColor: "#1a1a1a", useCORS: true, scale: 2 });
-        const link = document.createElement('a');
-        link.download = 'salaria_pick.png';
-        link.href = canvas.toDataURL();
-        link.click();
-      } catch (e) { alert("저장 실패!"); }
-      finally { btn.innerText = "📸 이미지 저장"; }
+      const canvas = await html2canvas(area, { backgroundColor: "#121212", useCORS: true, scale: 2 });
+      const link = document.createElement('a');
+      link.download = 'salaria_lunch.png';
+      link.href = canvas.toDataURL();
+      link.click();
     }
   </script>
 </body>

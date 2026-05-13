@@ -1,224 +1,256 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메뉴 이상형 월드컵</title>
-    <style>
-        :root {
-            --primary-color: #ff6b6b;
-            --bg-color: #f8f9fa;
-        }
-        body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        #game-container {
-            max-width: 1000px;
-            width: 100%;
-            text-align: center;
-        }
-        .round-info {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .match-up {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: stretch;
-            flex-wrap: wrap;
-        }
-        .card {
-            flex: 1;
-            min-width: 300px;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: transform 0.3s, border 0.3s;
-            border: 5px solid transparent;
-        }
-        .card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-color);
-        }
-        .card img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-        }
-        .card-info {
-            padding: 20px;
-        }
-        .card-info h3 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-        .vs {
-            display: flex;
-            align-items: center;
-            font-size: 2rem;
-            font-weight: italic;
-            color: var(--primary-color);
-        }
-        .hidden { display: none; }
-        #winner-display img {
-            width: 80%;
-            max-width: 500px;
-            border-radius: 20px;
-            margin-top: 20px;
-        }
-        .btn-retry {
-            margin-top: 30px;
-            padding: 15px 30px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>샐러디아 메뉴 월드컵</title>
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root { --primary: #19a463; --bg: #121212; --card-bg: #1e1e1e; }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Pretendard', sans-serif; background: var(--bg); color:white; overflow-x:hidden; height: 100dvh; display: flex; flex-direction: column; }
+
+    .top { text-align:center; padding: 20px 10px 10px; flex-shrink: 0; }
+    .title { font-size:24px; font-weight:800; color: var(--primary); margin-bottom:4px; }
+    .sub { color:#888; font-size:12px; }
+
+    /* 메인 컨테이너 */
+    #game-view, #list-view, #question-view, #winner-view { width: 100%; flex: 1; display: none; overflow-y: auto; }
+
+    /* 모바일 한 화면 매치 컨테이너 */
+    #match-container {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 10px; height: 100%; max-width: 1200px; margin: 0 auto;
+    }
+
+    .card {
+      flex: 1; max-width: 450px; background: var(--card-bg);
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      transition: .2s; border: 3px solid transparent;
+      display: flex; flex-direction: column;
+    }
+    .card:hover { border-color: var(--primary); }
+    .card img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:#2a2a2a; }
+
+    .card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .menu-name { font-size: 16px; font-weight:700; line-height:1.3; margin-bottom: 8px; word-break: keep-all; }
+    .menu-info { display:flex; flex-wrap:wrap; gap:4px; }
+    .badge { background:#2c2c2c; border-radius:6px; padding:4px 8px; font-size:11px; color:#ddd; }
+    .badge.price { color: var(--primary); font-weight:700; }
+
+    .vs { font-size: 24px; font-weight:900; color:#ff5252; text-align:center; flex-shrink: 0; }
+
+    /* 중간 리스트 페이지 스타일 */
+    .list-wrap { padding: 20px; text-align: center; }
+    .list-grid { 
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+      gap: 10px; margin: 20px 0; 
+    }
+    .list-item { background: var(--card-bg); border-radius: 12px; overflow: hidden; font-size: 12px; border: 1px solid #333; }
+    .list-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+    .list-item p { padding: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 버튼 스타일 */
+    .next-btn { 
+      background: var(--primary); color: white; border: none; padding: 15px 40px; 
+      border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; width: 100%; max-width: 300px;
+    }
+
+    /* 초기 질문 화면 */
+    .question-wrap { display:flex; flex-direction: column; justify-content:center; align-items:center; gap:15px; padding:20px; }
+    .question-card {
+      width:100%; max-width:400px; padding: 25px; border-radius:20px;
+      background: var(--card-bg); border: 2px solid #333; text-align:center; cursor:pointer;
+    }
+    .question-card h2 { font-size:24px; margin-bottom:5px; }
+
+    /* 모바일 최적화 미디어 쿼리 (가장 중요) */
+    @media (max-width: 600px) {
+      .top { padding: 10px; }
+      .title { font-size: 20px; }
+      #match-container { padding: 5px; align-items: stretch; height: 80dvh; } /* 스크롤 없이 한 화면 유도 */
+      .card { height: 100%; }
+      .card img { aspect-ratio: 1/1.1; } /* 높이 확보를 위해 살짝 조정 */
+      .menu-name { font-size: 14px; }
+      .vs { font-size: 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div id="setup-view">
-        <h1>메뉴 이상형 월드컵</h1>
-        <p>오늘의 추천 메뉴를 선정해보세요!</p>
-        <button class="btn-retry" onclick="startGame()">게임 시작 (16강)</button>
-    </div>
+<div class="top">
+  <div class="title" id="round-title">메뉴 월드컵</div>
+  <div class="sub">Saladia WorldCup</div>
+</div>
 
-    <div id="game-view" class="hidden">
-        <div class="round-info" id="round-title">16강</div>
-        <div class="match-up">
-            <div class="card" id="left-card" onclick="select(0)">
-                <img id="left-img" src="" alt="">
-                <div class="card-info">
-                    <h3 id="left-name">메뉴명</h3>
-                </div>
-            </div>
-            <div class="vs">VS</div>
-            <div class="card" id="right-card" onclick="select(1)">
-                <img id="right-img" src="" alt="">
-                <div class="card-info">
-                    <h3 id="right-name">메뉴명</h3>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- 1. 카테고리 선택 -->
+<div id="question-view" class="question-wrap" style="display: flex;">
+  <div class="question-card" onclick="prepareTournament('light')">
+    <h2>🥗 가볍게</h2>
+    <small>샐러드 · 샌드위치 · 요거트 · 랩</small>
+  </div>
+  <div class="question-card" onclick="prepareTournament('heavy')">
+    <h2>🍱 든든하게</h2>
+    <small>단백질 도시락 · 포케 · 푸드</small>
+  </div>
+</div>
 
-    <div id="result-view" class="hidden">
-        <div class="round-info">🏆 최종 우승! 🏆</div>
-        <div id="winner-display">
-            <img id="winner-img" src="" alt="">
-            <h2 id="winner-name">우승 메뉴</h2>
-        </div>
-        <button class="btn-retry" onclick="location.reload()">다시 하기</button>
-    </div>
+<!-- 2. 게임 진행 (한 화면 구성) -->
+<div id="game-view">
+  <div id="match-container"></div>
+</div>
+
+<!-- 3. 중간 진출 리스트 확인 -->
+<div id="list-view">
+  <div class="list-wrap">
+    <h2 id="list-title" style="color: #ffd54f; margin-bottom: 10px;">8강 진출 메뉴</h2>
+    <p style="color: #888; margin-bottom: 20px;">다음 라운드에 올라간 메뉴들입니다.</p>
+    <div id="winners-list" class="list-grid"></div>
+    <button class="next-btn" onclick="startNextRound()">다음 라운드 시작하기</button>
+  </div>
+</div>
+
+<!-- 4. 최종 결과 -->
+<div id="winner-view" style="text-align: center; padding: 20px;">
+  <div id="capture-area">
+    <h1 style="color: #ffd54f; margin-bottom: 20px;">🏆 오늘의 우승 🏆</h1>
+    <div id="winner-card-slot" style="max-width: 350px; margin: 0 auto;"></div>
+  </div>
+  <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+    <button onclick="saveImage()" style="background: #e91e63; color: white; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700;">이미지 저장</button>
+    <button onclick="location.reload()" style="background: #444; color: white; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700;">다시하기</button>
+  </div>
 </div>
 
 <script>
-    // JSON 데이터 (제공해주신 구조 예시)
-    const menuData = {
-        "categories": [
-            {
-                "categoryName": "그릭요거트",
-                "items": [
-                    {"name": "플레인 요거트", "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500", "price": 4500},
-                    {"name": "딸기 요거트", "image": "https://images.unsplash.com/photo-1571115177098-24ec42ed2bb4?w=500", "price": 5200}
-                ]
-            },
-            {
-                "categoryName": "커피",
-                "items": [
-                    {"name": "아메리카노", "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500", "price": 4000},
-                    {"name": "카페라떼", "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500", "price": 4500},
-                    {"name": "바닐라라떼", "image": "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?w=500", "price": 5000}
-                ]
-            },
-            {
-                "categoryName": "디저트",
-                "items": [
-                    {"name": "초코케이크", "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500", "price": 6000},
-                    {"name": "치즈케이크", "image": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500", "price": 6500},
-                    {"name": "마카롱", "image": "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=500", "price": 3000}
-                ]
-            }
-        ]
-    };
-
-    let allItems = [];
-    let currentRoundItems = [];
-    let nextRoundItems = [];
-    let currentIndex = 0;
-
-    function startGame() {
-        // 모든 카테고리의 아이템을 하나로 합침
-        allItems = menuData.categories.flatMap(cat => cat.items);
-        
-        // 무작위 셔플 후 16개 추출 (데이터가 부족하면 전체 사용)
-        currentRoundItems = allItems.sort(() => Math.random() - 0.5).slice(0, 16);
-        
-        document.getElementById('setup-view').classList.add('hidden');
-        document.getElementById('game-view').classList.remove('hidden');
-        updateMatch();
+// 데이터 구조 (샘플 16개 확보 권장)
+const allData = {
+  "categories": [
+    {
+      "categoryName": "단백질 도시락",
+      "items": [
+        { "name": "스팀 닭가슴살", "price": "8,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_ML2ibrSy_36e29c51e8135e66176e6610105ec5310f7c2c06.jpg", "kcal": 676, "protein": 9 },
+        { "name": "매콤 스팀 닭가슴살", "price": "8,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_UmYgjap_6c1bd08a014e956ca997889cc8f86d0de6807589.jpg", "kcal": 688, "protein": 9 },
+        { "name": "훈제오리 도시락", "price": "9,000", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_HaJQW2Ks_6eaaec5d348bae5a8d9148d1b6d43e5b5f0264f4.jpg", "kcal": 878, "protein": 8 },
+        { "name": "목살 도시락", "price": "9,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_G5dPuy1D_0d84c1b66d827d30a30775e0aae6e05e1357b6cd.jpg", "kcal": 822, "protein": 9 },
+        { "name": "소불고기 도시락", "price": "10,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_fZrTmcbs_bfaf7c29b8d92303c6f5a8b8951ae1af93c03110.jpg", "kcal": 740, "protein": 9 },
+        { "name": "수비드 통삼겹", "price": "11,000", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_blCQ6Dgj_751778acb20afeb38bd5e60ce1a8aac51538cfcc.jpg", "kcal": 918, "protein": 10 }
+        // ... (더 많은 데이터)
+      ]
     }
+  ]
+};
 
-    function updateMatch() {
-        const totalMatches = currentRoundItems.length / 2;
-        const currentMatch = (currentIndex / 2) + 1;
-        
-        let roundText = currentRoundItems.length === 2 ? "결승전" : currentRoundItems.length + "강";
-        document.getElementById('round-title').innerText = `${roundText} (${currentMatch}/${totalMatches})`;
+let pool = [];
+let winners = [];
+let currentIndex = 0;
 
-        const left = currentRoundItems[currentIndex];
-        const right = currentRoundItems[currentIndex + 1];
+function prepareTournament(type) {
+  document.getElementById('question-view').style.display = 'none';
+  document.getElementById('game-view').style.display = 'block';
 
-        document.getElementById('left-img').src = left.image;
-        document.getElementById('left-name').innerText = left.name;
-        document.getElementById('right-img').src = right.image;
-        document.getElementById('right-name').innerText = right.name;
-    }
+  // 실제 연동 시 allData에서 타입에 맞는 카테고리 병합
+  pool = allData.categories[0].items; // 샘플용
+  pool = pool.sort(() => Math.random() - 0.5).slice(0, 8); // 시연을 위해 8개로 제한
+  
+  startMatch();
+}
 
-    function select(side) {
-        // 선택된 아이템을 다음 라운드 리스트에 추가
-        const winner = side === 0 ? currentRoundItems[currentIndex] : currentRoundItems[currentIndex + 1];
-        nextRoundItems.push(winner);
+function startMatch() {
+  currentIndex = 0;
+  winners = [];
+  updateHeader();
+  renderMatch();
+}
 
-        currentIndex += 2;
+function updateHeader() {
+  document.getElementById('round-title').innerText = pool.length === 2 ? "결승전" : `${pool.length}강`;
+}
 
-        if (currentIndex >= currentRoundItems.length) {
-            // 한 라운드가 끝남
-            if (nextRoundItems.length === 1) {
-                showWinner(nextRoundItems[0]);
-            } else {
-                currentRoundItems = nextRoundItems;
-                nextRoundItems = [];
-                currentIndex = 0;
-                updateMatch();
-            }
-        } else {
-            updateMatch();
-        }
-    }
+function renderMatch() {
+  const container = document.getElementById('match-container');
+  if (currentIndex >= pool.length) {
+    showIntermediateList();
+    return;
+  }
 
-    function showWinner(item) {
-        document.getElementById('game-view').classList.add('hidden');
-        document.getElementById('result-view').classList.remove('hidden');
-        document.getElementById('winner-img').src = item.image;
-        document.getElementById('winner-name').innerText = item.name;
-    }
+  const item1 = pool[currentIndex];
+  const item2 = pool[currentIndex+1];
+
+  container.innerHTML = `
+    ${createCardHTML(item1, 0)}
+    <div class="vs">VS</div>
+    ${createCardHTML(item2, 1)}
+  `;
+}
+
+function createCardHTML(item, side) {
+  return `
+    <div class="card" onclick="pick(${side})">
+      <img src="${item.image}">
+      <div class="card-body">
+        <div class="menu-name">${item.name}</div>
+        <div class="menu-info">
+          <span class="badge price">${item.price}원</span>
+          ${item.kcal ? `<span class="badge">🔥${item.kcal}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function pick(side) {
+  winners.push(pool[currentIndex + side]);
+  currentIndex += 2;
+  renderMatch();
+}
+
+function showIntermediateList() {
+  if (winners.length === 1) {
+    showFinalWinner(winners[0]);
+    return;
+  }
+
+  document.getElementById('game-view').style.display = 'none';
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('list-title').innerText = `${winners.length}강 진출 메뉴`;
+
+  const listContainer = document.getElementById('winners-list');
+  listContainer.innerHTML = winners.map(w => `
+    <div class="list-item">
+      <img src="${w.image}">
+      <p>${w.name}</p>
+    </div>
+  `).join('');
+}
+
+function startNextRound() {
+  pool = [...winners];
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('game-view').style.display = 'block';
+  startMatch();
+}
+
+function showFinalWinner(item) {
+  document.getElementById('game-view').style.display = 'none';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('winner-view').style.display = 'block';
+  document.getElementById('round-title').innerText = "월드컵 종료";
+
+  document.getElementById('winner-card-slot').innerHTML = createCardHTML(item, 0);
+  confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+}
+
+async function saveImage() {
+  const canvas = await html2canvas(document.getElementById('capture-area'), { useCORS: true, backgroundColor: '#121212' });
+  const link = document.createElement('a');
+  link.download = 'winner.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
 </script>
-
 </body>
 </html>

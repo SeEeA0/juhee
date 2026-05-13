@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salaria - 프리미엄 메뉴 가이드</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>만년다이어터 메뉴판</title>
     <style>
         :root { 
             --main-green: #1D7A4D; 
@@ -19,81 +19,91 @@
             scroll-behavior: smooth;
         }
 
-        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px 15px; }
 
-        header { text-align: center; margin-bottom: 50px; }
-        h1 { font-size: 28px; font-weight: 800; color: var(--main-green); margin-bottom: 10px; }
-        .back-link { text-decoration: none; color: var(--text-sub); font-size: 14px; font-weight: 500; transition: 0.2s; }
-        .back-link:hover { color: var(--main-green); }
+        header { text-align: center; margin: 30px 0; }
+        h1 { font-size: 24px; font-weight: 800; color: var(--main-green); margin-bottom: 8px; }
+        .back-link { text-decoration: none; color: var(--text-sub); font-size: 13px; font-weight: 500; transition: 0.2s; }
 
-        /* 🟢 카테고리 네비게이션 바 개선 */
+        /* 🟢 카테고리 네비게이션: 줄바꿈 및 중앙 정렬 적용 */
         .category-nav {
-            position: sticky; top: 0; background: rgba(255, 255, 255, 0.9);
+            position: sticky; top: 0; 
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px); z-index: 100;
-            padding: 15px 0; border-bottom: 1px solid #eee;
-            display: flex; justify-content: center; gap: 10px; overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .nav-item {
-            padding: 8px 18px; border-radius: 20px; font-size: 13px;
-            color: var(--text-sub); text-decoration: none; font-weight: 600;
-            white-space: nowrap; transition: 0.3s; border: 1px solid #eee;
-            background: white;
+            padding: 12px 10px; border-bottom: 1px solid #eee;
+            
+            /* 핵심 수정: 슬라이드 대신 나열 */
+            display: flex; 
+            flex-wrap: wrap;       /* 공간 부족 시 다음 줄로 */
+            justify-content: center; /* 가로 중앙 정렬 */
+            gap: 8px;              /* 버튼 사이 간격 */
         }
 
-        /* ✨ 활성화된 버튼 스타일 */
+        .nav-item {
+            padding: 7px 14px; 
+            border-radius: 20px; 
+            font-size: 12px;
+            color: var(--text-sub); 
+            text-decoration: none; 
+            font-weight: 600;
+            transition: 0.3s; 
+            border: 1px solid #eee;
+            background: white;
+            white-space: nowrap;
+        }
+
+        /* 활성화된 버튼 스타일 */
         .nav-item.active {
             background: var(--main-green);
             color: white;
             border-color: var(--main-green);
-            box-shadow: 0 4px 10px rgba(29, 122, 77, 0.2);
+            box-shadow: 0 4px 8px rgba(29, 122, 77, 0.15);
         }
 
-        .category-group { margin-top: 60px; scroll-margin-top: 100px; } /* 위치 조정 */
+        .category-group { margin-top: 40px; scroll-margin-top: 120px; }
         .category-header { 
-            display: flex; align-items: center; gap: 15px; margin-bottom: 25px; 
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px; 
         }
-        .category-name { 
-            font-size: 22px; font-weight: 700; color: var(--text-main);
-        }
+        .category-name { font-size: 20px; font-weight: 700; color: var(--text-main); }
         .category-line { flex-grow: 1; height: 1px; background: #eee; }
 
         .menu-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; 
         }
 
         .item-card { 
             background: white; border-radius: 20px; overflow: hidden; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f0f0f0;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            transition: all 0.3s ease; 
         }
-        .item-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
 
-        .img-wrapper { width: 100%; height: 220px; overflow: hidden; background: #fdfdfd; }
+        .img-wrapper { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #fdfdfd; }
         .item-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .item-card:hover .item-img { transform: scale(1.08); }
 
-        .item-info { padding: 20px; }
+        .item-info { padding: 15px; }
         .item-name { 
-            font-weight: 700; font-size: 17px; margin-bottom: 10px; 
-            color: var(--text-main); line-height: 1.4; min-height: 48px;
+            font-weight: 700; font-size: 16px; margin-bottom: 8px; 
+            color: var(--text-main); line-height: 1.4; min-height: 44px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
 
-        .nutri-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        .nutri-group { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
         .nutri-badge { 
-            font-size: 11px; padding: 3px 8px; border-radius: 5px; 
+            font-size: 10px; padding: 2px 6px; border-radius: 4px; 
             background: var(--bg-gray); color: var(--text-sub); border: 1px solid #eee;
         }
 
         .item-price { 
-            font-size: 19px; font-weight: 800; color: var(--main-green); 
+            font-size: 18px; font-weight: 800; color: var(--main-green); 
             display: flex; justify-content: flex-end; align-items: baseline;
         }
-        .item-price::after { content: '원'; font-size: 14px; margin-left: 2px; font-weight: 500; }
+        .item-price::after { content: '원'; font-size: 13px; margin-left: 2px; font-weight: 500; }
 
+        /* 모바일 최적화 (2열 배치) */
         @media (max-width: 600px) {
-            .menu-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
-            .item-name { font-size: 15px; }
+            .menu-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .item-name { font-size: 14px; min-height: 40px; }
+            .item-info { padding: 12px; }
         }
     </style>
 </head>
@@ -104,6 +114,7 @@
         <h1>Premium Menu Guide</h1>
     </header>
 
+    <!-- 카테고리 네비게이션 영역 -->
     <nav class="category-nav" id="cat-nav"></nav>
 
     <div class="container">
@@ -120,11 +131,16 @@
                 data.categories.forEach((cat, index) => {
                     const catId = `category-${index}`;
                     
-                    // 네비게이션 아이템 추가
-                    nav.innerHTML += `<a href="#${catId}" class="nav-item" data-id="${catId}">${cat.categoryName}</a>`;
+                    // 네비게이션 아이템 생성 (중앙 정렬됨)
+                    const navItem = document.createElement('a');
+                    navItem.href = `#${catId}`;
+                    navItem.className = 'nav-item';
+                    navItem.setAttribute('data-id', catId);
+                    navItem.innerText = cat.categoryName;
+                    nav.appendChild(navItem);
 
-                    let section = `
-                        <div class="category-group" id="${catId}" data-section="${catId}">
+                    let sectionHTML = `
+                        <div class="category-group" id="${catId}">
                             <div class="category-header">
                                 <span class="category-name">${cat.categoryName}</span>
                                 <div class="category-line"></div>
@@ -137,7 +153,7 @@
                         if(item.protein) nutriHTML += `<span class="nutri-badge">단백질 ${item.protein}g</span>`;
                         if(!nutriHTML) nutriHTML = '<span class="nutri-badge">정보 준비 중</span>';
 
-                        section += `
+                        sectionHTML += `
                             <div class="item-card">
                                 <div class="img-wrapper">
                                     <img src="${item.image}" class="item-img" onerror="this.src='https://via.placeholder.com/400x400?text=Salaria'">
@@ -149,17 +165,17 @@
                                 </div>
                             </div>`;
                     });
-                    section += `</div></div>`;
-                    container.innerHTML += section;
+                    sectionHTML += `</div></div>`;
+                    container.innerHTML += sectionHTML;
                 });
 
-                // 🌟 스크롤 감지 및 버튼 활성화 로직
+                // 스크롤 감지 및 버튼 활성화 로직
                 const sections = document.querySelectorAll('.category-group');
                 const navItems = document.querySelectorAll('.nav-item');
 
-                const options = {
+                const observerOptions = {
                     root: null,
-                    rootMargin: '-10% 0px -80% 0px', // 화면 상단 부근에 왔을 때 감지
+                    rootMargin: '-120px 0px -70% 0px',
                     threshold: 0
                 };
 
@@ -167,19 +183,12 @@
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const id = entry.target.getAttribute('id');
-                            
-                            // 모든 버튼에서 active 제거 후 해당 버튼에만 추가
                             navItems.forEach(item => {
-                                item.classList.remove('active');
-                                if (item.getAttribute('data-id') === id) {
-                                    item.classList.add('active');
-                                    // 클릭된 버튼이 화면 밖으로 나가지 않게 자동 스크롤 (가로바 전용)
-                                    item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                                }
+                                item.classList.toggle('active', item.getAttribute('data-id') === id);
                             });
                         }
                     });
-                }, options);
+                }, observerOptions);
 
                 sections.forEach(section => observer.observe(section));
             });

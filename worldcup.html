@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>점심 메뉴 월드컵</title>
 
-  <!-- 외부 라이브러리: 이미지 캡처 및 폭죽 효과 -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -29,7 +28,6 @@
       touch-action: manipulation;
     }
 
-    /* 상단 진행 정보 */
     .round-info {
       font-size: 40px;
       font-weight: bold;
@@ -43,7 +41,6 @@
       margin-bottom: 20px;
     }
 
-    /* 게임 대진 영역 */
     .match-area {
       display: flex;
       justify-content: center;
@@ -55,7 +52,6 @@
       min-height: 500px;
     }
 
-    /* 카드 공통 디자인 */
     .card {
       flex: 1;
       background: var(--card-bg);
@@ -99,7 +95,6 @@
       margin: 0;
     }
 
-    /* 중앙 VS 영역 */
     .vs-container {
       display: flex;
       flex-direction: column;
@@ -125,10 +120,16 @@
       cursor: pointer;
       transition: 0.2s;
     }
-    .btn-shuffle:hover:not(:disabled) { background: #555; }
-    .btn-shuffle:disabled { opacity: 0.3; cursor: default; }
 
-    /* 결과 화면 전용 */
+    .btn-shuffle:hover:not(:disabled) {
+      background: #555;
+    }
+
+    .btn-shuffle:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
     #winner-view {
       display: none;
       padding: 40px 10px;
@@ -148,7 +149,6 @@
       color: var(--gold);
     }
 
-    /* 하단 버튼 그룹 */
     .button-group {
       display: flex;
       justify-content: center;
@@ -170,12 +170,15 @@
       color: white;
       transition: 0.2s;
     }
+
     .btn-save { background: var(--accent-pink); }
     .btn-retry { background: var(--main-green); }
     .btn-home { background: #4a4a4a; }
-    .btn:active { transform: scale(0.95); }
 
-    /* 취향 선택 질문 카드 */
+    .btn:active {
+      transform: scale(0.95);
+    }
+
     .question-card {
       background: var(--main-green) !important;
       height: 320px;
@@ -191,7 +194,10 @@
       margin: 0;
     }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     @media (max-width: 768px) {
       .match-area { flex-direction: column; gap: 15px; }
@@ -229,12 +235,12 @@
   <script>
     let allData = {};
     let pool = [];
-    let sparePool = []; // 셔플용 대기 메뉴
+    let sparePool = [];
     let winners = [];
     let currentIdx = 0;
     let shuffleCount = 3;
+    let finalWinner = null;
 
-    // 1. 초기 데이터 로드
     fetch('data.json')
       .then(res => res.json())
       .then(data => {
@@ -243,11 +249,10 @@
       })
       .catch(() => alert("데이터 로드 실패!"));
 
-    // 2. 스타일 질문 화면
     function showInitialQuestion() {
       document.getElementById('round-title').innerText = "오늘 점심, 어떤 스타일?";
       document.getElementById('shuffle-text').style.display = 'none';
-      
+
       const container = document.getElementById('match-container');
       container.innerHTML = `
         <div class="card question-card" onclick="prepareTournament('light')">
@@ -260,23 +265,37 @@
       `;
     }
 
-    // 3. 메뉴 필터링 및 대진표 구성
     function prepareTournament(style) {
       const cats = allData.categories;
       let filtered = [];
 
       if (style === 'light') {
-        filtered = [...getM(cats,'샌드위치'), ...getM(cats,'샐러드'), ...getM(cats,'그릭요거트'), ...getM(cats,'랩')];
+        filtered = [
+          ...getM(cats, '샌드위치'),
+          ...getM(cats, '샐러드'),
+          ...getM(cats, '그릭요거트'),
+          ...getM(cats, '랩')
+        ];
       } else {
-        filtered = [...getM(cats,'단백질 도시락'), ...getM(cats,'포케'), ...getM(cats,'푸드')];
+        filtered = [
+          ...getM(cats, '단백질 도시락'),
+          ...getM(cats, '포케'),
+          ...getM(cats, '푸드')
+        ];
       }
 
-      // 무작위 섞기
-      const shuffled = filtered.sort(() => Math.random() - 0.5);
-      pool = shuffled.slice(0, 8); // 8강 진출
-      sparePool = shuffled.slice(8); // 나머지 메뉴는 셔플용으로 보관
+      const shuffled = filtered
+        .filter(item => item && item.name && item.image)
+        .sort(() => Math.random() - 0.5);
 
-      if (pool.length < 2) { alert("메뉴가 부족합니다!"); location.reload(); return; }
+      pool = shuffled.slice(0, 8);
+      sparePool = shuffled.slice(8);
+
+      if (pool.length < 2) {
+        alert("메뉴가 부족합니다!");
+        location.reload();
+        return;
+      }
 
       document.getElementById('shuffle-text').style.display = 'block';
       startRound();
@@ -287,7 +306,6 @@
       return c ? c.items : [];
     }
 
-    // 4. 라운드 진행 로직
     function startRound() {
       currentIdx = 0;
       winners = [];
@@ -302,10 +320,14 @@
 
     function showMatch() {
       const container = document.getElementById('match-container');
-      if (pool.length === 1) { finishGame(pool[0]); return; }
+
+      if (pool.length === 1) {
+        finishGame(pool[0]);
+        return;
+      }
 
       const item1 = pool[currentIdx];
-      const item2 = pool[currentIdx+1];
+      const item2 = pool[currentIdx + 1];
 
       container.innerHTML = `
         ${renderCard(item1, 0)}
@@ -322,16 +344,21 @@
     function renderCard(item, side) {
       return `
         <div class="card" onclick="selectWinner(${side})">
-          <img src="${item.image}" crossorigin="anonymous" onerror="this.src='https://via.placeholder.com/400?text=Salaria'">
+          <img
+            src="${item.image}"
+            data-original="${item.image}"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            onerror="this.src='https://via.placeholder.com/400?text=Salaria'"
+          >
           <div class="card-info">
             <h2>${item.name}</h2>
-            <p>${item.price}원</p>
+            <p>${item.price ? item.price + '원' : ''}</p>
           </div>
         </div>
       `;
     }
 
-    // 5. 유저 액션: 선택 및 셔플
     function selectWinner(side) {
       winners.push(pool[currentIdx + side]);
       currentIdx += 2;
@@ -349,30 +376,36 @@
 
       shuffleCount--;
       document.getElementById('shuffle-text').innerText = `남은 교체 기회: ${shuffleCount}회`;
-      
-      // 현재 대진 메뉴 2개를 sparePool의 메뉴 2개와 교체
+
       const oldItems = pool.splice(currentIdx, 2, sparePool.shift(), sparePool.shift());
-      sparePool.push(...oldItems); // 뺀 메뉴는 다시 대기열 끝으로
+      sparePool.push(...oldItems);
 
       showMatch();
     }
 
-    // 6. 우승 및 효과
     function finishGame(item) {
+      finalWinner = item;
+
       document.getElementById('game-view').style.display = 'none';
       document.getElementById('winner-view').style.display = 'block';
-      
+
       document.getElementById('winner-card-container').innerHTML = `
         <div class="card" style="border: 4px solid var(--gold); margin: 0 auto; cursor: default;">
-          <img src="${item.image}" id="winner-img" crossorigin="anonymous">
+          <img
+            src="${item.image}"
+            data-original="${item.image}"
+            id="winner-img"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            onerror="this.src='https://via.placeholder.com/400?text=Salaria'"
+          >
           <div class="card-info">
             <h2 style="font-size: 28px;">${item.name}</h2>
-            <p style="font-size: 24px;">${item.price}원</p>
+            <p style="font-size: 24px;">${item.price ? item.price + '원' : ''}</p>
           </div>
         </div>
       `;
 
-      // 폭죽 팡팡!
       confetti({
         particleCount: 150,
         spread: 70,
@@ -381,25 +414,101 @@
       });
     }
 
-    // 7. 이미지 저장 (보안 및 로딩 보완)
+    function proxyUrl(url) {
+      if (!url) return "";
+      if (url.startsWith("data:")) return url;
+
+      return "https://images.weserv.nl/?url=" + url
+        .replace(/^https?:\/\//, "")
+        .replace(/&/g, "%26");
+    }
+
+    function loadImageToDataURL(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.referrerPolicy = "no-referrer";
+
+        img.onload = function () {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            resolve(canvas.toDataURL("image/png"));
+          } catch (e) {
+            reject(e);
+          }
+        };
+
+        img.onerror = function () {
+          reject(new Error("이미지 로딩 실패"));
+        };
+
+        img.src = proxyUrl(url);
+      });
+    }
+
+    function waitForImages(target) {
+      const imgs = Array.from(target.querySelectorAll("img"));
+
+      return Promise.all(
+        imgs.map(img => new Promise(resolve => {
+          if (img.complete && img.naturalWidth > 0) {
+            resolve();
+            return;
+          }
+
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+
+          setTimeout(resolve, 4000);
+        }))
+      );
+    }
+
     async function saveAsImage() {
       const area = document.getElementById('capture-area');
       const btn = document.querySelector('.btn-save');
-      btn.innerText = "⏳ 저장 중...";
+      const winnerImg = document.getElementById('winner-img');
+
+      btn.innerText = "⏳ 이미지 준비 중...";
 
       try {
+        if (winnerImg && finalWinner && finalWinner.image) {
+          try {
+            const dataUrl = await loadImageToDataURL(finalWinner.image);
+            winnerImg.src = dataUrl;
+          } catch (e) {
+            console.warn("프록시 이미지 변환 실패:", e);
+          }
+        }
+
+        await waitForImages(area);
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        btn.innerText = "⏳ 저장 중...";
+
         const canvas = await html2canvas(area, {
           backgroundColor: "#1a1a1a",
           useCORS: true,
-          scale: 2
+          allowTaint: false,
+          logging: false,
+          scale: window.devicePixelRatio || 2
         });
 
         const link = document.createElement('a');
         link.download = 'salaria_lunch_today.png';
         link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+
       } catch (e) {
-        alert("이미지 저장 실패! 스크린샷을 권장합니다.");
+        alert("이미지 저장 실패! 다시 한 번 눌러보거나, 스크린샷을 이용해 주세요.");
       } finally {
         btn.innerText = "📸 이미지 저장";
       }

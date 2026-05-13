@@ -1,185 +1,675 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메뉴 랜덤 추천 - 다이내믹 슬롯</title>
-    <style>
-        body { font-family: 'Pretendard', sans-serif; background: #f0f4f0; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 450px; box-sizing: border-box; }
-        h2 { color: #1D7A4D; text-align: center; margin-bottom: 25px; font-size: 28px; letter-spacing: -1px; }
-        
-        .filter-section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .filter-title { font-weight: bold; margin-bottom: 12px; display: block; color: #444; font-size: 14px; }
-        
-        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { padding: 8px 16px; border-radius: 20px; background: #f8f8f8; cursor: pointer; font-size: 13px; transition: 0.2s; border: 1px solid #eee; color: #777; }
-        .chip.active { background: #1D7A4D; color: white; border-color: #1D7A4D; font-weight: 600; box-shadow: 0 3px 8px rgba(29,122,77,0.2); }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>샐러디아 메뉴 월드컵</title>
 
-        /* 결과 창 애니메이션 효과 */
-        .result-area { 
-            text-align: center; margin: 25px 0; min-height: 240px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            background: linear-gradient(145deg, #ffffff, #f5f5f5); 
-            border: 3px solid #1D7A4D; border-radius: 25px; padding: 20px; 
-            position: relative; overflow: hidden;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
-        }
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-        #menu-image { 
-            width: 140px; height: 140px; border-radius: 50%; object-fit: cover; 
-            margin-bottom: 15px; display: none; border: 4px solid #fff; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            animation: bounce 0.5s ease;
-        }
+  <style>
+    :root {
+      --primary:#19a463;
+      --bg:#121212;
+      --card-bg:#1e1e1e;
+      --muted:#888;
+      --gold:#ffd54f;
+    }
 
-        #menu-name { font-size: 24px; font-weight: 800; margin: 5px 0; color: #222; transition: transform 0.1s; }
-        #menu-price { color: #1D7A4D; font-size: 18px; font-weight: 600; opacity: 0.8; }
+    * {
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
 
-        @keyframes bounce {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+    body {
+      font-family:'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background:var(--bg);
+      color:white;
+      min-height:100dvh;
+      overflow-x:hidden;
+      display:flex;
+      flex-direction:column;
+    }
 
-        .btn-spin { 
-            width: 100%; padding: 20px; border: none; border-radius: 18px; 
-            background: #1D7A4D; color: white; font-size: 20px; font-weight: bold; 
-            cursor: pointer; transition: 0.3s; 
-            box-shadow: 0 8px 20px rgba(29,122,77,0.3);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn-spin:hover { background: #15613c; transform: translateY(-2px); }
-        .btn-spin:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(29,122,77,0.3); }
-        .btn-spin:disabled { background: #ccc; box-shadow: none; cursor: wait; }
-        
-        .btn-back { display: block; text-align: center; margin-top: 20px; color: #999; text-decoration: none; font-size: 14px; }
-    </style>
+    .top {
+      text-align:center;
+      padding:18px 10px 8px;
+      flex-shrink:0;
+    }
+
+    .title {
+      font-size:24px;
+      font-weight:800;
+      color:var(--primary);
+      margin-bottom:4px;
+    }
+
+    .sub {
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    #question-view,
+    #preview-view,
+    #game-view,
+    #advance-view,
+    #winner-view {
+      width:100%;
+      flex:1;
+      display:none;
+    }
+
+    #question-view {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:15px;
+      padding:20px;
+    }
+
+    .question-card {
+      width:100%;
+      max-width:400px;
+      padding:25px;
+      border-radius:20px;
+      background:var(--card-bg);
+      border:2px solid #333;
+      text-align:center;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .question-card:hover {
+      border-color:var(--primary);
+      transform:translateY(-3px);
+    }
+
+    .question-card h2 {
+      font-size:24px;
+      margin-bottom:6px;
+    }
+
+    .question-card small {
+      color:var(--muted);
+    }
+
+    .preview-wrap,
+    .advance-wrap {
+      padding:22px 16px;
+      text-align:center;
+    }
+
+    .section-title {
+      font-size:26px;
+      color:var(--gold);
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .section-sub {
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:18px;
+      line-height:1.5;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      gap:10px;
+      max-width:900px;
+      margin:0 auto 22px;
+    }
+
+    .grid.two {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      max-width:620px;
+    }
+
+    .grid-item {
+      background:var(--card-bg);
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid #333;
+    }
+
+    .grid-item img {
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      display:block;
+      background:#2a2a2a;
+    }
+
+    .grid-item p {
+      padding:8px 6px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.3;
+      word-break:keep-all;
+    }
+
+    .preview-buttons {
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .basic-btn {
+      border:none;
+      color:white;
+      padding:13px 22px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:15px;
+      cursor:pointer;
+    }
+
+    .next-btn {
+      background:var(--primary);
+    }
+
+    .refresh-btn {
+      background:#444;
+    }
+
+    .refresh-btn:disabled {
+      opacity:.35;
+      cursor:default;
+    }
+
+    #match-container {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:10px;
+      min-height:78dvh;
+      max-width:1200px;
+      margin:0 auto;
+    }
+
+    .card {
+      flex:1;
+      max-width:450px;
+      background:var(--card-bg);
+      border-radius:20px;
+      overflow:hidden;
+      cursor:pointer;
+      transition:.2s;
+      border:3px solid transparent;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .card:hover {
+      border-color:var(--primary);
+      transform:translateY(-3px);
+    }
+
+    .card img {
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      display:block;
+      background:#2a2a2a;
+    }
+
+    .card-body {
+      padding:12px;
+    }
+
+    .menu-name {
+      font-size:16px;
+      font-weight:700;
+      line-height:1.3;
+      margin-bottom:8px;
+      word-break:keep-all;
+    }
+
+    .menu-info {
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+    }
+
+    .badge {
+      background:#2c2c2c;
+      border-radius:6px;
+      padding:4px 8px;
+      font-size:11px;
+      color:#ddd;
+    }
+
+    .badge.price {
+      color:var(--primary);
+      font-weight:700;
+    }
+
+    .vs {
+      font-size:24px;
+      font-weight:900;
+      color:#ff5252;
+      flex-shrink:0;
+    }
+
+    #winner-view {
+      text-align:center;
+      padding:24px 20px;
+    }
+
+    .winner-title {
+      color:var(--gold);
+      font-size:30px;
+      font-weight:900;
+      margin-bottom:20px;
+    }
+
+    .winner-card {
+      max-width:360px;
+      margin:0 auto;
+      border:4px solid var(--gold);
+      cursor:default;
+    }
+
+    .btn-group {
+      margin-top:24px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .retry-btn {
+      background:var(--primary);
+    }
+
+    .home-btn {
+      background:#444;
+    }
+
+    @media(max-width:600px) {
+      .top { padding:10px; }
+      .title { font-size:20px; }
+
+      #match-container {
+        padding:5px;
+        align-items:stretch;
+        min-height:76dvh;
+      }
+
+      .card { height:100%; }
+      .card img { aspect-ratio:1/1.1; }
+      .menu-name { font-size:14px; }
+      .vs { font-size:20px; }
+
+      .badge {
+        font-size:10px;
+        padding:4px 6px;
+      }
+
+      .grid {
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:9px;
+      }
+
+      .grid.two {
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-item p {
+        font-size:11px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>🎰 런치 슬롯머신</h2>
+  <div class="top">
+    <div class="title" id="round-title">메뉴 월드컵</div>
+    <div class="sub">Saladia WorldCup</div>
+  </div>
 
-    <div class="filter-section">
-        <span class="filter-title">🍴 카테고리 (미선택 시 전체)</span>
-        <div id="category-chips" class="chip-group"></div>
+  <div id="question-view">
+    <div class="question-card" onclick="preparePreview('light')">
+      <h2>🥗 가볍게</h2>
+      <small>샐러드 · 샌드위치 · 요거트 · 랩</small>
     </div>
 
-    <div class="filter-section">
-        <span class="filter-title">💰 가격대 (미선택 시 전체)</span>
-        <div id="price-chips" class="chip-group">
-            <div class="chip" data-range="0-7900">~ 7,900</div>
-            <div class="chip" data-range="8000-8900">8,000-8,900</div>
-            <div class="chip" data-range="9000-9900">9,000-9,900</div>
-            <div class="chip" data-range="10000-999999">10,000~</div>
-        </div>
+    <div class="question-card" onclick="preparePreview('heavy')">
+      <h2>🍱 든든하게</h2>
+      <small>단백질 도시락 · 포케 · 푸드</small>
     </div>
+  </div>
 
-    <div class="result-area">
-        <img id="menu-image" src="" alt="메뉴 이미지">
-        <div id="menu-name">슈슈슉- 굴려볼까요?</div>
-        <div id="menu-price">오늘의 행운은?</div>
+  <div id="preview-view">
+    <div class="preview-wrap">
+      <div class="section-title">🍽 16강 후보 메뉴</div>
+      <div class="section-sub">
+        원하는 메뉴가 없으면 최대 3회까지 새로고침할 수 있습니다.
+      </div>
+      <div class="grid" id="preview-grid"></div>
+
+      <div class="preview-buttons">
+        <button id="refresh-btn" class="basic-btn refresh-btn" onclick="refreshPreview()">🔄 후보 새로고침 (3/3)</button>
+        <button class="basic-btn next-btn" onclick="startWorldcup()">16강 시작하기</button>
+      </div>
     </div>
+  </div>
 
-    <button class="btn-spin" id="spin-button" onclick="startSpin()">메뉴 뽑기 시작!</button>
-    <a href="index.html" class="btn-back">🔙 처음으로 돌아가기</a>
-</div>
+  <div id="game-view">
+    <div id="match-container"></div>
+  </div>
 
-<script>
-    let menuData = [];
+  <div id="advance-view">
+    <div class="advance-wrap">
+      <div class="section-title" id="advance-title">진출 메뉴</div>
+      <div class="section-sub" id="advance-sub">다음 라운드에 진출한 메뉴입니다.</div>
+      <div class="grid" id="advance-grid"></div>
+      <button class="basic-btn next-btn" onclick="startAdvanceNextRound()">다음 라운드 시작하기</button>
+    </div>
+  </div>
 
-    // 데이터 로드
-    fetch('data.json')
-        .then(res => res.json())
-        .then(data => {
-            menuData = data.categories;
-            const container = document.getElementById('category-chips');
-            menuData.forEach(cat => {
-                const chip = document.createElement('div');
-                chip.className = 'chip';
-                chip.innerText = cat.categoryName;
-                chip.onclick = () => chip.classList.toggle('active');
-                container.appendChild(chip);
-            });
-        });
+  <div id="winner-view">
+    <div class="winner-title">🏆 오늘의 우승 🏆</div>
+    <div id="winner-card-slot"></div>
 
-    document.querySelectorAll('#price-chips .chip').forEach(chip => {
-        chip.onclick = () => chip.classList.toggle('active');
-    });
+    <div class="btn-group">
+      <button class="basic-btn retry-btn" onclick="restartWorldcup()">다시하기</button>
+      <button class="basic-btn home-btn" onclick="goHome()">홈</button>
+    </div>
+  </div>
 
-    // 핵심 애니메이션 로직
-    function startSpin() {
-        const btn = document.getElementById('spin-button');
-        const nameEl = document.getElementById('menu-name');
-        const priceEl = document.getElementById('menu-price');
-        const imgEl = document.getElementById('menu-image');
+  <script>
+    let allData = {};
+    let selectedType = null;
+    let selectedAllMenus = [];
+    let previewRefreshCount = 3;
 
-        // 필터링 데이터 준비
-        let selectedCats = Array.from(document.querySelectorAll('#category-chips .chip.active')).map(c => c.innerText);
-        let selectedPriceRanges = Array.from(document.querySelectorAll('#price-chips .chip.active')).map(c => c.dataset.range);
+    let pool = [];
+    let winners = [];
+    let currentIndex = 0;
+    let currentRoundSize = 16;
+    let pendingNextPool = [];
 
-        let filteredMenus = [];
-        menuData.forEach(cat => {
-            if (selectedCats.length === 0 || selectedCats.includes(cat.categoryName)) {
-                cat.items.forEach(item => {
-                    const price = parseInt(item.price.replace(/,/g, ''));
-                    const isPriceMatch = selectedPriceRanges.length === 0 || selectedPriceRanges.some(range => {
-                        const [min, max] = range.split('-').map(Number);
-                        return price >= min && price <= max;
-                    });
-                    if (isPriceMatch) filteredMenus.push(item);
-                });
-            }
-        });
+    fetch('./data.json')
+      .then(res => {
+        if (!res.ok) throw new Error('data.json not found');
+        return res.json();
+      })
+      .then(data => {
+        allData = data;
+        console.log('data.json 로드 완료');
+      })
+      .catch(() => {
+        alert('data.json 파일을 찾을 수 없습니다. index.html과 같은 위치에 data.json을 넣어주세요.');
+      });
 
-        if (filteredMenus.length === 0) {
-            alert("조건에 맞는 메뉴가 없어요! 필터를 조정해 보세요.");
-            return;
-        }
-
-        // 애니메이션 초기화
-        btn.disabled = true;
-        imgEl.style.display = 'none';
-        
-        let speed = 50; // 시작 속도 (낮을수록 빠름)
-        let count = 0;
-        let maxCount = 30 + Math.floor(Math.random() * 10); // 총 회전 수
-
-        function animate() {
-            const randomMenu = filteredMenus[Math.floor(Math.random() * filteredMenus.length)];
-            nameEl.innerText = randomMenu.name;
-            priceEl.innerText = randomMenu.price + "원";
-            
-            // 굴러가는 느낌을 위해 살짝씩 흔들림 추가
-            nameEl.style.transform = `translateY(${Math.random() * 4 - 2}px)`;
-
-            count++;
-            
-            if (count < maxCount) {
-                // 서서히 느려지는 로직 (감속)
-                if (count > maxCount * 0.6) speed += 15;
-                else if (count > maxCount * 0.8) speed += 30;
-                
-                setTimeout(animate, speed);
-            } else {
-                // 최종 결과
-                const final = filteredMenus[Math.floor(Math.random() * filteredMenus.length)];
-                nameEl.innerText = final.name;
-                priceEl.innerText = final.price + "원";
-                nameEl.style.transform = 'translateY(0)';
-                
-                if(final.image) {
-                    imgEl.src = final.image;
-                    imgEl.style.display = 'block';
-                }
-                
-                btn.disabled = false;
-            }
-        }
-
-        animate();
+    function getCategory(name) {
+      return (allData.categories?.find(c => c.categoryName === name)?.items || [])
+        .filter(item => !item.hidden && item.name && item.image);
     }
-</script>
+
+    function getMenusByType(type) {
+      if (type === 'light') {
+        return [
+          ...getCategory('샐러드'),
+          ...getCategory('샌드위치'),
+          ...getCategory('그릭요거트'),
+          ...getCategory('랩')
+        ];
+      }
+
+      return [
+        ...getCategory('단백질 도시락'),
+        ...getCategory('포케'),
+        ...getCategory('푸드')
+      ];
+    }
+
+    function preparePreview(type) {
+      selectedType = type;
+      selectedAllMenus = shuffle(getMenusByType(type));
+      previewRefreshCount = 3;
+
+      if (selectedAllMenus.length < 16) {
+        alert('16강을 만들 메뉴가 부족합니다.');
+        return;
+      }
+
+      pool = selectedAllMenus.slice(0, 16);
+
+      document.getElementById('question-view').style.display = 'none';
+      document.getElementById('preview-view').style.display = 'block';
+      document.getElementById('game-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'none';
+      document.getElementById('winner-view').style.display = 'none';
+      document.getElementById('round-title').innerText = '16강 후보 메뉴';
+
+      renderPreview();
+    }
+
+    function refreshPreview() {
+      if (previewRefreshCount <= 0) return;
+
+      previewRefreshCount--;
+      selectedAllMenus = shuffle(getMenusByType(selectedType));
+      pool = selectedAllMenus.slice(0, 16);
+
+      renderPreview();
+    }
+
+    function renderPreview() {
+      const grid = document.getElementById('preview-grid');
+      grid.innerHTML = pool.map(item => `
+        <div class="grid-item">
+          ${imageTag(item.image, item.name)}
+          <p>${item.name}</p>
+        </div>
+      `).join('');
+
+      const btn = document.getElementById('refresh-btn');
+      btn.innerText = `🔄 후보 새로고침 (${previewRefreshCount}/3)`;
+      btn.disabled = previewRefreshCount <= 0;
+    }
+
+    function startWorldcup() {
+      currentRoundSize = 16;
+      document.getElementById('preview-view').style.display = 'none';
+      document.getElementById('game-view').style.display = 'block';
+      startRound();
+    }
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    function startRound() {
+      currentIndex = 0;
+      winners = [];
+      updateHeader();
+      renderMatch();
+    }
+
+    function updateHeader() {
+      if (currentRoundSize === 2) {
+        document.getElementById('round-title').innerText = '결승';
+      } else {
+        document.getElementById('round-title').innerText = `${currentRoundSize}강`;
+      }
+    }
+
+    function proxyUrl(url) {
+      if (!url) return '';
+      if (url.startsWith('data:')) return url;
+      return 'https://images.weserv.nl/?url=' + encodeURIComponent(url.replace(/^https?:\/\//, ''));
+    }
+
+    function imageTag(url, alt = '') {
+      const safeProxy = proxyUrl(url);
+
+      return `
+        <img
+          src="${url}"
+          alt="${alt}"
+          loading="eager"
+          referrerpolicy="no-referrer"
+          onerror="
+            this.onerror=null;
+            this.src='${safeProxy}';
+          "
+        >
+      `;
+    }
+
+    function renderMatch() {
+      const container = document.getElementById('match-container');
+
+      if (currentIndex >= pool.length) {
+        goNextRound();
+        return;
+      }
+
+      const item1 = pool[currentIndex];
+      const item2 = pool[currentIndex + 1];
+
+      container.innerHTML = `
+        ${createCardHTML(item1, 0)}
+        <div class="vs">VS</div>
+        ${createCardHTML(item2, 1)}
+      `;
+    }
+
+    function createCardHTML(item, side) {
+      return `
+        <div class="card" onclick="pick(${side})">
+          ${imageTag(item.image, item.name)}
+
+          <div class="card-body">
+            <div class="menu-name">${item.name}</div>
+
+            <div class="menu-info">
+              ${item.price ? `<span class="badge price">${item.price}원</span>` : ''}
+              ${item.weight ? `<span class="badge">${item.weight}g</span>` : ''}
+              ${item.kcal ? `<span class="badge">🔥 ${item.kcal}kcal</span>` : ''}
+              ${item.protein ? `<span class="badge">💪 ${item.protein}g</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function pick(side) {
+      winners.push(pool[currentIndex + side]);
+      currentIndex += 2;
+      renderMatch();
+    }
+
+    function goNextRound() {
+      if (winners.length === 1) {
+        showFinalWinner(winners[0]);
+        return;
+      }
+
+      if (winners.length === 8) {
+        showAdvanceView(winners, '🔥 8강 진출 메뉴', '16강에서 선택된 메뉴입니다.');
+        return;
+      }
+
+      if (winners.length === 4) {
+        showAdvanceView(winners, '🔥 4강 진출 메뉴', '8강에서 선택된 메뉴입니다.');
+        return;
+      }
+
+      pool = [...winners];
+      currentRoundSize = pool.length;
+      startRound();
+    }
+
+    function showAdvanceView(items, title, sub) {
+      pendingNextPool = [...items];
+
+      document.getElementById('game-view').style.display = 'none';
+      document.getElementById('question-view').style.display = 'none';
+      document.getElementById('preview-view').style.display = 'none';
+      document.getElementById('winner-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'block';
+
+      document.getElementById('round-title').innerText = title;
+      document.getElementById('advance-title').innerText = title;
+      document.getElementById('advance-sub').innerText = sub;
+
+      const grid = document.getElementById('advance-grid');
+      grid.className = items.length === 2 ? 'grid two' : 'grid';
+      grid.innerHTML = items.map(item => `
+        <div class="grid-item">
+          ${imageTag(item.image, item.name)}
+          <p>${item.name}</p>
+        </div>
+      `).join('');
+    }
+
+    function startAdvanceNextRound() {
+      pool = [...pendingNextPool];
+      currentRoundSize = pool.length;
+
+      document.getElementById('advance-view').style.display = 'none';
+      document.getElementById('game-view').style.display = 'block';
+
+      startRound();
+    }
+
+    function showFinalWinner(item) {
+      document.getElementById('game-view').style.display = 'none';
+      document.getElementById('question-view').style.display = 'none';
+      document.getElementById('preview-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'none';
+      document.getElementById('winner-view').style.display = 'block';
+      document.getElementById('round-title').innerText = '월드컵 종료';
+
+      document.getElementById('winner-card-slot').innerHTML = `
+        <div class="card winner-card">
+          ${imageTag(item.image, item.name)}
+
+          <div class="card-body">
+            <div class="menu-name">${item.name}</div>
+
+            <div class="menu-info">
+              ${item.price ? `<span class="badge price">${item.price}원</span>` : ''}
+              ${item.weight ? `<span class="badge">${item.weight}g</span>` : ''}
+              ${item.kcal ? `<span class="badge">🔥 ${item.kcal}kcal</span>` : ''}
+              ${item.protein ? `<span class="badge">💪 ${item.protein}g</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      confetti({
+        particleCount: 180,
+        spread: 90,
+        origin: { y: 0.6 },
+        colors: ['#19a463', '#ffd54f', '#ffffff', '#ff5252']
+      });
+    }
+
+    function restartWorldcup() {
+      document.getElementById('winner-view').style.display = 'none';
+      document.getElementById('game-view').style.display = 'none';
+      document.getElementById('preview-view').style.display = 'none';
+      document.getElementById('advance-view').style.display = 'none';
+      document.getElementById('question-view').style.display = 'flex';
+      document.getElementById('round-title').innerText = '메뉴 월드컵';
+    }
+
+    function goHome() {
+      location.href = 'index.html';
+    }
+  </script>
+
 </body>
 </html>

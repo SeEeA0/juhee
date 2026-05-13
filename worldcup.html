@@ -2,129 +2,145 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>샐러디아 메뉴 월드컵</title>
 
-  <!-- 이미지 저장 및 축하 효과 라이브러리 -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Pretendard', sans-serif; background: #121212; color: white; overflow-x: hidden; }
+    :root { --primary: #19a463; --bg: #121212; --card-bg: #1e1e1e; }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Pretendard', sans-serif; background: var(--bg); color:white; overflow-x:hidden; height: 100dvh; display: flex; flex-direction: column; }
 
-    .top { text-align: center; padding: 40px 20px 20px; }
-    .title { font-size: 38px; font-weight: 800; color: #19a463; margin-bottom: 10px; }
-    .sub { color: #888; font-size: 16px; letter-spacing: 1px; }
+    .top { text-align:center; padding: 20px 10px 10px; flex-shrink: 0; }
+    .title { font-size:24px; font-weight:800; color: var(--primary); margin-bottom:4px; }
+    .sub { color:#888; font-size:12px; }
 
-    /* 메인 게임 컨테이너 */
+    /* 메인 컨테이너 */
+    #game-view, #list-view, #question-view, #winner-view { width: 100%; flex: 1; display: none; overflow-y: auto; }
+
+    /* 모바일 한 화면 매치 컨테이너 */
     #match-container {
-      width: 100%; max-width: 1200px; margin: 0 auto;
       display: flex; align-items: center; justify-content: center;
-      gap: 40px; padding: 40px 20px;
+      gap: 10px; padding: 10px; height: 100%; max-width: 1200px; margin: 0 auto;
     }
 
-    /* 카드 스타일 */
     .card {
-      width: 100%; max-width: 450px; background: #1e1e1e;
-      border-radius: 25px; overflow: hidden; cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 3px solid transparent;
+      flex: 1; max-width: 450px; background: var(--card-bg);
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      transition: .2s; border: 3px solid transparent;
+      display: flex; flex-direction: column;
     }
-    .card:hover { transform: translateY(-10px); border-color: #19a463; box-shadow: 0 10px 30px rgba(25, 164, 99, 0.2); }
-    .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #2a2a2a; }
+    .card:hover { border-color: var(--primary); }
+    .card img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; background:#2a2a2a; }
 
-    .card-body { padding: 25px; }
-    .menu-name { font-size: 24px; font-weight: 700; margin-bottom: 15px; min-height: 68px; }
-    .menu-info { display: flex; flex-wrap: wrap; gap: 8px; }
-    .badge { background: #2c2c2c; border-radius: 12px; padding: 6px 12px; font-size: 14px; color: #bbb; }
-    .badge.price { color: #19a463; font-weight: 800; background: rgba(25, 164, 99, 0.1); }
+    .card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .menu-name { font-size: 16px; font-weight:700; line-height:1.3; margin-bottom: 8px; word-break: keep-all; }
+    .menu-info { display:flex; flex-wrap:wrap; gap:4px; }
+    .badge { background:#2c2c2c; border-radius:6px; padding:4px 8px; font-size:11px; color:#ddd; }
+    .badge.price { color: var(--primary); font-weight:700; }
 
-    .vs { font-size: 50px; font-weight: 900; color: #ff5252; font-style: italic; }
+    .vs { font-size: 24px; font-weight:900; color:#ff5252; text-align:center; flex-shrink: 0; }
 
-    /* 초기 선택 화면 */
-    .question-wrap { display: flex; justify-content: center; gap: 20px; padding: 60px 20px; flex-wrap: wrap; }
+    /* 중간 리스트 페이지 스타일 */
+    .list-wrap { padding: 20px; text-align: center; }
+    .list-grid { 
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+      gap: 10px; margin: 20px 0; 
+    }
+    .list-item { background: var(--card-bg); border-radius: 12px; overflow: hidden; font-size: 12px; border: 1px solid #333; }
+    .list-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+    .list-item p { padding: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 버튼 스타일 */
+    .next-btn { 
+      background: var(--primary); color: white; border: none; padding: 15px 40px; 
+      border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; width: 100%; max-width: 300px;
+    }
+
+    /* 초기 질문 화면 */
+    .question-wrap { display:flex; flex-direction: column; justify-content:center; align-items:center; gap:15px; padding:20px; }
     .question-card {
-      width: 100%; max-width: 400px; min-height: 250px; border-radius: 30px;
-      background: #1e1e1e; border: 2px solid #333;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 30px; cursor: pointer; transition: .25s;
+      width:100%; max-width:400px; padding: 25px; border-radius:20px;
+      background: var(--card-bg); border: 2px solid #333; text-align:center; cursor:pointer;
     }
-    .question-card:hover { border-color: #19a463; background: #252525; transform: scale(1.02); }
-    .question-card h2 { font-size: 30px; margin-bottom: 10px; }
-    .question-card p { color: #888; font-size: 16px; }
+    .question-card h2 { font-size:24px; margin-bottom:5px; }
 
-    /* 결과 화면 */
-    #winner-view { display: none; padding: 40px 20px; text-align: center; }
-    .winner-title { font-size: 40px; font-weight: 900; color: #ffd54f; margin-bottom: 30px; }
-    #capture-area { background: #121212; padding: 20px; border-radius: 30px; display: inline-block; }
-    
-    .btn-wrap { margin-top: 40px; display: flex; justify-content: center; gap: 15px; }
-    button { border: none; padding: 16px 28px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: .2s; }
-    .save-btn { background: #e91e63; color: white; }
-    .retry-btn { background: #19a463; color: white; }
-
-    @media(max-width: 800px) {
-      #match-container { flex-direction: column; gap: 20px; }
-      .vs { font-size: 30px; }
-      .title { font-size: 28px; }
+    /* 모바일 최적화 미디어 쿼리 (가장 중요) */
+    @media (max-width: 600px) {
+      .top { padding: 10px; }
+      .title { font-size: 20px; }
+      #match-container { padding: 5px; align-items: stretch; height: 80dvh; } /* 스크롤 없이 한 화면 유도 */
+      .card { height: 100%; }
+      .card img { aspect-ratio: 1/1.1; } /* 높이 확보를 위해 살짝 조정 */
+      .menu-name { font-size: 14px; }
+      .vs { font-size: 20px; }
     }
   </style>
 </head>
 <body>
 
 <div class="top">
-  <div class="title" id="round-title">샐러디아 메뉴 월드컵</div>
-  <div class="sub">최애 메뉴를 선택해 보세요!</div>
+  <div class="title" id="round-title">메뉴 월드컵</div>
+  <div class="sub">Saladia WorldCup</div>
 </div>
 
-<!-- 1단계: 카테고리 선택 -->
-<div id="question-view" class="question-wrap">
+<!-- 1. 카테고리 선택 -->
+<div id="question-view" class="question-wrap" style="display: flex;">
   <div class="question-card" onclick="prepareTournament('light')">
-    <div>
-      <h2>🥗 가벼운 한 끼</h2>
-      <p>샐러드 · 샌드위치 · 요거트 · 랩</p>
-    </div>
+    <h2>🥗 가볍게</h2>
+    <small>샐러드 · 샌드위치 · 요거트 · 랩</small>
   </div>
   <div class="question-card" onclick="prepareTournament('heavy')">
-    <div>
-      <h2>🍱 든든한 식사</h2>
-      <p>단백질 도시락 · 포케 · 일반식</p>
-    </div>
+    <h2>🍱 든든하게</h2>
+    <small>단백질 도시락 · 포케 · 푸드</small>
   </div>
 </div>
 
-<!-- 2단계: 게임 화면 -->
-<div id="game-view" style="display:none;">
+<!-- 2. 게임 진행 (한 화면 구성) -->
+<div id="game-view">
   <div id="match-container"></div>
 </div>
 
-<!-- 3단계: 결과 화면 -->
-<div id="winner-view">
-  <div id="capture-area">
-    <div class="winner-title">🏆 오늘의 메뉴 우승! 🏆</div>
-    <div id="winner-card-content"></div>
+<!-- 3. 중간 진출 리스트 확인 -->
+<div id="list-view">
+  <div class="list-wrap">
+    <h2 id="list-title" style="color: #ffd54f; margin-bottom: 10px;">8강 진출 메뉴</h2>
+    <p style="color: #888; margin-bottom: 20px;">다음 라운드에 올라간 메뉴들입니다.</p>
+    <div id="winners-list" class="list-grid"></div>
+    <button class="next-btn" onclick="startNextRound()">다음 라운드 시작하기</button>
   </div>
-  <div class="btn-wrap">
-    <button class="save-btn" onclick="saveImage()">📸 이미지 저장</button>
-    <button class="retry-btn" onclick="location.reload()">🔄 다시하기</button>
+</div>
+
+<!-- 4. 최종 결과 -->
+<div id="winner-view" style="text-align: center; padding: 20px;">
+  <div id="capture-area">
+    <h1 style="color: #ffd54f; margin-bottom: 20px;">🏆 오늘의 우승 🏆</h1>
+    <div id="winner-card-slot" style="max-width: 350px; margin: 0 auto;"></div>
+  </div>
+  <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+    <button onclick="saveImage()" style="background: #e91e63; color: white; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700;">이미지 저장</button>
+    <button onclick="location.reload()" style="background: #444; color: white; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700;">다시하기</button>
   </div>
 </div>
 
 <script>
-// JSON 데이터 시뮬레이션 (image_648955.jpg 구조 반영)
+// 데이터 구조 (샘플 16개 확보 권장)
 const allData = {
   "categories": [
     {
       "categoryName": "단백질 도시락",
       "items": [
-        { "name": "스팀 닭가슴살 단백질 도시락", "price": "8,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_ML2ibrSy_36e29c51e8135e66176e6610105ec5310f7c2c06.jpg", "weight": 448, "kcal": 676, "protein": 9 },
-        { "name": "매콤 스팀 닭가슴살 단백질 도시락", "price": "8,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_UmYgjap_6c1bd08a014e956ca997889cc8f86d0de6807589.jpg", "weight": 448, "kcal": 688, "protein": 9 },
-        { "name": "훈제오리 단백질 도시락", "price": "9,000", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_HaJQW2Ks_6eaaec5d348bae5a8d9148d1b6d43e5b5f0264f4.jpg", "weight": 468, "kcal": 878, "protein": 8 },
-        { "name": "목살 단백질 도시락", "price": "9,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_G5dPuy1D_0d84c1b66d827d30a30775e0aae6e05e1357b6cd.jpg", "weight": 468, "kcal": 822, "protein": 9 }
+        { "name": "스팀 닭가슴살", "price": "8,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_ML2ibrSy_36e29c51e8135e66176e6610105ec5310f7c2c06.jpg", "kcal": 676, "protein": 9 },
+        { "name": "매콤 스팀 닭가슴살", "price": "8,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_UmYgjap_6c1bd08a014e956ca997889cc8f86d0de6807589.jpg", "kcal": 688, "protein": 9 },
+        { "name": "훈제오리 도시락", "price": "9,000", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_HaJQW2Ks_6eaaec5d348bae5a8d9148d1b6d43e5b5f0264f4.jpg", "kcal": 878, "protein": 8 },
+        { "name": "목살 도시락", "price": "9,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_G5dPuy1D_0d84c1b66d827d30a30775e0aae6e05e1357b6cd.jpg", "kcal": 822, "protein": 9 },
+        { "name": "소불고기 도시락", "price": "10,400", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_fZrTmcbs_bfaf7c29b8d92303c6f5a8b8951ae1af93c03110.jpg", "kcal": 740, "protein": 9 },
+        { "name": "수비드 통삼겹", "price": "11,000", "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_blCQ6Dgj_751778acb20afeb38bd5e60ce1a8aac51538cfcc.jpg", "kcal": 918, "protein": 10 }
+        // ... (더 많은 데이터)
       ]
     }
-    // 다른 카테고리 데이터도 동일한 방식으로 추가 가능합니다.
   ]
 };
 
@@ -132,67 +148,54 @@ let pool = [];
 let winners = [];
 let currentIndex = 0;
 
-function getCategory(name) {
-  return allData.categories.find(c => c.categoryName === name)?.items || [];
-}
-
 function prepareTournament(type) {
   document.getElementById('question-view').style.display = 'none';
   document.getElementById('game-view').style.display = 'block';
 
-  // 타입별 데이터 구성
-  if (type === 'light') {
-    pool = [...getCategory('샐러드'), ...getCategory('샌드위치'), ...getCategory('그릭요거트'), ...getCategory('랩')];
-  } else {
-    pool = [...getCategory('단백질 도시락'), ...getCategory('포케'), ...getCategory('푸드')];
-  }
-
-  // 데이터가 부족할 경우 전체에서 가져오기 (예시용)
-  if (pool.length < 2) pool = allData.categories[0].items;
-
-  pool = pool.sort(() => Math.random() - 0.5).slice(0, 16);
-  startRound();
+  // 실제 연동 시 allData에서 타입에 맞는 카테고리 병합
+  pool = allData.categories[0].items; // 샘플용
+  pool = pool.sort(() => Math.random() - 0.5).slice(0, 8); // 시연을 위해 8개로 제한
+  
+  startMatch();
 }
 
-function startRound() {
+function startMatch() {
   currentIndex = 0;
   winners = [];
-  updateTitle();
-  showMatch();
+  updateHeader();
+  renderMatch();
 }
 
-function updateTitle() {
-  const title = document.getElementById('round-title');
-  title.innerText = pool.length === 2 ? "🔥 결승전 🔥" : `🍽 ${pool.length}강`;
+function updateHeader() {
+  document.getElementById('round-title').innerText = pool.length === 2 ? "결승전" : `${pool.length}강`;
 }
 
-function showMatch() {
-  if (pool.length === 1) {
-    showWinner(pool[0]);
+function renderMatch() {
+  const container = document.getElementById('match-container');
+  if (currentIndex >= pool.length) {
+    showIntermediateList();
     return;
   }
 
-  const container = document.getElementById('match-container');
+  const item1 = pool[currentIndex];
+  const item2 = pool[currentIndex+1];
+
   container.innerHTML = `
-    ${renderCard(pool[currentIndex], 0)}
+    ${createCardHTML(item1, 0)}
     <div class="vs">VS</div>
-    ${renderCard(pool[currentIndex+1], 1)}
+    ${createCardHTML(item2, 1)}
   `;
 }
 
-function renderCard(item, side) {
-  // 이미지 보안 및 깨짐 방지 처리 (Weserv 프록시 사용)
-  const proxyImg = `https://images.weserv.nl/?url=${encodeURIComponent(item.image.replace('https://', ''))}`;
-
+function createCardHTML(item, side) {
   return `
     <div class="card" onclick="pick(${side})">
-      <img src="${item.image}" onerror="this.src='${proxyImg}'">
+      <img src="${item.image}">
       <div class="card-body">
         <div class="menu-name">${item.name}</div>
         <div class="menu-info">
           <span class="badge price">${item.price}원</span>
-          ${item.kcal ? `<span class="badge">🔥 ${item.kcal}kcal</span>` : ''}
-          ${item.protein ? `<span class="badge">💪 단백질 ${item.protein}g</span>` : ''}
+          ${item.kcal ? `<span class="badge">🔥${item.kcal}</span>` : ''}
         </div>
       </div>
     </div>
@@ -202,44 +205,52 @@ function renderCard(item, side) {
 function pick(side) {
   winners.push(pool[currentIndex + side]);
   currentIndex += 2;
-
-  if (currentIndex >= pool.length) {
-    pool = [...winners];
-    startRound();
-  } else {
-    showMatch();
-  }
+  renderMatch();
 }
 
-function showWinner(item) {
+function showIntermediateList() {
+  if (winners.length === 1) {
+    showFinalWinner(winners[0]);
+    return;
+  }
+
   document.getElementById('game-view').style.display = 'none';
-  document.getElementById('winner-view').style.display = 'block';
-  document.getElementById('round-title').innerText = "최종 선택 완료!";
+  document.getElementById('list-view').style.display = 'block';
+  document.getElementById('list-title').innerText = `${winners.length}강 진출 메뉴`;
 
-  document.getElementById('winner-card-content').innerHTML = `
-    <div class="card" style="margin: 0 auto; cursor: default;">
-      <img src="${item.image}">
-      <div class="card-body">
-        <div class="menu-name" style="min-height:auto;">${item.name}</div>
-        <div class="menu-info" style="justify-content:center;">
-          <span class="badge price">${item.price}원</span>
-        </div>
-      </div>
+  const listContainer = document.getElementById('winners-list');
+  listContainer.innerHTML = winners.map(w => `
+    <div class="list-item">
+      <img src="${w.image}">
+      <p>${w.name}</p>
     </div>
-  `;
+  `).join('');
+}
 
+function startNextRound() {
+  pool = [...winners];
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('game-view').style.display = 'block';
+  startMatch();
+}
+
+function showFinalWinner(item) {
+  document.getElementById('game-view').style.display = 'none';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('winner-view').style.display = 'block';
+  document.getElementById('round-title').innerText = "월드컵 종료";
+
+  document.getElementById('winner-card-slot').innerHTML = createCardHTML(item, 0);
   confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 }
 
 async function saveImage() {
-  const target = document.getElementById('capture-area');
-  const canvas = await html2canvas(target, { useCORS: true, backgroundColor: '#121212' });
+  const canvas = await html2canvas(document.getElementById('capture-area'), { useCORS: true, backgroundColor: '#121212' });
   const link = document.createElement('a');
-  link.download = 'saladia_winner.png';
+  link.download = 'winner.png';
   link.href = canvas.toDataURL();
   link.click();
 }
 </script>
-
 </body>
 </html>

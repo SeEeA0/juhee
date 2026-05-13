@@ -1,242 +1,224 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>샐러디아 메뉴 월드컵</title>
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <style>
-    :root { --primary: #19a463; --bg: #121212; --card-bg: #1e1e1e; }
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    body { font-family:'Pretendard', sans-serif; background: var(--bg); color:white; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-
-    /* 상단 헤더 */
-    .top { text-align:center; padding: 15px 10px; flex-shrink: 0; }
-    .title { font-size:22px; font-weight:800; color: var(--primary); }
-    .refresh-count { font-size: 12px; color: #ff5252; margin-top: 4px; }
-
-    /* 뷰 컨테이너 */
-    #game-view, #list-view, #question-view, #winner-view { width: 100%; flex: 1; display: none; overflow-y: auto; }
-
-    /* 모바일 한 화면 매치 UI */
-    #match-container {
-      display: flex; align-items: center; justify-content: center;
-      gap: 10px; padding: 10px; height: 100%; max-width: 800px; margin: 0 auto;
-    }
-    .card {
-      flex: 1; height: 80%; background: var(--card-bg); border-radius: 20px; 
-      overflow: hidden; cursor: pointer; border: 3px solid transparent;
-      display: flex; flex-direction: column;
-    }
-    .card img { width:100%; aspect-ratio: 1/1.1; object-fit:cover; background:#2a2a2a; }
-    .card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-    .menu-name { font-size: 15px; font-weight:700; line-height:1.3; margin-bottom: 6px; word-break: keep-all; }
-    .badge { background:#2c2c2c; border-radius:6px; padding:4px 8px; font-size:11px; color: var(--primary); font-weight: 700; }
-
-    .vs { font-size: 20px; font-weight:900; color:#ff5252; flex-shrink: 0; }
-
-    /* 중간 리스트 */
-    .list-wrap { padding: 20px; text-align: center; }
-    .list-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 20px 0; }
-    .list-item { background: var(--card-bg); border-radius: 8px; overflow: hidden; font-size: 10px; }
-    .list-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-
-    /* 컨트롤 버튼 */
-    .btn-group { padding: 10px; display: flex; gap: 10px; justify-content: center; flex-shrink: 0; }
-    button { border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: .2s; }
-    .refresh-btn { background: #444; color: white; padding: 10px 20px; font-size: 14px; }
-    .refresh-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .next-btn { background: var(--primary); color: white; width: 100%; padding: 15px; font-size: 16px; }
-
-    @media (max-width: 600px) {
-        #match-container { height: 75dvh; }
-        .list-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메뉴 이상형 월드컵</title>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --bg-color: #f8f9fa;
+        }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+        .round-info {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .match-up {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+        .card {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s, border 0.3s;
+            border: 5px solid transparent;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+        .card img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        .card-info {
+            padding: 20px;
+        }
+        .card-info h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .vs {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: italic;
+            color: var(--primary-color);
+        }
+        .hidden { display: none; }
+        #winner-display img {
+            width: 80%;
+            max-width: 500px;
+            border-radius: 20px;
+            margin-top: 20px;
+        }
+        .btn-retry {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-<div class="top">
-  <div class="title" id="round-title">샐러디아 월드컵</div>
-  <div id="refresh-status" class="refresh-count">남은 새로고침: 3회</div>
-</div>
+<div id="game-container">
+    <div id="setup-view">
+        <h1>메뉴 이상형 월드컵</h1>
+        <p>오늘의 추천 메뉴를 선정해보세요!</p>
+        <button class="btn-retry" onclick="startGame()">게임 시작 (16강)</button>
+    </div>
 
-<div id="question-view" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
-  <button class="next-btn" style="max-width:300px" onclick="prepareTournament('all')">게임 시작하기</button>
-  <p style="color:#666; font-size:13px;">총 16개의 메뉴가 랜덤하게 선택됩니다.</p>
-</div>
+    <div id="game-view" class="hidden">
+        <div class="round-info" id="round-title">16강</div>
+        <div class="match-up">
+            <div class="card" id="left-card" onclick="select(0)">
+                <img id="left-img" src="" alt="">
+                <div class="card-info">
+                    <h3 id="left-name">메뉴명</h3>
+                </div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="card" id="right-card" onclick="select(1)">
+                <img id="right-img" src="" alt="">
+                <div class="card-info">
+                    <h3 id="right-name">메뉴명</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div id="game-view">
-  <div id="match-container"></div>
-  <div class="btn-group">
-    <button id="btn-refresh" class="refresh-btn" onclick="refreshCurrentMatch()">🔄 메뉴 새로고침</button>
-  </div>
-</div>
-
-<div id="list-view">
-  <div class="list-wrap">
-    <h2 id="list-title">진출 메뉴</h2>
-    <div id="winners-list" class="list-grid"></div>
-    <button class="next-btn" onclick="startNextRound()">다음 라운드 시작</button>
-  </div>
-</div>
-
-<div id="winner-view" style="text-align: center; padding: 20px;">
-  <div id="capture-area">
-    <h1 style="color: #ffd54f; margin-bottom: 20px;">🏆 오늘의 메뉴 🏆</h1>
-    <div id="winner-card-slot" style="max-width: 300px; margin: 0 auto;"></div>
-  </div>
-  <button onclick="location.reload()" class="next-btn" style="margin-top:20px; background:#444;">다시하기</button>
+    <div id="result-view" class="hidden">
+        <div class="round-info">🏆 최종 우승! 🏆</div>
+        <div id="winner-display">
+            <img id="winner-img" src="" alt="">
+            <h2 id="winner-name">우승 메뉴</h2>
+        </div>
+        <button class="btn-retry" onclick="location.reload()">다시 하기</button>
+    </div>
 </div>
 
 <script>
-// 1. 데이터 소스 (image_648955.jpg 기반 샘플)
-const menuDatabase = [
-    { id: 1, name: "스팀 닭가슴살 도시락", price: "8,400", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_ML2ibrSy_36e29c51e8135e66176e6610105ec5310f7c2c06.jpg" },
-    { id: 2, name: "매콤 닭가슴살 도시락", price: "8,400", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_UmYgjap_6c1bd08a014e956ca997889cc8f86d0de6807589.jpg" },
-    { id: 3, name: "훈제오리 도시락", price: "9,000", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_HaJQW2Ks_6eaaec5d348bae5a8d9148d1b6d43e5b5f0264f4.jpg" },
-    { id: 4, name: "목살 도시락", price: "9,400", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_G5dPuy1D_0d84c1b66d827d30a30775e0aae6e05e1357b6cd.jpg" },
-    { id: 5, name: "소불고기 도시락", price: "10,400", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_fZrTmcbs_bfaf7c29b8d92303c6f5a8b8951ae1af93c03110.jpg" },
-    { id: 6, name: "수비드 통삼겹", price: "11,000", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_blCQ6Dgj_751778acb20afeb38bd5e60ce1a8aac51538cfcc.jpg" },
-    { id: 7, name: "부채살 스테이크 포케", price: "12,900", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_0d84c1b66d827d30a30775e0aae6e05e1357b6cd.jpg" },
-    { id: 8, name: "연어 포케", price: "13,500", image: "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_6eaaec5d348bae5a8d9148d1b6d43e5b5f0264f4.jpg" },
-    // 실제 데이터가 더 많다고 가정 (중복 방지를 위해 여유 데이터 필요)
-    { id: 9, name: "바질파스타 샐러드", price: "9,900", image: "https://via.placeholder.com/300?text=Menu9" },
-    { id: 10, name: "리코타치즈 샐러드", price: "10,500", image: "https://via.placeholder.com/300?text=Menu10" },
-    { id: 11, name: "치킨텐더 샐러드", price: "9,500", image: "https://via.placeholder.com/300?text=Menu11" },
-    { id: 12, name: "쉬림프 샐러드", price: "11,000", image: "https://via.placeholder.com/300?text=Menu12" },
-    { id: 13, name: "두부면 샐러드", price: "8,900", image: "https://via.placeholder.com/300?text=Menu13" },
-    { id: 14, name: "에그마요 샌드위치", price: "6,500", image: "https://via.placeholder.com/300?text=Menu14" },
-    { id: 15, name: "햄치즈 샌드위치", price: "7,000", image: "https://via.placeholder.com/300?text=Menu15" },
-    { id: 16, name: "불고기 랩", price: "7,500", image: "https://via.placeholder.com/300?text=Menu16" },
-    { id: 17, name: "추가 메뉴 A", price: "8,000", image: "https://via.placeholder.com/300?text=New1" },
-    { id: 18, name: "추가 메뉴 B", price: "8,500", image: "https://via.placeholder.com/300?text=New2" },
-    { id: 19, name: "추가 메뉴 C", price: "9,000", image: "https://via.placeholder.com/300?text=New3" }
-];
+    // JSON 데이터 (제공해주신 구조 예시)
+    const menuData = {
+        "categories": [
+            {
+                "categoryName": "그릭요거트",
+                "items": [
+                    {"name": "플레인 요거트", "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500", "price": 4500},
+                    {"name": "딸기 요거트", "image": "https://images.unsplash.com/photo-1571115177098-24ec42ed2bb4?w=500", "price": 5200}
+                ]
+            },
+            {
+                "categoryName": "커피",
+                "items": [
+                    {"name": "아메리카노", "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500", "price": 4000},
+                    {"name": "카페라떼", "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500", "price": 4500},
+                    {"name": "바닐라라떼", "image": "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?w=500", "price": 5000}
+                ]
+            },
+            {
+                "categoryName": "디저트",
+                "items": [
+                    {"name": "초코케이크", "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500", "price": 6000},
+                    {"name": "치즈케이크", "image": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500", "price": 6500},
+                    {"name": "마카롱", "image": "https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=500", "price": 3000}
+                ]
+            }
+        ]
+    };
 
-let pool = []; // 현재 라운드 메뉴
-let winners = []; // 승자 리스트
-let usedIds = new Set(); // 중복 방지를 위해 이미 사용된 메뉴 ID 기록
-let refreshCount = 3;
-let currentIndex = 0;
+    let allItems = [];
+    let currentRoundItems = [];
+    let nextRoundItems = [];
+    let currentIndex = 0;
 
-// 게임 시작
-function prepareTournament() {
-    document.getElementById('question-view').style.display = 'none';
-    document.getElementById('game-view').style.display = 'block';
-    
-    // 처음 16개 추출
-    const shuffled = [...menuDatabase].sort(() => Math.random() - 0.5);
-    pool = shuffled.slice(0, 16);
-    pool.forEach(item => usedIds.add(item.id)); // 사용된 ID 등록
-    
-    startMatch();
-}
-
-function startMatch() {
-    currentIndex = 0;
-    winners = [];
-    updateUI();
-    renderCards();
-}
-
-function updateUI() {
-    document.getElementById('round-title').innerText = pool.length === 2 ? "결승전" : `${pool.length}강`;
-    document.getElementById('refresh-status').innerText = `남은 새로고침: ${refreshCount}회`;
-    document.getElementById('btn-refresh').disabled = refreshCount <= 0;
-}
-
-function renderCards() {
-    const container = document.getElementById('match-container');
-    if (currentIndex >= pool.length) {
-        showIntermediateList();
-        return;
+    function startGame() {
+        // 모든 카테고리의 아이템을 하나로 합침
+        allItems = menuData.categories.flatMap(cat => cat.items);
+        
+        // 무작위 셔플 후 16개 추출 (데이터가 부족하면 전체 사용)
+        currentRoundItems = allItems.sort(() => Math.random() - 0.5).slice(0, 16);
+        
+        document.getElementById('setup-view').classList.add('hidden');
+        document.getElementById('game-view').classList.remove('hidden');
+        updateMatch();
     }
 
-    container.innerHTML = `
-        ${createCardHTML(pool[currentIndex], 0)}
-        <div class="vs">VS</div>
-        ${createCardHTML(pool[currentIndex+1], 1)}
-    `;
-}
+    function updateMatch() {
+        const totalMatches = currentRoundItems.length / 2;
+        const currentMatch = (currentIndex / 2) + 1;
+        
+        let roundText = currentRoundItems.length === 2 ? "결승전" : currentRoundItems.length + "강";
+        document.getElementById('round-title').innerText = `${roundText} (${currentMatch}/${totalMatches})`;
 
-function createCardHTML(item, side) {
-    return `
-        <div class="card" onclick="pick(${side})">
-            <img src="${item.image}">
-            <div class="card-body">
-                <div class="badge">${item.price}원</div>
-                <div class="menu-name">${item.name}</div>
-            </div>
-        </div>
-    `;
-}
+        const left = currentRoundItems[currentIndex];
+        const right = currentRoundItems[currentIndex + 1];
 
-function pick(side) {
-    winners.push(pool[currentIndex + side]);
-    currentIndex += 2;
-    renderCards();
-}
-
-// 2. 새로고침 로직 (중복 방지 핵심)
-function refreshCurrentMatch() {
-    if (refreshCount <= 0) return;
-
-    // 전체 메뉴 중 아직 한 번도 등장하지 않은 메뉴들 필터링
-    const unusedMenus = menuDatabase.filter(m => !usedIds.has(m.id));
-    
-    if (unusedMenus.length < 2) {
-        alert("더 이상 교체할 새로운 메뉴가 없습니다!");
-        return;
+        document.getElementById('left-img').src = left.image;
+        document.getElementById('left-name').innerText = left.name;
+        document.getElementById('right-img').src = right.image;
+        document.getElementById('right-name').innerText = right.name;
     }
 
-    // 새로운 메뉴 2개 무작위 선택
-    const newItems = unusedMenus.sort(() => Math.random() - 0.5).slice(0, 2);
-    
-    // 현재 대진 중인 메뉴 교체
-    pool[currentIndex] = newItems[0];
-    pool[currentIndex+1] = newItems[1];
-    
-    // 사용 기록 업데이트
-    usedIds.add(newItems[0].id);
-    usedIds.add(newItems[1].id);
-    
-    refreshCount--;
-    updateUI();
-    renderCards();
-}
+    function select(side) {
+        // 선택된 아이템을 다음 라운드 리스트에 추가
+        const winner = side === 0 ? currentRoundItems[currentIndex] : currentRoundItems[currentIndex + 1];
+        nextRoundItems.push(winner);
 
-function showIntermediateList() {
-    if (winners.length === 1) {
-        showFinalWinner(winners[0]);
-        return;
+        currentIndex += 2;
+
+        if (currentIndex >= currentRoundItems.length) {
+            // 한 라운드가 끝남
+            if (nextRoundItems.length === 1) {
+                showWinner(nextRoundItems[0]);
+            } else {
+                currentRoundItems = nextRoundItems;
+                nextRoundItems = [];
+                currentIndex = 0;
+                updateMatch();
+            }
+        } else {
+            updateMatch();
+        }
     }
-    document.getElementById('game-view').style.display = 'none';
-    document.getElementById('list-view').style.display = 'block';
-    document.getElementById('list-title').innerText = `${winners.length}강 진출 확정`;
 
-    document.getElementById('winners-list').innerHTML = winners.map(w => `
-        <div class="list-item">
-            <img src="${w.image}">
-            <p style="padding:4px">${w.name}</p>
-        </div>
-    `).join('');
-}
-
-function startNextRound() {
-    pool = [...winners];
-    document.getElementById('list-view').style.display = 'none';
-    document.getElementById('game-view').style.display = 'block';
-    startMatch();
-}
-
-function showFinalWinner(item) {
-    document.getElementById('game-view').style.display = 'none';
-    document.getElementById('winner-view').style.display = 'block';
-    document.getElementById('winner-card-slot').innerHTML = createCardHTML(item, 0);
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-}
+    function showWinner(item) {
+        document.getElementById('game-view').classList.add('hidden');
+        document.getElementById('result-view').classList.remove('hidden');
+        document.getElementById('winner-img').src = item.image;
+        document.getElementById('winner-name').innerText = item.name;
+    }
 </script>
+
 </body>
 </html>

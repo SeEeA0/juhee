@@ -299,6 +299,128 @@
           "protein": 8
         }
       ]
+    },
+    {
+  "categoryName": "그릭요거트",
+  "items": [
+    {
+      "name": "온리그래놀라 그릭요거트",
+      "price": "7,500",
+      "image": "images/yogurt_01.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "망고 그래놀라 그릭요거트",
+      "price": "8,500",
+      "image": "images/yogurt_02.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "블루베리바나나 그릭요거트",
+      "price": "8,500",
+      "image": "images/yogurt_03.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "과일 그래놀라 그릭요거트",
+      "price": "8,500",
+      "image": "images/yogurt_04.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "생딸기 그릭요거트",
+      "price": "8,500",
+      "image": "images/yogurt_05.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    }
+  ]
+},
+{
+  "categoryName": "푸드",
+  "items": [
+    {
+      "name": "체다치즈 듬뿍 떡볶이 (순한맛/매운맛)",
+      "price": "6,000",
+      "image": "images/food_01.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "김치 볶음밥",
+      "price": "6,900",
+      "image": "images/food_02.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "목살 김치 볶음밥",
+      "price": "9,900",
+      "image": "images/food_03.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "스위트콘 스프",
+      "price": "4,800",
+      "image": "images/food_04.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "까망베르 감자 스프",
+      "price": "4,800",
+      "image": "images/food_05.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "버섯 크림 스프",
+      "price": "4,800",
+      "image": "images/food_06.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "카야 버터 토스트",
+      "price": "4,900",
+      "image": "images/food_07.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "누텔라 버터 토스트",
+      "price": "4,900",
+      "image": "images/food_08.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "햄치즈에그 토스트",
+      "price": "6,900",
+      "image": "images/food_09.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    }
+  ]
     }
   ]
 }

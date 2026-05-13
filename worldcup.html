@@ -1,518 +1,548 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>점심 메뉴 월드컵</title>
 
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
-    :root {
-      --main-green: #1D7A4D;
-      --accent-pink: #e91e63;
-      --dark-bg: #1a1a1a;
-      --card-bg: #2a2a2a;
-      --gold: #FFD700;
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
     }
 
-    body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--dark-bg);
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      touch-action: manipulation;
+    body{
+      font-family:'Pretendard',sans-serif;
+      background:#121212;
+      color:white;
+      overflow-x:hidden;
     }
 
-    .round-info {
-      font-size: 40px;
-      font-weight: bold;
-      margin: 40px 0 10px;
-      color: var(--main-green);
+    .top{
+      text-align:center;
+      padding:30px 20px 10px;
     }
 
-    .shuffle-status {
-      font-size: 14px;
-      color: #888;
-      margin-bottom: 20px;
+    .title{
+      font-size:38px;
+      font-weight:800;
+      color:#19a463;
+      margin-bottom:10px;
     }
 
-    .match-area {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-      max-width: 1100px;
-      margin: 0 auto;
-      min-height: 500px;
+    .sub{
+      color:#888;
+      font-size:15px;
     }
 
-    .card {
-      flex: 1;
-      background: var(--card-bg);
-      border-radius: 30px;
-      overflow: hidden;
-      cursor: pointer;
-      border: 4px solid transparent;
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      max-width: 450px;
-      position: relative;
+    #match-container{
+      width:100%;
+      max-width:1400px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:30px;
+      padding:30px;
     }
 
-    .card:hover {
-      border-color: var(--main-green);
-      transform: translateY(-8px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    .card{
+      width:100%;
+      max-width:500px;
+      background:#1e1e1e;
+      border-radius:30px;
+      overflow:hidden;
+      cursor:pointer;
+      transition:.25s;
+      border:3px solid transparent;
     }
 
-    .card img {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      background: #333;
-      display: block;
+    .card:hover{
+      transform:translateY(-5px);
+      border-color:#19a463;
     }
 
-    .card-info {
-      padding: 30px 20px;
+    .card img{
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      display:block;
+      background:#2a2a2a;
     }
 
-    .card-info h2 {
-      font-size: 24px;
-      margin: 0 0 10px;
-      word-break: keep-all;
+    .card-body{
+      padding:24px;
     }
 
-    .card-info p {
-      font-size: 20px;
-      color: var(--main-green);
-      font-weight: bold;
-      margin: 0;
+    .menu-name{
+      font-size:26px;
+      font-weight:700;
+      line-height:1.4;
+      margin-bottom:15px;
+      word-break:keep-all;
     }
 
-    .vs-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      min-width: 120px;
+    .menu-info{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
     }
 
-    .vs {
-      font-size: 50px;
-      font-weight: 900;
-      color: #ff5252;
-      font-style: italic;
+    .badge{
+      background:#2c2c2c;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:15px;
+      color:#ddd;
     }
 
-    .btn-shuffle {
-      background: #444;
-      color: #eee;
-      border: 1px solid #666;
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.2s;
+    .price{
+      color:#19a463;
+      font-weight:700;
     }
 
-    .btn-shuffle:hover:not(:disabled) {
-      background: #555;
+    .vs{
+      font-size:60px;
+      font-weight:900;
+      color:#ff5252;
+      min-width:120px;
+      text-align:center;
     }
 
-    .btn-shuffle:disabled {
-      opacity: 0.3;
-      cursor: default;
+    .question-wrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:20px;
+      padding:50px 20px;
+      flex-wrap:wrap;
     }
 
-    #winner-view {
-      display: none;
-      padding: 40px 10px;
-      animation: fadeIn 0.8s;
+    .question-card{
+      width:100%;
+      max-width:420px;
+      min-height:280px;
+      border-radius:30px;
+      background:#1e1e1e;
+      border:3px solid #19a463;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:30px;
+      cursor:pointer;
+      transition:.25s;
     }
 
-    #capture-area {
-      padding: 40px 30px;
-      background: var(--dark-bg);
-      display: inline-block;
-      border-radius: 40px;
+    .question-card:hover{
+      transform:translateY(-5px);
+      background:#232323;
     }
 
-    .winner-tag {
-      font-size: 32px;
-      margin-bottom: 5px;
-      color: var(--gold);
+    .question-card h2{
+      font-size:34px;
+      line-height:1.5;
     }
 
-    .button-group {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 40px;
-      flex-wrap: wrap;
+    .question-card small{
+      display:block;
+      margin-top:15px;
+      color:#999;
+      font-size:18px;
+      line-height:1.5;
     }
 
-    .btn {
-      padding: 15px 25px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: white;
-      transition: 0.2s;
+    #winner-view{
+      display:none;
+      padding:50px 20px;
+      text-align:center;
     }
 
-    .btn-save { background: var(--accent-pink); }
-    .btn-retry { background: var(--main-green); }
-    .btn-home { background: #4a4a4a; }
-
-    .btn:active {
-      transform: scale(0.95);
+    .winner-title{
+      font-size:46px;
+      font-weight:900;
+      color:#ffd54f;
+      margin-bottom:30px;
     }
 
-    .question-card {
-      background: var(--main-green) !important;
-      height: 320px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    .winner-card{
+      width:100%;
+      max-width:550px;
+      margin:0 auto;
+      background:#1e1e1e;
+      border-radius:30px;
+      overflow:hidden;
+      border:4px solid #ffd54f;
     }
 
-    .question-card h2 {
-      font-size: 28px;
-      line-height: 1.4;
-      margin: 0;
+    .winner-card img{
+      width:100%;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      display:block;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .btn-wrap{
+      margin-top:35px;
+      display:flex;
+      justify-content:center;
+      gap:15px;
+      flex-wrap:wrap;
     }
 
-    @media (max-width: 768px) {
-      .match-area { flex-direction: column; gap: 15px; }
-      .vs-container { order: 2; margin: 10px 0; }
-      .card { width: 90%; max-width: 350px; }
-      .card:nth-of-type(1) { order: 1; }
-      .card:nth-of-type(2) { order: 3; }
-      .round-info { font-size: 32px; }
+    button{
+      border:none;
+      padding:15px 24px;
+      border-radius:14px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
+      color:white;
+    }
+
+    .save-btn{
+      background:#e91e63;
+    }
+
+    .retry-btn{
+      background:#19a463;
+    }
+
+    .home-btn{
+      background:#444;
+    }
+
+    button:hover{
+      opacity:.9;
+      transform:translateY(-2px);
+    }
+
+    @media(max-width:900px){
+
+      #match-container{
+        flex-direction:column;
+        gap:15px;
+      }
+
+      .vs{
+        font-size:40px;
+        min-width:auto;
+      }
+
+      .title{
+        font-size:30px;
+      }
+
+      .menu-name{
+        font-size:22px;
+      }
+
+      .question-card h2{
+        font-size:28px;
+      }
+
     }
   </style>
 </head>
 
 <body>
 
-  <div id="game-view">
-    <div class="round-info" id="round-title">로딩 중...</div>
-    <div class="shuffle-status" id="shuffle-text">남은 교체 기회: 3회</div>
-    <div class="match-area" id="match-container"></div>
-  </div>
+<div class="top">
+  <div class="title" id="round-title">오늘 점심 뭐 먹지?</div>
+  <div class="sub">Salaria Lunch WorldCup</div>
+</div>
 
-  <div id="winner-view">
-    <div id="capture-area">
-      <div class="winner-tag">🏆 오늘의 픽 🏆</div>
-      <div style="color: #888; margin-bottom: 25px; font-size: 18px;">Salaria Lunch Manager</div>
-      <div id="winner-card-container"></div>
-    </div>
-
-    <div class="button-group">
-      <button onclick="saveAsImage()" class="btn btn-save">📸 이미지 저장</button>
-      <button onclick="location.reload()" class="btn btn-retry">다시 하기</button>
-      <button onclick="location.href='index.html'" class="btn btn-home">🏠 메인으로</button>
+<div id="question-view" class="question-wrap">
+  <div class="question-card" onclick="prepareTournament('light')">
+    <div>
+      <h2>
+        🥗 가볍게 먹고싶다
+      </h2>
+      <small>
+        샐러드 · 샌드위치 · 그릭요거트 · 랩
+      </small>
     </div>
   </div>
 
-  <script>
-    let allData = {};
-    let pool = [];
-    let sparePool = [];
-    let winners = [];
-    let currentIdx = 0;
-    let shuffleCount = 3;
-    let finalWinner = null;
+  <div class="question-card" onclick="prepareTournament('heavy')">
+    <div>
+      <h2>
+        🍖 든든하게 먹고싶다
+      </h2>
+      <small>
+        단백질도시락 · 포케 · 푸드
+      </small>
+    </div>
+  </div>
+</div>
 
-    fetch('data.json')
-      .then(res => res.json())
-      .then(data => {
-        allData = data;
-        showInitialQuestion();
-      })
-      .catch(() => alert("데이터 로드 실패!"));
+<div id="game-view" style="display:none;">
+  <div id="match-container"></div>
+</div>
 
-    function showInitialQuestion() {
-      document.getElementById('round-title').innerText = "오늘 점심, 어떤 스타일?";
-      document.getElementById('shuffle-text').style.display = 'none';
+<div id="winner-view">
+  <div id="capture-area">
+    <div class="winner-title">🏆 오늘의 메뉴 🏆</div>
 
-      const container = document.getElementById('match-container');
-      container.innerHTML = `
-        <div class="card question-card" onclick="prepareTournament('light')">
-          <h2>🥗 가볍고 산뜻하게<br><small style="font-size:16px; opacity:0.8;">(샐러드, 샌드위치, 요거트)</small></h2>
+    <div class="winner-card" id="winner-card"></div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="save-btn" onclick="saveImage()">📸 이미지 저장</button>
+    <button class="retry-btn" onclick="location.reload()">🔄 다시하기</button>
+    <button class="home-btn" onclick="location.reload()">🏠 홈</button>
+  </div>
+</div>
+
+<script>
+
+let allData = {};
+let pool = [];
+let winners = [];
+let currentIndex = 0;
+
+fetch('./data.json')
+  .then(res => {
+    if(!res.ok){
+      throw new Error('data.json not found');
+    }
+    return res.json();
+  })
+  .then(data => {
+    allData = data;
+    console.log('JSON 로드 완료');
+  })
+  .catch(err => {
+    console.error(err);
+    alert('data.json 파일을 찾을 수 없습니다.');
+  });
+
+function getCategory(name){
+  return allData.categories.find(c => c.categoryName === name)?.items || [];
+}
+
+function prepareTournament(type){
+
+  document.getElementById('question-view').style.display='none';
+  document.getElementById('game-view').style.display='block';
+
+  if(type === 'light'){
+    pool = [
+      ...getCategory('샌드위치'),
+      ...getCategory('샐러드'),
+      ...getCategory('그릭요거트'),
+      ...getCategory('랩')
+    ];
+  }else{
+    pool = [
+      ...getCategory('단백질 도시락'),
+      ...getCategory('포케'),
+      ...getCategory('푸드')
+    ];
+  }
+
+  pool = shuffle(pool).slice(0,16);
+
+  startRound();
+}
+
+function shuffle(arr){
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function startRound(){
+
+  currentIndex = 0;
+  winners = [];
+
+  updateRoundTitle();
+  showMatch();
+}
+
+function updateRoundTitle(){
+
+  if(pool.length === 2){
+    document.getElementById('round-title').innerText = '🔥 결승전';
+  }else{
+    document.getElementById('round-title').innerText = `🍽 ${pool.length}강`;
+  }
+}
+
+function showMatch(){
+
+  if(pool.length === 1){
+    showWinner(pool[0]);
+    return;
+  }
+
+  const item1 = pool[currentIndex];
+  const item2 = pool[currentIndex+1];
+
+  const container = document.getElementById('match-container');
+
+  container.innerHTML = `
+    ${renderCard(item1,0)}
+    <div class="vs">VS</div>
+    ${renderCard(item2,1)}
+  `;
+}
+
+function renderCard(item,index){
+
+  const imageUrl = item.image;
+
+  return `
+    <div class="card" onclick="pick(${index})">
+
+      <img
+        src="${imageUrl}"
+        loading="eager"
+        referrerpolicy="no-referrer"
+        onerror="
+          this.onerror=null;
+          this.src='https://images.weserv.nl/?url=${encodeURIComponent(imageUrl.replace('https://',''))}';
+        "
+      >
+
+      <div class="card-body">
+
+        <div class="menu-name">
+          ${item.name}
         </div>
-        <div class="vs-container"><div class="vs">OR</div></div>
-        <div class="card question-card" onclick="prepareTournament('heavy')">
-          <h2>🥩 든든하고 푸짐하게<br><small style="font-size:16px; opacity:0.8;">(도시락, 포케, 볶음밥)</small></h2>
-        </div>
-      `;
-    }
 
-    function prepareTournament(style) {
-      const cats = allData.categories;
-      let filtered = [];
+        <div class="menu-info">
 
-      if (style === 'light') {
-        filtered = [
-          ...getM(cats, '샌드위치'),
-          ...getM(cats, '샐러드'),
-          ...getM(cats, '그릭요거트'),
-          ...getM(cats, '랩')
-        ];
-      } else {
-        filtered = [
-          ...getM(cats, '단백질 도시락'),
-          ...getM(cats, '포케'),
-          ...getM(cats, '푸드')
-        ];
-      }
-
-      const shuffled = filtered
-        .filter(item => item && item.name && item.image)
-        .sort(() => Math.random() - 0.5);
-
-      pool = shuffled.slice(0, 8);
-      sparePool = shuffled.slice(8);
-
-      if (pool.length < 2) {
-        alert("메뉴가 부족합니다!");
-        location.reload();
-        return;
-      }
-
-      document.getElementById('shuffle-text').style.display = 'block';
-      startRound();
-    }
-
-    function getM(cats, name) {
-      const c = cats.find(i => i.categoryName === name);
-      return c ? c.items : [];
-    }
-
-    function startRound() {
-      currentIdx = 0;
-      winners = [];
-      updateHeader();
-      showMatch();
-    }
-
-    function updateHeader() {
-      const t = document.getElementById('round-title');
-      t.innerText = pool.length === 2 ? "결승전" : pool.length + "강";
-    }
-
-    function showMatch() {
-      const container = document.getElementById('match-container');
-
-      if (pool.length === 1) {
-        finishGame(pool[0]);
-        return;
-      }
-
-      const item1 = pool[currentIdx];
-      const item2 = pool[currentIdx + 1];
-
-      container.innerHTML = `
-        ${renderCard(item1, 0)}
-        <div class="vs-container">
-          <div class="vs">VS</div>
-          <button class="btn-shuffle" id="shuffle-btn" onclick="handleShuffle()" ${shuffleCount <= 0 ? 'disabled' : ''}>
-            🔄 다른 메뉴 보기
-          </button>
-        </div>
-        ${renderCard(item2, 1)}
-      `;
-    }
-
-    function renderCard(item, side) {
-      return `
-        <div class="card" onclick="selectWinner(${side})">
-          <img
-            src="${item.image}"
-            data-original="${item.image}"
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-            onerror="this.src='https://via.placeholder.com/400?text=Salaria'"
-          >
-          <div class="card-info">
-            <h2>${item.name}</h2>
-            <p>${item.price ? item.price + '원' : ''}</p>
+          <div class="badge price">
+            ${item.price}원
           </div>
+
+          ${
+            item.weight
+            ? `<div class="badge">⚖ ${item.weight}g</div>`
+            : ``
+          }
+
+          ${
+            item.kcal
+            ? `<div class="badge">🔥 ${item.kcal}kcal</div>`
+            : ``
+          }
+
+          ${
+            item.protein
+            ? `<div class="badge">💪 단백질 ${item.protein}g</div>`
+            : ``
+          }
+
         </div>
-      `;
-    }
 
-    function selectWinner(side) {
-      winners.push(pool[currentIdx + side]);
-      currentIdx += 2;
+      </div>
+    </div>
+  `;
+}
 
-      if (currentIdx >= pool.length) {
-        pool = [...winners];
-        startRound();
-      } else {
-        showMatch();
-      }
-    }
+function pick(side){
 
-    function handleShuffle() {
-      if (shuffleCount <= 0 || sparePool.length < 2) return;
+  winners.push(pool[currentIndex + side]);
 
-      shuffleCount--;
-      document.getElementById('shuffle-text').innerText = `남은 교체 기회: ${shuffleCount}회`;
+  currentIndex += 2;
 
-      const oldItems = pool.splice(currentIdx, 2, sparePool.shift(), sparePool.shift());
-      sparePool.push(...oldItems);
+  if(currentIndex >= pool.length){
 
-      showMatch();
-    }
+    pool = winners;
+    startRound();
 
-    function finishGame(item) {
-      finalWinner = item;
+  }else{
 
-      document.getElementById('game-view').style.display = 'none';
-      document.getElementById('winner-view').style.display = 'block';
+    showMatch();
 
-      document.getElementById('winner-card-container').innerHTML = `
-        <div class="card" style="border: 4px solid var(--gold); margin: 0 auto; cursor: default;">
-          <img
-            src="${item.image}"
-            data-original="${item.image}"
-            id="winner-img"
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-            onerror="this.src='https://via.placeholder.com/400?text=Salaria'"
-          >
-          <div class="card-info">
-            <h2 style="font-size: 28px;">${item.name}</h2>
-            <p style="font-size: 24px;">${item.price ? item.price + '원' : ''}</p>
-          </div>
+  }
+}
+
+function showWinner(item){
+
+  document.getElementById('game-view').style.display='none';
+  document.getElementById('winner-view').style.display='block';
+
+  document.getElementById('winner-card').innerHTML = `
+    <img
+      src="${item.image}"
+      referrerpolicy="no-referrer"
+      onerror="
+        this.onerror=null;
+        this.src='https://images.weserv.nl/?url=${encodeURIComponent(item.image.replace('https://',''))}';
+      "
+    >
+
+    <div class="card-body">
+
+      <div class="menu-name">
+        ${item.name}
+      </div>
+
+      <div class="menu-info">
+
+        <div class="badge price">
+          ${item.price}원
         </div>
-      `;
 
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#1D7A4D', '#FFD700', '#ffffff', '#ff5252']
-      });
-    }
-
-    function proxyUrl(url) {
-      if (!url) return "";
-      if (url.startsWith("data:")) return url;
-
-      return "https://images.weserv.nl/?url=" + url
-        .replace(/^https?:\/\//, "")
-        .replace(/&/g, "%26");
-    }
-
-    function loadImageToDataURL(url) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.referrerPolicy = "no-referrer";
-
-        img.onload = function () {
-          try {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-
-            resolve(canvas.toDataURL("image/png"));
-          } catch (e) {
-            reject(e);
-          }
-        };
-
-        img.onerror = function () {
-          reject(new Error("이미지 로딩 실패"));
-        };
-
-        img.src = proxyUrl(url);
-      });
-    }
-
-    function waitForImages(target) {
-      const imgs = Array.from(target.querySelectorAll("img"));
-
-      return Promise.all(
-        imgs.map(img => new Promise(resolve => {
-          if (img.complete && img.naturalWidth > 0) {
-            resolve();
-            return;
-          }
-
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-
-          setTimeout(resolve, 4000);
-        }))
-      );
-    }
-
-    async function saveAsImage() {
-      const area = document.getElementById('capture-area');
-      const btn = document.querySelector('.btn-save');
-      const winnerImg = document.getElementById('winner-img');
-
-      btn.innerText = "⏳ 이미지 준비 중...";
-
-      try {
-        if (winnerImg && finalWinner && finalWinner.image) {
-          try {
-            const dataUrl = await loadImageToDataURL(finalWinner.image);
-            winnerImg.src = dataUrl;
-          } catch (e) {
-            console.warn("프록시 이미지 변환 실패:", e);
-          }
+        ${
+          item.weight
+          ? `<div class="badge">⚖ ${item.weight}g</div>`
+          : ``
         }
 
-        await waitForImages(area);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        ${
+          item.kcal
+          ? `<div class="badge">🔥 ${item.kcal}kcal</div>`
+          : ``
+        }
 
-        btn.innerText = "⏳ 저장 중...";
+        ${
+          item.protein
+          ? `<div class="badge">💪 단백질 ${item.protein}g</div>`
+          : ``
+        }
 
-        const canvas = await html2canvas(area, {
-          backgroundColor: "#1a1a1a",
-          useCORS: true,
-          allowTaint: false,
-          logging: false,
-          scale: window.devicePixelRatio || 2
-        });
+      </div>
 
-        const link = document.createElement('a');
-        link.download = 'salaria_lunch_today.png';
-        link.href = canvas.toDataURL('image/png');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    </div>
+  `;
 
-      } catch (e) {
-        alert("이미지 저장 실패! 다시 한 번 눌러보거나, 스크린샷을 이용해 주세요.");
-      } finally {
-        btn.innerText = "📸 이미지 저장";
-      }
-    }
-  </script>
+  confetti({
+    particleCount:180,
+    spread:90,
+    origin:{y:0.6}
+  });
+}
+
+async function saveImage(){
+
+  const target = document.getElementById('capture-area');
+
+  await new Promise(r => setTimeout(r,1000));
+
+  const canvas = await html2canvas(target,{
+    useCORS:true,
+    allowTaint:true,
+    backgroundColor:'#121212',
+    scale:2
+  });
+
+  const link = document.createElement('a');
+
+  link.download='lunch_worldcup.png';
+  link.href=canvas.toDataURL('image/png');
+
+  link.click();
+}
+
+</script>
+
 </body>
 </html>

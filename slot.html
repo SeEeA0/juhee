@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>샐러디아 점심 뽑기</title>
+    <style>
+        :root { --primary: #19a463; --bg: #121212; --card: #1e1e1e; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: white; margin: 0; text-align: center; }
+        
+        .container { padding: 40px 20px; }
+        .header { margin-bottom: 30px; }
+        .header h1 { font-size: 24px; color: var(--primary); margin-bottom: 5px; }
+
+        /* 슬롯 머신 디자인 */
+        .slot-machine {
+            background: var(--card);
+            border: 4px solid #333;
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 350px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(25, 164, 99, 0.1);
+        }
+
+        #slot-display {
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .menu-img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 5px solid var(--primary); }
+        .menu-name { font-size: 20px; font-weight: 800; margin-top: 15px; min-height: 1.2em; }
+
+        /* 버튼 스타일 */
+        .btn-group { display: flex; flex-direction: column; gap: 10px; max-width: 350px; margin: 30px auto; }
+        .btn { border: none; padding: 18px; border-radius: 15px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .btn-spin { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(25, 164, 99, 0.3); }
+        .btn-spin:active { transform: scale(0.95); }
+        .btn-back { background: #333; color: #ccc; }
+
+        /* 애니메이션 효과 */
+        .spinning { animation: blurSpin 0.1s infinite linear; }
+        @keyframes blurSpin {
+            0% { filter: blur(0px); transform: translateY(0); }
+            50% { filter: blur(5px); transform: translateY(-5px); }
+            100% { filter: blur(0px); transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>오늘 점심 뭐 먹지?</h1>
+        <div style="color: #888; font-size: 14px;">고민 해결! 샐러디아 랜덤 추천</div>
+    </div>
+
+    <div class="slot-machine">
+        <div id="slot-display">
+            <img id="res-img" src="https://via.placeholder.com/180?text=Saladia" class="menu-img">
+            <div id="res-name" class="menu-name">버튼을 눌러주세요!</div>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <button id="spin-btn" class="btn btn-spin" onclick="spinSlot()">🎰 랜덤 메뉴 뽑기</button>
+        <button class="btn btn-back" onclick="history.back()">뒤로가기</button>
+    </div>
+</div>
+
+<script>
+    let allMenus = [];
+
+    // 기존 data.json에서 데이터 불러오기
+    fetch('./data.json')
+        .then(res => res.json())
+        .then(data => {
+            data.categories.forEach(cat => {
+                allMenus.push(...cat.items.filter(i => !i.hidden && i.image));
+            });
+        });
+
+    function spinSlot() {
+        if (allMenus.length === 0) return;
+
+        const btn = document.getElementById('spin-btn');
+        const display = document.getElementById('slot-display');
+        const img = document.getElementById('res-img');
+        const name = document.getElementById('res-name');
+
+        btn.disabled = true;
+        display.classList.add('spinning');
+        name.innerText = "메뉴 고르는 중...";
+
+        // 1.5초 동안 돌리기
+        setTimeout(() => {
+            const finalMenu = allMenus[Math.floor(Math.random() * allMenus.length)];
+            
+            display.classList.remove('spinning');
+            img.src = finalMenu.image;
+            name.innerText = finalMenu.name;
+            btn.disabled = false;
+            
+            // 효과음 대신 가벼운 진동 (지원되는 브라우저)
+            if(window.navigator.vibrate) window.navigator.vibrate(50);
+        }, 1200);
+    }
+</script>
+
+</body>
+</html>

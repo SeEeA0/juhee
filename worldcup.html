@@ -27,19 +27,26 @@
     .back-link { position: absolute; left: 15px; top: 22px; text-decoration: none; color: var(--muted); font-size: 12px; border: 1px solid #333; padding: 4px 8px; border-radius: 8px; }
     .title { font-size:22px; font-weight:800; color:var(--primary); }
 
-    /* 모든 뷰 공통: 중앙 정렬 */
+    /* 모든 뷰 공통 */
     #question-view, #game-view, #advance-view, #final-intro-view, #winner-view {
       width:100%; flex:1; display:none; flex-direction: column; 
       align-items: center; justify-content: center;
       animation:fadeIn 0.3s ease; overflow-y: auto;
     }
+
+    /* [수정] 진출 요약 화면: 스크롤 최적화 및 패딩 추가 */
+    #advance-view {
+      justify-content: flex-start; /* 상단부터 정렬 */
+      padding: 20px 20px 80px 20px; /* 하단 여백 80px 확보 (모바일 답답함 해소) */
+    }
+
     @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
     /* 질문 화면 */
     .question-card { width:90%; max-width:450px; padding:40px; border-radius:24px; background:var(--card-bg); border:1px solid #333; text-align:center; cursor: pointer; margin-bottom: 15px; transition: 0.3s; }
     .question-card:hover { border-color: var(--primary); transform: translateY(-5px); }
 
-    /* 게임 화면 (PC/모바일 공통 중앙 집중) */
+    /* 게임 화면 */
     #match-container {
       display: flex; flex-direction: row; align-items: center; justify-content: center;
       gap: 20px; padding: 20px; width: 100%; max-width: 1000px;
@@ -59,10 +66,10 @@
 
     .vs { font-size: 28px; font-weight: 900; color: #ff5252; font-style: italic; }
 
-    /* 요약 그리드: 메뉴명이 사진 위로 */
+    /* 요약 그리드 */
     .grid { 
       display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; 
-      padding:20px; width: 100%; max-width: 800px;
+      padding:20px 0; width: 100%; max-width: 800px;
     }
     .grid-item { background:none; border-radius:15px; overflow:hidden; text-align: center; }
     .grid-item .sum-name { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -70,12 +77,20 @@
 
     #final-intro-view h1 { font-size: 60px; color: var(--gold); }
 
-    /* 최종 우승 화면 레이아웃 교정 */
+    /* 최종 우승 화면 */
     #winner-view { text-align: center; }
     .winner-card { width: 320px !important; border: 3px solid var(--gold) !important; box-shadow: 0 0 30px rgba(255,213,79,0.2); }
     
-    .btn-wrap { display:flex; gap:12px; width: 100%; max-width: 400px; margin-top: 30px; padding: 0 20px; }
-    .btn { flex:1; border:none; color:white; padding:16px; border-radius:15px; font-weight:700; cursor:pointer; font-size: 16px; }
+    .btn-wrap { display:flex; gap:12px; width: 100%; max-width: 400px; margin-top: 30px; padding: 0 20px; margin-bottom: 40px; }
+    
+    /* [수정] 버튼 공통 스타일: 세로 늘어남 방지 (height 고정) */
+    .btn { 
+      flex:1; border:none; color:white; 
+      height: 56px; /* 높이 고정 */
+      line-height: 56px; padding: 0 16px; /* 패딩 대신 라인하이트로 정렬 */
+      border-radius:15px; font-weight:700; cursor:pointer; font-size: 16px; 
+      flex-shrink: 0; /* flex 박스 내 늘어남 방지 */
+    }
     .btn-primary { background:var(--primary); }
     .btn-secondary { background:#333; }
 
@@ -84,6 +99,7 @@
       .grid { grid-template-columns: repeat(2, 1fr); }
       .winner-card { width: 280px !important; }
       #match-container { gap: 10px; padding: 10px; }
+      #advance-view { padding-bottom: 60px; } /* 모바일 하단 여백 미세 조정 */
     }
   </style>
 </head>
@@ -94,7 +110,6 @@
     <div class="title" id="round-title">메뉴 월드컵</div>
   </div>
 
-  <!-- 1. 시작 화면 -->
   <div id="question-view">
     <div class="question-card" onclick="startWith('light')">
       <h2 style="font-size: 26px;">🥗 가벼운 식단</h2>
@@ -106,7 +121,6 @@
     </div>
   </div>
 
-  <!-- 2. 게임 화면 -->
   <div id="game-view">
     <div id="match-container"></div>
     <div style="margin-top: 20px;">
@@ -116,21 +130,19 @@
     </div>
   </div>
 
-  <!-- 3. 진출 요약 화면 -->
   <div id="advance-view">
     <h3 id="advance-title" style="color:var(--gold); font-size: 26px; margin-bottom: 5px;">라운드 통과!</h3>
-    <p style="color:var(--muted); margin-bottom: 20px;">다음 라운드 진출 메뉴</p>
+    <p style="color:var(--muted); margin-bottom: 10px;">다음 라운드 진출 메뉴</p>
     <div class="grid" id="advance-grid"></div>
+    <!-- [수정] 세로 늘어남 방지를 위해 버튼 클래스 및 스타일 유지 -->
     <button class="btn btn-primary" style="margin-top: 20px; max-width: 300px;" onclick="confirmAndNextRound()">다음 라운드 시작</button>
   </div>
 
-  <!-- 4. 결승전 연출 -->
   <div id="final-intro-view">
       <h1>결승전</h1>
       <p style="color:var(--muted); font-size: 18px; margin-top:15px;">진정한 우승 메뉴를 가립니다.</p>
   </div>
 
-  <!-- 5. 최종 결과 화면 -->
   <div id="winner-view">
       <h2 style="color:var(--gold); margin-bottom:25px; font-size: 32px;">🏆 최종 우승 🏆</h2>
       <div id="winner-card-slot"></div>

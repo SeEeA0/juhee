@@ -20,22 +20,6 @@
           "protein": 9
         },
         {
-          "name": "수비드 닭다리살 단백질 도시락",
-          "price": "8,900",
-          "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_ebHPASs4_43a40df61c946a731fbf66d5c62a8d0a275da6a7.jpg",
-          "weight": 448,
-          "kcal": 712,
-          "protein": 8
-        },
-        {
-          "name": "수비드 매콤 닭다리살 단백질 도시락",
-          "price": "8,900",
-          "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_ZxgcUedT_8e0473ed4e3a0993b35d16f6f8db662eebb45208.jpg",
-          "weight": 448,
-          "kcal": 720,
-          "protein": 8
-        },
-        {
           "name": "훈제오리 단백질 도시락",
           "price": "9,000",
           "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_HaJQW2Ks_6eaaec5d348bae5a8d9148d1b6d43e5b5f0264f4.jpg",
@@ -158,22 +142,6 @@
           "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_PlOdU1Rk_33d9bed5a23aec55b82df8e55da74bcd6fd27840.jpg",
           "weight": 380,
           "kcal": 273,
-          "protein": 7
-        },
-        {
-          "name": "수비드 닭다리살 샐러드",
-          "price": "9,400",
-          "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_wPtYmTDl_5d76b764c5a7bcbc66f07979ae5a45dd70ed5726.jpg",
-          "weight": 340,
-          "kcal": 302,
-          "protein": 7
-        },
-        {
-          "name": "수비드 매콤닭다리살 샐러드",
-          "price": "9,400",
-          "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_imzwUfqI_96d8345cd24eb19b97723240d2c86e11494e6f94.jpg",
-          "weight": 340,
-          "kcal": 310,
           "protein": 7
         },
         {
@@ -302,14 +270,6 @@
           "protein": 7
         },
         {
-          "name": "수비드 닭다리살 포케",
-          "price": "11,900",
-          "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_7YZItCuD_cfca26d9dda9d415c4b623666c4dbac176188796.jpg",
-          "weight": 423,
-          "kcal": 503,
-          "protein": 6
-        },
-        {
           "name": "케이준 포케",
           "price": "12,500",
           "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_R5YTn8rO_25e2ef77b7d1f89253c85fa0366c63c5167d8698.jpg",
@@ -412,14 +372,6 @@
           "weight": 473,
           "kcal": 567,
           "protein": 3
-        },
-        {
-          "name": "수비드 매콤닭다리살 포케",
-          "price": "11,900",
-          "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_NFWwelqD_fd0b1dc1b56e5b3d6f8a72e50d073f9b9475ae02.jpg",
-          "weight": 423,
-          "kcal": 511,
-          "protein": 6
         },
         {
           "name": "아보카도 훈제연어 포케",

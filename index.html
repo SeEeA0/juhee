@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salaria 점심 결정 도우미</title>
+    <title>선택장애를 위한 가이드</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #f0f4f0; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .hero { text-align: center; background: white; padding: 50px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 450px; width: 90%; }
-        .logo-text { color: #1D7A4D; font-size: 40px; font-weight: 900; letter-spacing: -1px; margin-bottom: 10px; }
-        p { color: #666; margin-bottom: 40px; }
-        .btn-group a { display: block; padding: 20px; margin: 15px 0; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 18px; transition: 0.3s; }
-        .btn-cup { background: #1D7A4D; color: white; }
-        .btn-list { background: white; color: #1D7A4D; border: 2px solid #1D7A4D; }
-        .btn-group a:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(29, 122, 77, 0.2); }
+        body { font-family: 'Pretendard', sans-serif; background: #f0f4f0; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        .main-card { background: white; padding: 50px; border-radius: 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        h1 { color: #1D7A4D; font-size: 48px; margin-bottom: 10px; }
+        .btn { display: block; padding: 15px 40px; margin: 15px 0; border-radius: 10px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .btn-green { background: #1D7A4D; color: white; }
+        .btn-outline { border: 2px solid #1D7A4D; color: #1D7A4D; }
+        .btn:hover { transform: translateY(-3px); opacity: 0.9; }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <div class="logo-text">SALARIA</div>
-        <p>오늘 당신의 건강한 점심을 골라드려요</p>
-        <div class="btn-group">
-            <a href="worldcup.html" class="btn-cup">🏆 점심 메뉴 월드컵 시작</a>
-            <a href="list.html" class="btn-list">📋 전체 메뉴 데이터 보기</a>
-        </div>
+    <div class="main-card">
+        <h1>SALARIA</h1>
+        <p>오늘 점심 결정을 도와드릴게요!</p>
+        <a href="worldcup.html" class="btn btn-green">🏆 점심 메뉴 월드컵</a>
+        <a href="list.html" class="btn btn-outline">📋 전체 메뉴판 보기</a>
     </div>
 </body>
 </html>

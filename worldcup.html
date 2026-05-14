@@ -350,7 +350,7 @@
 
     <div class="question-card" onclick="startWith('simple')">
       <h2>🥣 소박한 한끼</h2>
-      <p>스프 · 죽 · 토스트</p>
+      <p>스프 · 죽 · 요거트 · 토스트</p>
     </div>
   </div>
 
@@ -433,7 +433,7 @@
       if (type === 'simple') {
         menus = [
           ...getCategoryItems('푸드').filter(item =>
-            hasKeyword(item.name, ['스프', '죽', '토스트'])
+            hasKeyword(item.name, ['스프', '그릭요거트', '죽', '토스트'])
           )
         ];
       }

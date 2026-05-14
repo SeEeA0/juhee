@@ -602,6 +602,107 @@
       ]
     },
     {
+  "categoryName": "커리 덮밥",
+  "items": [
+    {
+      "name": "스팀 닭가슴살 커리 덮밥",
+      "price": "9,400",
+      "image": "CURRY_CHICKEN_STEAM.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "스팀 매콤 닭가슴살 커리 덮밥",
+      "price": "9,400",
+      "image": "CURRY_SPICY_CHICKEN_STEAM.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "수비드 닭다리살 커리 덮밥",
+      "price": "9,900",
+      "image": "CURRY_SOUSVIDE_CHICKEN_THIGH.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "수비드 매콤 닭다리살 커리 덮밥",
+      "price": "9,900",
+      "image": "CURRY_SPICY_SOUSVIDE_CHICKEN_THIGH.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "훈제오리 커리 덮밥",
+      "price": "9,900",
+      "image": "CURRY_SMOKED_DUCK.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "목살 커리 덮밥",
+      "price": "10,400",
+      "image": "CURRY_PORK_NECK.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "소불고기 커리 덮밥",
+      "price": "11,400",
+      "image": "CURRY_BULGOGI.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "수비드 우삼겹 커리 덮밥",
+      "price": "11,900",
+      "image": "CURRY_SOUSVIDE_BEEF_BRISKET.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "수비드 통삼겹 커리 덮밥",
+      "price": "11,900",
+      "image": "CURRY_SOUSVIDE_PORK_BELLY.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "수비드 풀드포크 커리 덮밥",
+      "price": "11,900",
+      "image": "CURRY_SOUSVIDE_PULLED_PORK.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "왕닭다리 커리 덮밥",
+      "price": "13,400",
+      "image": "CURRY_KING_CHICKEN_LEG.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    },
+    {
+      "name": "부채살 커리 덮밥",
+      "price": "13,400",
+      "image": "CURRY_BEEF_FLATIRON.jpg",
+      "weight": null,
+      "kcal": null,
+      "protein": null
+    }
+  ]
+},
+    {
       "categoryName": "그릭요거트",
       "items": [
         {

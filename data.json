@@ -749,8 +749,13 @@
           "weight": null,
           "kcal": null,
           "protein": null
-        },
-        {
+        }
+      ]
+    },
+    {
+  "categoryName": "죽",
+  "items": [
+    {
     "name": "부드러운 호박죽",
     "price": "6,500",
     "image": "image/PUMPKIN_PORRIDGE.jpg",
@@ -781,8 +786,13 @@
     "weight": null,
     "kcal": null,
     "protein": null
-  },
-        {
+        }
+      ]
+    },
+    {
+  "categoryName": "스프",
+  "items": [
+    {
           "name": "스위트콘 스프",
           "price": "4,800",
           "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_Rvqp9Xln_601112c81096242ac129966d160dc50a661dccf5.jpg",
@@ -821,8 +831,13 @@
           "weight": null,
           "kcal": null,
           "protein": null
-        },
-        {
+        }
+      ]
+    },
+    {
+  "categoryName": "토스트",
+  "items": [
+    {
           "name": "카야 버터 토스트",
           "price": "4,900",
           "image": "https://xn--vl2b25awylm0e.com/data/file/main_menu/471e2526c633dc5a297e9d5059e72e49_DgfWRVaz_990cda5fc801fe4a4252eeacaffe5524b2cd84e7.jpg",

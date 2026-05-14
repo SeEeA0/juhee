@@ -608,9 +608,9 @@
       "name": "스팀 닭가슴살 커리 덮밥",
       "price": "9,400",
       "image": "image/CURRY_CHICKEN_STEAM.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
+      "weight": 210,
+      "kcal": 257,
+      "protein": 18
     },
     {
       "name": "훈제오리 커리 덮밥",
@@ -624,9 +624,9 @@
       "name": "목살 커리 덮밥",
       "price": "10,400",
       "image": "image/CURRY_PORK_NECK.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
+      "weight": 300,
+      "kcal": 403,
+      "protein": 20
     },
     {
       "name": "소불고기 커리 덮밥",
@@ -648,9 +648,9 @@
       "name": "수비드 통삼겹 커리 덮밥",
       "price": "11,900",
       "image": "image/CURRY_SOUSVIDE_PORK_BELLY.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
+      "weight": 450,
+      "kcal": 658,
+      "protein": 28
     },
     {
       "name": "수비드 풀드포크 커리 덮밥",
@@ -672,9 +672,9 @@
       "name": "부채살 커리 덮밥",
       "price": "13,400",
       "image": "image/CURRY_BEEF_FLATIRON.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
+      "weight": 350,
+      "kcal": 444,
+      "protein": 18
     }
   ]
 },

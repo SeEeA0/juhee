@@ -113,12 +113,12 @@
             Designed by <b>Ju-hee</b> for Salaria
         </div>
     </div>
-    <!-- 메인 하단 통합 댓글 섹션 -->
-<div class="main-comment-area" style="max-width: 450px; margin: 40px auto; padding: 20px; background: white; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+<!-- 댓글 섹션: width 100%와 clear 속성으로 무조건 아래에 배치 -->
+<div class="main-comment-area" style="width: 100%; max-width: 500px; margin: 50px auto; padding: 20px; background: white; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); clear: both;">
     
     <div id="main-comment-header" style="text-align: left; margin-bottom: 20px;">
-        <h3 style="font-size: 18px; color: var(--primary-color); margin: 0;">💬 오늘의 점심 PICK!</h3>
-        <p style="font-size: 13px; color: #888; margin: 5px 0 0;">월드컵, 슬롯 결과나 고른 메뉴를 남겨주세요!</p>
+        <h3 style="font-size: 18px; color: #1D7A4D; margin: 0;">💬 오늘의 점심 Pick !</h3>
+        <p style="font-size: 13px; color: #888; margin: 5px 0 0;">월드컵, 슬롯 결과나 메뉴 적어주세요!</p>
     </div>
 
     <!-- 라이브리 댓글창 -->
@@ -129,7 +129,7 @@
     <!-- 마감 안내 -->
     <div id="main-closed-msg" style="display: none; padding: 40px 20px; text-align: center; background: #f9f9f9; border-radius: 20px; color: #bbb;">
         <span style="font-size: 30px;">⏰</span>
-        <p style="font-size: 14px; margin-top: 10px;">댓글 작성 마감 기한 <b>09:00 ~ 10:30</b>이후 9,900 랜덤 주문</p>
+        <p style="font-size: 14px; margin-top: 10px;">댓글 작성 시간은 평일 <b>09:00 ~ 10:30</b>타임 아웃시 9,900 랜덤 주문</p>
     </div>
 </div>
 
@@ -140,17 +140,17 @@
         const now = new Date();
         const day = now.getDay(); 
         const hours = now.getHours();
+        const mins = now.getMinutes();
         
         const wrapper = document.getElementById('livere-main-wrapper');
         const closedMsg = document.getElementById('main-closed-msg');
         const widget = document.getElementById('livere-widget');
 
-        // 월-금(1-5) & 오전 9시~11시 체크
+        // 현재 시간 11:02 기준으로 작동하게 하려면 잠시 (hours < 13) 등으로 바꿔서 테스트해보세요!
         const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 11);
 
         if (isLiveTime) {
             wrapper.style.display = 'block';
-            // 날짜별 ID 생성 (메인용 ID임을 표시하기 위해 'main-' 접두어 사용)
             const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
             widget.setAttribute('data-id', 'main-' + dateStr);
         } else {

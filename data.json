@@ -607,31 +607,7 @@
     {
       "name": "스팀 닭가슴살 커리 덮밥",
       "price": "9,400",
-      "image": "CURRY_CHICKEN_STEAM.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
-    },
-    {
-      "name": "스팀 매콤 닭가슴살 커리 덮밥",
-      "price": "9,400",
-      "image": "CURRY_SPICY_CHICKEN_STEAM.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
-    },
-    {
-      "name": "수비드 닭다리살 커리 덮밥",
-      "price": "9,900",
-      "image": "CURRY_SOUSVIDE_CHICKEN_THIGH.jpg",
-      "weight": null,
-      "kcal": null,
-      "protein": null
-    },
-    {
-      "name": "수비드 매콤 닭다리살 커리 덮밥",
-      "price": "9,900",
-      "image": "CURRY_SPICY_SOUSVIDE_CHICKEN_THIGH.jpg",
+      "image": "image/CURRY_CHICKEN_STEAM.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -639,7 +615,7 @@
     {
       "name": "훈제오리 커리 덮밥",
       "price": "9,900",
-      "image": "CURRY_SMOKED_DUCK.jpg",
+      "image": "image/CURRY_SMOKED_DUCK.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -647,7 +623,7 @@
     {
       "name": "목살 커리 덮밥",
       "price": "10,400",
-      "image": "CURRY_PORK_NECK.jpg",
+      "image": "image/CURRY_PORK_NECK.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -655,7 +631,7 @@
     {
       "name": "소불고기 커리 덮밥",
       "price": "11,400",
-      "image": "CURRY_BULGOGI.jpg",
+      "image": "image/CURRY_BULGOGI.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -663,7 +639,7 @@
     {
       "name": "수비드 우삼겹 커리 덮밥",
       "price": "11,900",
-      "image": "CURRY_SOUSVIDE_BEEF_BRISKET.jpg",
+      "image": "image/CURRY_SOUSVIDE_BEEF_BRISKET.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -671,7 +647,7 @@
     {
       "name": "수비드 통삼겹 커리 덮밥",
       "price": "11,900",
-      "image": "CURRY_SOUSVIDE_PORK_BELLY.jpg",
+      "image": "image/CURRY_SOUSVIDE_PORK_BELLY.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -679,7 +655,7 @@
     {
       "name": "수비드 풀드포크 커리 덮밥",
       "price": "11,900",
-      "image": "CURRY_SOUSVIDE_PULLED_PORK.jpg",
+      "image": "image/CURRY_SOUSVIDE_PULLED_PORK.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -687,7 +663,7 @@
     {
       "name": "왕닭다리 커리 덮밥",
       "price": "13,400",
-      "image": "CURRY_KING_CHICKEN_LEG.jpg",
+      "image": "image/CURRY_KING_CHICKEN_LEG.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -695,7 +671,7 @@
     {
       "name": "부채살 커리 덮밥",
       "price": "13,400",
-      "image": "CURRY_BEEF_FLATIRON.jpg",
+      "image": "image/CURRY_BEEF_FLATIRON.jpg",
       "weight": null,
       "kcal": null,
       "protein": null
@@ -774,6 +750,38 @@
           "kcal": null,
           "protein": null
         },
+        {
+    "name": "부드러운 호박죽",
+    "price": "6,500",
+    "image": "image/PUMPKIN_PORRIDGE.jpg",
+    "weight": null,
+    "kcal": null,
+    "protein": null
+  },
+  {
+    "name": "달콤한 단팥죽",
+    "price": "6,500",
+    "image": "image/RED_BEAN_PORRIDGE.jpg",
+    "weight": null,
+    "kcal": null,
+    "protein": null
+  },
+  {
+    "name": "든든한 한우소고기죽",
+    "price": "6,500",
+    "image": "image/KOREAN_BEEF_PORRIDGE.jpg",
+    "weight": null,
+    "kcal": null,
+    "protein": null
+  },
+  {
+    "name": "든든한 삼계죽",
+    "price": "6,500",
+    "image": "image/SAMGYE_PORRIDGE.jpg",
+    "weight": null,
+    "kcal": null,
+    "protein": null
+  },
         {
           "name": "스위트콘 스프",
           "price": "4,800",

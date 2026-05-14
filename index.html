@@ -3,160 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>점메추 - 오늘 점심 뭐 먹지?</title>
+    <title>오.점.뭐 - 오늘의 점심 뭐 먹지?</title>
     <style>
         :root {
-            --primary-green: #1D7A4D;
-            --accent-green: #2ecc71;
+            --primary-color: #1D7A4D;
             --bg-color: #F9FBFA;
-            --border-color: #eee;
         }
 
         body { 
             font-family: 'Pretendard', -apple-system, sans-serif; 
             background: var(--bg-color); 
-            min-height: 100vh; 
-            display: flex; justify-content: center; align-items: center; 
-            margin: 0; 
-            overflow: hidden;
+            margin: 0; padding: 0; 
+            display: flex; 
+            flex-direction: column; /* 세로 정렬 고정 */
+            align-items: center; 
+            color: #333;
+            min-height: 100vh;
         }
 
-        /* 배경 장식 */
-        .bg-decoration {
-            position: absolute; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(29,122,77,0.03) 0%, transparent 70%);
-            z-index: -1; top: -150px; right: -150px;
+        /* 메인 컨테이너 */
+        .main-wrapper {
+            width: 92%;
+            max-width: 450px;
+            background: white;
+            padding: 40px 25px;
+            border-radius: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+            margin: 40px 0 20px;
+            text-align: center;
+            box-sizing: border-box;
         }
 
-        .main-card { 
-            background: white; padding: 50px 30px; border-radius: 40px; 
-            text-align: center; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.03); 
-            width: 90%; max-width: 360px; 
-            border: 1px solid #f5f5f5;
-        }
-
-        .lab-tag {
-            display: inline-block; padding: 5px 14px; border-radius: 20px;
-            background: var(--accent-green); color: white;
-            font-size: 11px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 20px;
-        }
-
-        h1 { 
-            color: var(--primary-green); font-size: 34px; 
-            font-weight: 800; margin: 0 0 10px 0; 
-            letter-spacing: -1.5px;
-        }
-
-        .sub-text { 
-            color: #999; font-size: 14px; margin-bottom: 45px; 
-            line-height: 1.6; word-break: keep-all;
-        }
-
-        .btn-group { display: flex; flex-direction: column; gap: 12px; }
-        
-        .btn { 
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            padding: 22px; border-radius: 24px; 
-            text-decoration: none; font-weight: 700; font-size: 16px;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border: 1px solid var(--border-color);
-            background: white; color: var(--primary-green);
-        }
-
-        /* 호버 시 통일된 애니메이션 효과 */
-        .btn:hover { 
-            transform: translateY(-5px); 
-            background: var(--primary-green);
+        .badge {
+            background: var(--primary-color);
             color: white;
-            border-color: var(--primary-green);
-            box-shadow: 0 10px 20px rgba(29, 122, 77, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-block;
+            margin-bottom: 15px;
         }
 
-        .btn span { font-size: 20px; }
+        h1 { font-size: 28px; font-weight: 800; color: #2D5A44; margin: 0 0 10px; }
+        .sub-text { color: #888; font-size: 14px; line-height: 1.5; margin-bottom: 30px; }
 
-        .footer-credit {
-            margin-top: 50px; font-size: 11px; color: #ddd;
-            letter-spacing: 0.5px;
+        /* 메뉴 버튼 스타일 */
+        .menu-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .menu-item {
+            background: white;
+            border: 1px solid #f0f0f0;
+            padding: 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+        .menu-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        /* 댓글 섹션 - 메인 박스 아래에 위치 */
+        .comment-area {
+            width: 92%;
+            max-width: 450px;
+            background: white;
+            padding: 25px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 50px;
+            box-sizing: border-box;
         }
 
-        .footer-credit b { color: #bbb; }
+        .comment-header { text-align: left; margin-bottom: 20px; }
+        .comment-header h3 { font-size: 18px; color: var(--primary-color); margin: 0; }
+        .comment-header p { font-size: 13px; color: #888; margin: 5px 0 0; }
+
+        #main-closed-msg {
+            padding: 40px 20px;
+            text-align: center;
+            background: #f9f9f9;
+            border-radius: 20px;
+            color: #bbb;
+            display: none;
+        }
+
+        footer { font-size: 12px; color: #ccc; margin-top: auto; padding-bottom: 20px; }
+        footer b { color: #aaa; }
     </style>
 </head>
 <body>
-    <div class="bg-decoration"></div>
-    
-    <div class="main-card">
-        <span class="lab-tag">오.점.뭐</span>
+
+    <div class="main-wrapper">
+        <span class="badge">오.점.뭐</span>
         <h1>오늘 점심 뭐 먹지?</h1>
         <p class="sub-text">점심메뉴 고르는거<br>한번에 결정하기</p>
-        
-        <div class="btn-group">
-            <!-- 1. 슬롯머신 -->
-            <a href="slot.html" class="btn">
-                <span>🎰</span> 점심 메뉴 랜덤 슬롯
-            </a>
 
-            <!-- 2. 월드컵 모드 -->
-            <a href="worldcup.html" class="btn">
-                <span>🏆</span> 메뉴 결정 월드컵
-            </a>
+        <div class="menu-list">
+            <a href="slot.html" class="menu-item">🎰 점심 메뉴 랜덤 슬롯</a>
+            <a href="worldcup.html" class="menu-item">🏆 메뉴 결정 월드컵</a>
+            <a href="menu.html" class="menu-item">📋 전체 메뉴판 보기</a>
+        </div>
+    </div>
+
+    <!-- 통합 댓글 섹션 -->
+    <div class="comment-area">
+        <div id="main-comment-header" class="comment-header">
+            <h3>💬 오늘의 점심 PICK!</h3>
+            <p>월드컵, 슬롯 결과나 고른 메뉴를 남겨주세요!</p>
+        </div>
+
+        <!-- 라이브리 댓글창 -->
+        <div id="livere-main-wrapper" style="display: none;">
+            <livere-comment id="livere-widget" client-id="xOvXinMbZsVGFMZrgcU3"></livere-comment>
+        </div>
+
+        <!-- 마감 안내 (시간 설정에 따라 보임) -->
+        <div id="main-closed-msg">
+            <span style="font-size: 30px;">⏰</span>
+            <p style="font-size: 14px; margin-top: 10px;">댓글 작성 마감 기한은 <b>09:00 ~ 23:59</b>입니다.</p>
+        </div>
+    </div>
+
+    <footer>Designed by <b>Ju-hee</b> for Salaria</footer>
+
+    <!-- 라이브리 스크립트 -->
+    <script type="module" src="https://www.livere.org/livere-widget.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const day = now.getDay(); 
+            const hours = now.getHours();
             
-            <!-- 3. 메뉴판 보기 (명칭 변경 및 디자인 통일) -->
-            <a href="list.html" class="btn">
-                <span>📋</span> 전체 메뉴판 보기
-            </a>
-        </div>
+            const wrapper = document.getElementById('livere-main-wrapper');
+            const closedMsg = document.getElementById('main-closed-msg');
+            const widget = document.getElementById('livere-widget');
 
-        <div class="footer-credit">
-            Designed by <b>Ju-hee</b> for Salaria
-        </div>
-    </div>
-<!-- 댓글 섹션: width 100%와 clear 속성으로 무조건 아래에 배치 -->
-<div class="main-comment-area" style="width: 100%; max-width: 500px; margin: 50px auto; padding: 20px; background: white; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); clear: both;">
-    
-    <div id="main-comment-header" style="text-align: left; margin-bottom: 20px;">
-        <h3 style="font-size: 18px; color: #1D7A4D; margin: 0;">💬 오늘의 점심 Pick !</h3>
-        <p style="font-size: 13px; color: #888; margin: 5px 0 0;">월드컵, 슬롯 결과나 메뉴 적어주세요!</p>
-    </div>
+            // 평일 월-금(1-5) 체크 & 마감 시간 넉넉히 설정 (오전 9시 ~ 오후 11시 59분)
+            const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
 
-    <!-- 라이브리 댓글창 -->
-    <div id="livere-main-wrapper" style="display: none;">
-        <livere-comment id="livere-widget" client-id="xOvXinMbZsVGFMZrgcU3"></livere-comment>
-    </div>
-
-    <!-- 마감 안내 -->
-    <div id="main-closed-msg" style="display: none; padding: 40px 20px; text-align: center; background: #f9f9f9; border-radius: 20px; color: #bbb;">
-        <span style="font-size: 30px;">⏰</span>
-        <p style="font-size: 14px; margin-top: 10px;">댓글 작성 시간은 평일 <b>09:00 ~ 10:30</b>타임 아웃시 9,900 랜덤 주문</p>
-    </div>
-</div>
-
-<script type="module" src="https://www.livere.org/livere-widget.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const now = new Date();
-        const day = now.getDay(); 
-        const hours = now.getHours();
-        const mins = now.getMinutes();
-        
-        const wrapper = document.getElementById('livere-main-wrapper');
-        const closedMsg = document.getElementById('main-closed-msg');
-        const widget = document.getElementById('livere-widget');
-
-        // 현재 시간 11:02 기준으로 작동하게 하려면 잠시 (hours < 13) 등으로 바꿔서 테스트해보세요!
-        const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 11);
-
-        if (isLiveTime) {
-            wrapper.style.display = 'block';
-            const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
-            widget.setAttribute('data-id', 'main-' + dateStr);
-        } else {
-            closedMsg.style.display = 'block';
-        }
-    });
-</script>
+            if (isLiveTime) {
+                wrapper.style.display = 'block';
+                // 날짜별 ID 생성 (매일 초기화됨)
+                const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+                widget.setAttribute('data-id', 'main-' + dateStr);
+            } else {
+                closedMsg.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

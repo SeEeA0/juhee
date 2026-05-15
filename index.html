@@ -130,42 +130,43 @@
 
     <footer>Designed by <b>Ju-hee</b> for Salaria</footer>
 
-    <!-- 라이브리 스크립트 -->
-    <script type="module" src="https://www.livere.org/livere-widget.js"></script>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const now = new Date();
-        const day = now.getDay(); 
-        const hours = now.getHours();
-        
-        const wrapper = document.getElementById('livere-main-wrapper');
-        const closedMsg = document.getElementById('main-closed-msg');
-        const widget = document.getElementById('livere-widget');
+document.addEventListener('DOMContentLoaded', function () {
+    const now = new Date();
+    const day = now.getDay();
+    const hours = now.getHours();
 
-        // 평일 체크 및 시간 설정
-        const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
+    const wrapper = document.getElementById('livere-main-wrapper');
+    const closedMsg = document.getElementById('main-closed-msg');
+    const widget = document.getElementById('livere-widget');
 
-        if (isLiveTime) {
-            // [중요] 날짜별 유니크 ID 생성
-            const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
-            const uniqueId = 'main-' + dateStr;
-            
-            // 속성 세팅
-            widget.setAttribute('data-id', uniqueId);
-            wrapper.style.display = 'block';
+    const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
 
-            // [핵심] ID가 세팅된 "직후"에 라이브리 스크립트를 불러옵니다.
-            const script = document.createElement('script');
-            script.type = 'module';
-            script.src = 'https://www.livere.org/livere-widget.js';
-            document.head.appendChild(script);
-            
-            console.log("오늘의 댓글 ID:", uniqueId); // 개발자 도구에서 확인용
-        } else {
-            closedMsg.style.display = 'block';
-        }
-    });
+    if (isLiveTime) {
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+
+        const uniqueId = `lunch-${yyyy}-${mm}-${dd}`;
+
+        widget.setAttribute('data-id', uniqueId);
+        wrapper.style.display = 'block';
+
+        // 기존 라이브리 스크립트가 중복으로 있으면 제거
+        const oldScript = document.querySelector('script[src*="livere-widget.js"]');
+        if (oldScript) oldScript.remove();
+
+        // data-id 세팅 후 라이브리 로드
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = 'https://www.livere.org/livere-widget.js?v=' + uniqueId;
+        document.body.appendChild(script);
+
+        console.log('오늘의 댓글 ID:', uniqueId);
+    } else {
+        closedMsg.style.display = 'block';
+    }
+});
 </script>
 </body>
 </html>

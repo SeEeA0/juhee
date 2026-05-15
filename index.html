@@ -133,28 +133,37 @@
     <!-- 라이브리 스크립트 -->
     <script type="module" src="https://www.livere.org/livere-widget.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            const day = now.getDay(); 
-            const hours = now.getHours();
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        const day = now.getDay(); 
+        const hours = now.getHours();
+        
+        const wrapper = document.getElementById('livere-main-wrapper');
+        const closedMsg = document.getElementById('main-closed-msg');
+        const widget = document.getElementById('livere-widget');
+
+        // 평일 월-금(1-5) 체크 & 시간 설정
+        const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
+
+        if (isLiveTime) {
+            // 1. 날짜별 고유 ID 생성 (예: main-2024-5-15)
+            const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+            widget.setAttribute('data-id', 'main-' + dateStr);
             
-            const wrapper = document.getElementById('livere-main-wrapper');
-            const closedMsg = document.getElementById('main-closed-msg');
-            const widget = document.getElementById('livere-widget');
+            // 2. 위젯 컨테이너 표시
+            wrapper.style.display = 'block';
 
-            // 평일 월-금(1-5) 체크 & 마감 시간 넉넉히 설정 (오전 9시 ~ 오후 11시 59분)
-            const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
-
-            if (isLiveTime) {
-                wrapper.style.display = 'block';
-                // 날짜별 ID 생성 (매일 초기화됨)
-                const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
-                widget.setAttribute('data-id', 'main-' + dateStr);
-            } else {
-                closedMsg.style.display = 'block';
-            }
-        });
-    </script>
+            // 3. 라이브리 스크립트를 이때 동적으로 로드 (ID 설정이 끝난 후)
+            const script = document.createElement('script');
+            script.src = "https://www.livere.org/livere-widget.js";
+            script.type = "module";
+            document.body.appendChild(script);
+            
+        } else {
+            closedMsg.style.display = 'block';
+        }
+    });
+</script>
 </body>
 </html>

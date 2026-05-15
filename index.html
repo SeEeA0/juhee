@@ -131,42 +131,49 @@
     <footer>Designed by <b>Ju-hee</b> for Salaria</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
     const now = new Date();
-    const day = now.getDay();
-    const hours = now.getHours();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const today = `${yyyy}-${mm}-${dd}`;
 
-    const wrapper = document.getElementById('livere-main-wrapper');
-    const closedMsg = document.getElementById('main-closed-msg');
-    const widget = document.getElementById('livere-widget');
+    const url = new URL(window.location.href);
 
-    const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
-
-    if (isLiveTime) {
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-
-        const uniqueId = `lunch-${yyyy}-${mm}-${dd}`;
-
-        widget.setAttribute('data-id', uniqueId);
-        wrapper.style.display = 'block';
-
-        // 기존 라이브리 스크립트가 중복으로 있으면 제거
-        const oldScript = document.querySelector('script[src*="livere-widget.js"]');
-        if (oldScript) oldScript.remove();
-
-        // data-id 세팅 후 라이브리 로드
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = 'https://www.livere.org/livere-widget.js?v=' + uniqueId;
-        document.body.appendChild(script);
-
-        console.log('오늘의 댓글 ID:', uniqueId);
-    } else {
-        closedMsg.style.display = 'block';
+    // 오늘 날짜 파라미터가 없으면 먼저 URL 변경
+    if (url.searchParams.get('date') !== today) {
+        url.searchParams.set('date', today);
+        window.location.replace(url.toString());
+        return;
     }
-});
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const day = now.getDay();
+        const hours = now.getHours();
+
+        const wrapper = document.getElementById('livere-main-wrapper');
+        const closedMsg = document.getElementById('main-closed-msg');
+        const widget = document.getElementById('livere-widget');
+
+        const isLiveTime = (day >= 1 && day <= 5) && (hours >= 9 && hours < 24);
+
+        if (isLiveTime) {
+            const uniqueId = `lunch-${today}`;
+
+            widget.setAttribute('data-id', uniqueId);
+            wrapper.style.display = 'block';
+
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = 'https://www.livere.org/livere-widget.js?v=' + today;
+            document.body.appendChild(script);
+
+            console.log('오늘의 댓글 ID:', uniqueId);
+        } else {
+            closedMsg.style.display = 'block';
+        }
+    });
+})();
 </script>
 </body>
 </html>

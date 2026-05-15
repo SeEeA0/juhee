@@ -290,6 +290,28 @@ if (!isLiveTime) {
 const commentsRef = collection(db, "lunch-comments", today, "comments");
 
 submitBtn.addEventListener("click", async () => {
+    const checkNow = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" })
+    );
+
+    const checkDay = checkNow.getDay();
+    const checkHours = checkNow.getHours();
+    const checkMinutes = checkNow.getMinutes();
+
+    const canSubmit =
+        checkDay >= 1 &&
+        checkDay <= 5 &&
+        (
+            checkHours === 9 ||
+            (checkHours === 10 && checkMinutes < 30)
+        );
+
+    if (!canSubmit) {
+        alert("메뉴 전송은 평일 오전 9:00부터 10:30까지만 가능합니다.");
+        location.reload();
+        return;
+    }
+
     const name = nameInput.value.trim();
     const text = textInput.value.trim();
 
@@ -315,7 +337,7 @@ submitBtn.addEventListener("click", async () => {
     }
 
     submitBtn.disabled = false;
-    submitBtn.textContent = "메뉴전송";
+    submitBtn.textContent = "메뉴 전송";
 });
 
 const q = query(commentsRef, orderBy("createdAt", "desc"));

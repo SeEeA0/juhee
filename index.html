@@ -209,18 +209,18 @@ footer b {
 
     <div id="comment-open-area">
         <div class="comment-form">
-            <input id="commentName" placeholder="이름 또는 닉네임">
-            <textarea id="commentText" placeholder="오늘 먹고 싶은 메뉴를 남겨주세요"></textarea>
-            <button id="submitComment">댓글달기</button>
+            <input id="commentName" placeholder="이름 적어주세요">
+            <textarea id="commentText" placeholder="10:30분 마감입니다"></textarea>
+            <button id="submitComment">메뉴 전송</button>
         </div>
 
-        <div class="comment-count" id="commentCount">댓글 0개</div>
+        <div class="comment-count" id="commentCount">픽 완료 0명</div>
         <div id="commentList"></div>
     </div>
 
     <div id="main-closed-msg">
         <span style="font-size:30px;">⏰</span>
-        <p>댓글 작성 가능 시간은 <b>09:00 ~ 23:59</b>입니다.</p>
+        <p>댓글 작성 가능 시간은 <b>09:00 ~ 10:30</b>입니다.</p>
     </div>
 </div>
 
@@ -281,12 +281,12 @@ submitBtn.addEventListener("click", async () => {
     const text = textInput.value.trim();
 
     if (!text) {
-        alert("댓글을 입력해주세요.");
+        alert("메뉴를 입력해주세요.");
         return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "등록 중...";
+    submitBtn.textContent = "전송 중...";
 
     try {
         await addDoc(commentsRef, {
@@ -297,19 +297,19 @@ submitBtn.addEventListener("click", async () => {
 
         textInput.value = "";
     } catch (error) {
-        alert("댓글 등록에 실패했습니다.");
+        alert("메뉴 등록에 실패했습니다.");
         console.error(error);
     }
 
     submitBtn.disabled = false;
-    submitBtn.textContent = "댓글달기";
+    submitBtn.textContent = "메뉴전송";
 });
 
 const q = query(commentsRef, orderBy("createdAt", "desc"));
 
 onSnapshot(q, (snapshot) => {
     commentList.innerHTML = "";
-    commentCount.textContent = `댓글 ${snapshot.size}개`;
+    commentCount.textContent = `픽 완료 ${snapshot.size}명`;
 
     snapshot.forEach((doc) => {
         const data = doc.data();

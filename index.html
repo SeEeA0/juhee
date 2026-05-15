@@ -251,15 +251,28 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const now = new Date();
-const day = now.getDay();
-const hours = now.getHours();
 
-const yyyy = now.getFullYear();
-const mm = String(now.getMonth() + 1).padStart(2, "0");
-const dd = String(now.getDate()).padStart(2, "0");
+const seoulNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Seoul" })
+);
+
+const day = seoulNow.getDay();
+const hours = seoulNow.getHours();
+const minutes = seoulNow.getMinutes();
+
+const yyyy = seoulNow.getFullYear();
+const mm = String(seoulNow.getMonth() + 1).padStart(2, "0");
+const dd = String(seoulNow.getDate()).padStart(2, "0");
 const today = `${yyyy}-${mm}-${dd}`;
 
-const isLiveTime = day >= 1 && day <= 5 && hours >= 9 && hours < 24;
+// 평일 월~금 / 오전 9시 ~ 10시 29분
+const isLiveTime =
+    day >= 1 &&
+    day <= 5 &&
+    (
+        hours === 9 ||
+        (hours === 10 && minutes < 30)
+    );
 
 const openArea = document.getElementById("comment-open-area");
 const closedMsg = document.getElementById("main-closed-msg");

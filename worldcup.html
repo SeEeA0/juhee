@@ -345,7 +345,7 @@
 
     <div class="question-card" onclick="startWith('fresh')">
       <h2>🥪 산뜻한 한끼</h2>
-      <p>샌드위치 · 랩</p>
+      <p>샐러드 · 샌드위치 · 랩</p>
     </div>
 
     <div class="question-card" onclick="startWith('simple')">
@@ -407,36 +407,36 @@
     function startWith(type) {
       let menus = [];
 
-      if (type === 'meal') {
-        menus = [
-          ...getCategoryItems('커리 덮밥'),
-          ...getCategoryItems('푸드').filter(item =>
-            !hasKeyword(item.name, ['스프', '죽', '토스트'])
-          )
-        ];
-      }
+if (type === 'meal') {
+  menus = [
+    ...getCategoryItems('커리 덮밥'),
+    ...getCategoryItems('푸드')
+  ];
+}
 
-      if (type === 'protein') {
-        menus = [
-          ...getCategoryItems('포케'),
-          ...getCategoryItems('단백질 도시락')
-        ];
-      }
+if (type === 'protein') {
+  menus = [
+    ...getCategoryItems('포케'),
+    ...getCategoryItems('단백질 도시락')
+  ];
+}
 
-      if (type === 'fresh') {
-        menus = [
-          ...getCategoryItems('샌드위치'),
-          ...getCategoryItems('랩')
-        ];
-      }
+if (type === 'fresh') {
+  menus = [
+    ...getCategoryItems('샌드위치'),
+    ...getCategoryItems('랩'),
+    ...getCategoryItems('샐러드')
+  ];
+}
 
-      if (type === 'simple') {
-        menus = [
-          ...getCategoryItems('푸드').filter(item =>
-            hasKeyword(item.name, ['스프', '그릭요거트', '죽', '토스트'])
-          )
-        ];
-      }
+if (type === 'simple') {
+  menus = [
+    ...getCategoryItems('죽'),
+    ...getCategoryItems('스프'),
+    ...getCategoryItems('그릭요거트'),
+    ...getCategoryItems('토스트')
+  ];
+}
 
       menus = menus.filter(item => !item.hidden && item.image);
       menus = shuffle(menus);

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>월간 식대 및 연차 잔액 조회 (뷰어)</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -19,6 +20,7 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen pb-12">
 
+    <!-- 상단 네비게이션 바 (월 이동 내비게이터 추가) -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -26,42 +28,63 @@
                     👁️
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 정산 대시보드 <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md ml-1.5 font-normal">조회 전용</span></h1>
-                    <p class="text-xs text-slate-500">멤버 카드를 클릭하면 해당 멤버의 내역만 필터링됩니다.</p>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                        식대 정산 대시보드
+                        <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md font-normal">조회 전용</span>
+                    </h1>
+                    <p class="text-xs text-slate-500">지급금 (+10,000원) - 사용 금액 = 당일 잔액 현황</p>
                 </div>
             </div>
-            <div id="currentMonthDisplay" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
-                2026년 5월 현황
+            
+            <!-- 📅 월 이동 내비게이터 UI -->
+            <div class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
+                    &lt;
+                </button>
+                <span id="currentMonthDisplay" class="text-sm font-bold text-slate-800 px-2 min-w-[100px] text-center">
+                    2026년 05월
+                </span>
+                <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
+                    &gt;
+                </button>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         
+        <!-- 1. 개인별 이번 달 누적 잔액 현황 카드 섹션 -->
         <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 이번 달 누적 현황 (선택 시 해당 멤버만 조회)</h2>
-                <button id="clearFilterBtn" onclick="clearMemberFilter()" class="hidden text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 transition-all cursor-pointer">
-                    🔄 전체 멤버 보기
-                </button>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 누적 현황 (선택 시 해당 멤버만 필터링)</h2>
+                
+                <!-- 필터 클리어 안내 배지 -->
+                <div id="filterStatusBadge" class="hidden text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 font-bold flex items-center gap-1.5">
+                    <span>현재 <strong id="filteredMemberName" class="underline"></strong> 님의 내역 보는 중</span>
+                    <button onclick="clearMemberFilter()" class="hover:text-rose-600 font-bold ml-1 cursor-pointer">✕ 해제</button>
+                </div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer">
-                </div>
+                <!-- JS 동적 생성 -->
+            </div>
         </div>
 
+        <!-- 2. 내역 표시 영역 (나열형 / 달력형 선택 탭) -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50">
                 <h3 class="text-base font-bold text-slate-900 flex items-center">
                     <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
-                    <span id="historyTitle">이번 달 전체 등록 내역</span>
+                    <span id="historyTitle">전체 등록 내역</span>
                 </h3>
                 
+                <!-- 나열형 / 달력형 전환 탭 -->
                 <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto">
                     <button id="viewTabList" onclick="switchViewMode('list')" class="px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all">📋 나열형 보기</button>
                     <button id="viewTabCalendar" onclick="switchViewMode('calendar')" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all">📅 달력형 보기</button>
                 </div>
             </div>
             
+            <!-- 2-A. 나열형(리스트) 뷰 -->
             <div id="listViewContainer" class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -80,16 +103,21 @@
                 </table>
             </div>
 
+            <!-- 2-B. 달력형(캘린더) 뷰 (가독성 강화 버전) -->
             <div id="calendarViewContainer" class="hidden p-4 md:p-6 bg-white">
+                <!-- 요일 헤더 -->
                 <div class="calendar-grid text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">
-                    <div class="text-rose-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-indigo-600">토</div>
+                    <div class="text-rose-500 py-1">일</div><div class="py-1">월</div><div class="py-1">화</div><div class="py-1">수</div><div class="py-1">목</div><div class="py-1">금</div><div class="text-indigo-600 py-1">토</div>
                 </div>
+                <!-- 달력 날짜 그리드 -->
                 <div id="calendarGrid" class="calendar-grid gap-1.5 md:gap-2">
-                    </div>
+                    <!-- JS 동적 생성 -->
+                </div>
             </div>
         </div>
     </main>
 
+    <!-- ─── Firebase 스크립트 연결 ─── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
@@ -108,19 +136,39 @@
 
         const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
         let allRecords = []; 
-        let filteredMember = ""; // 현재 필터링된 멤버 이름 (비어있으면 전체)
-        let currentViewMode = "list"; // list 또는 calendar
+        let filteredMember = ""; 
+        let currentViewMode = "list"; 
+
+        // 📅 달력 조회 연도 및 월 변수 (현재 기준 실시간 초기값 셋팅)
+        const sysDate = new Date();
+        let currentYear = sysDate.getFullYear();
+        let currentMonth = sysDate.getMonth() + 1; // 1 ~ 12
 
         window.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            document.getElementById('currentMonthDisplay').innerText = `${year}년 ${month}월 정산 현황`;
-
+            updateMonthDisplay();
             initRealtimeSync();
         });
 
-        // 뷰 모드 스위칭 함수
+        // 📅 내비게이션 월 변경 제어
+        window.changeMonth = function(offset) {
+            currentMonth += offset;
+            if (currentMonth < 1) {
+                currentMonth = 12;
+                currentYear -= 1;
+            } else if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear += 1;
+            }
+            updateMonthDisplay();
+            calculateAndRender();
+        }
+
+        function updateMonthDisplay() {
+            const formattedMonth = String(currentMonth).padStart(2, '0');
+            document.getElementById('currentMonthDisplay').innerText = `${currentYear}년 ${formattedMonth}월`;
+        }
+
+        // 뷰 모드 스위칭
         window.switchViewMode = function(mode) {
             currentViewMode = mode;
             const tabList = document.getElementById('viewTabList');
@@ -144,13 +192,17 @@
 
         // 특정 멤버 클릭 시 필터링 처리 함수
         window.toggleMemberFilter = function(name) {
+            const badge = document.getElementById('filterStatusBadge');
+            const nameSpan = document.getElementById('filteredMemberName');
+
             if (filteredMember === name) {
-                filteredMember = ""; // 이미 선택된 멤버면 필터 해제
-                document.getElementById('clearFilterBtn').classList.add('hidden');
-                document.getElementById('historyTitle').innerText = "이번 달 전체 등록 내역";
+                filteredMember = ""; 
+                badge.classList.add('hidden');
+                document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
             } else {
-                filteredMember = name; // 해당 멤버로 필터 지정
-                document.getElementById('clearFilterBtn').classList.remove('hidden');
+                filteredMember = name; 
+                nameSpan.innerText = name;
+                badge.classList.remove('hidden');
                 document.getElementById('historyTitle').innerText = `🎨 ${name}님의 등록 내역`;
             }
             calculateAndRender();
@@ -158,8 +210,8 @@
 
         window.clearMemberFilter = function() {
             filteredMember = "";
-            document.getElementById('clearFilterBtn').classList.add('hidden');
-            document.getElementById('historyTitle').innerText = "이번 달 전체 등록 내역";
+            document.getElementById('filterStatusBadge').classList.add('hidden');
+            document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
             calculateAndRender();
         }
 
@@ -185,10 +237,10 @@
                 memberVacations[m] = 0;
             });
 
-            const today = new Date();
-            const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            // 지정된 연도 및 월 기준으로 데이터 필터링 문자열 제작
+            const currentYearMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
 
-            // 1. 대시보드 상단 요약 카드를 위한 기본 정보 통합 정산 (필터 유무 상관없이 상단 카드는 항상 전체 누적 유지)
+            // 1. 대시보드 상단 요약 카드를 위한 기본 정보 통합 정산 (지정 월 기준)
             const baseMonthRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
             baseMonthRecords.forEach(rec => {
                 if (rec.type === 'vacation') {
@@ -267,7 +319,7 @@
             tbody.innerHTML = '';
 
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">조건에 맞는 등록 내역이 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">이번 달 등록된 내역이 없습니다.</td></tr>`;
                 return;
             }
 
@@ -302,39 +354,52 @@
             });
         }
 
-        // [달력형] 캘린더 화면 렌더링
+        // [달력형] 캘린더 화면 렌더링 (가독성 강화 적용)
         function renderCalendarView(records) {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth(); // 0~11
+            const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay(); // 시작 요일 인덱스
+            const totalDays = new Date(currentYear, currentMonth, 0).getDate(); // 당월 총 일수
 
-            const firstDayOfMonth = new Date(year, month, 1).getDay(); // 시작 요일 인덱스
-            const totalDays = new Date(year, month + 1, 0).getDate(); // 당월 총 일수
-
-            // 1. 시작 요일 맞추기용 공백 칸 생성
+            // 1. 시작 요일 맞추기용 공백 칸 생성 (주말 처리 배경 포함)
             for (let i = 0; i < firstDayOfMonth; i++) {
                 const emptyCell = document.createElement('div');
-                emptyCell.className = "bg-slate-50/50 min-h-[100px] border border-slate-100 rounded-xl";
+                const isSun = (i === 0);
+                const isSat = (i === 6);
+                const isWeekend = isSun || isSat;
+                emptyCell.className = `min-h-[100px] border border-slate-100 rounded-xl ${isWeekend ? 'bg-slate-50/80' : 'bg-slate-50/30'}`;
                 grid.appendChild(emptyCell);
             }
 
             // 2. 1일부터 말일까지 칸 생성
             for (let day = 1; day <= totalDays; day++) {
-                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateString = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
                 // 해당 날짜에 등록된 내역 필터링
                 const dayRecords = records.filter(rec => rec.date === dateString);
 
-                const dateCell = document.createElement('div');
-                dateCell.className = "bg-white border border-slate-200 rounded-xl p-2 min-h-[110px] flex flex-col justify-between hover:border-slate-300 transition-all";
+                // 주말 유무 가독성 검출
+                const cellDayOfWeek = new Date(currentYear, currentMonth - 1, day).getDay();
+                const isWeekend = (cellDayOfWeek === 0 || cellDayOfWeek === 6);
 
-                // 날짜 표시 (오늘 날짜 강조 효과 추가)
-                const isToday = (today.getDate() === day);
+                const dateCell = document.createElement('div');
+                dateCell.className = `border border-slate-200 rounded-xl p-2 min-h-[110px] flex flex-col justify-between hover:border-slate-300 transition-all ${
+                    isWeekend ? 'bg-slate-50/70' : 'bg-white'
+                }`;
+
+                // 오늘 날짜 강조 효과 추가
+                const today = new Date();
+                const isToday = (today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth && today.getDate() === day);
+                
                 let dayHeaderClass = "text-xs font-bold text-slate-700";
-                if (isToday) dayHeaderClass = "text-xs font-bold bg-indigo-600 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-sm";
+                if (isToday) {
+                    dayHeaderClass = "text-xs font-bold bg-indigo-600 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-sm";
+                } else if (cellDayOfWeek === 0) {
+                    dayHeaderClass = "text-xs font-bold text-rose-500";
+                } else if (cellDayOfWeek === 6) {
+                    dayHeaderClass = "text-xs font-bold text-indigo-500";
+                }
 
                 let innerItemsHTML = '<div class="space-y-1 mt-1.5 max-h-[70px] overflow-y-auto">';
                 
@@ -349,7 +414,7 @@
                             const bal = 10000 - Number(rec.amount);
                             const balColor = bal < 0 ? 'text-rose-600' : 'text-indigo-600';
                             innerItemsHTML += `
-                                <div class="text-[10px] bg-slate-50 text-slate-700 font-medium px-1 py-0.5 rounded border border-slate-100 flex flex-col leading-tight">
+                                <div class="text-[10px] bg-white text-slate-700 font-medium px-1.5 py-0.8 rounded-md border border-slate-150 flex flex-col leading-tight shadow-2xs">
                                     <div class="flex justify-between font-bold text-slate-900"><span>${rec.name}</span><span>${Number(rec.amount).toLocaleString()}원</span></div>
                                     <div class="text-right text-[9px] ${balColor} font-semibold">잔액: ${bal >= 0 ? '+' : ''}${bal.toLocaleString()}</div>
                                 </div>`;

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>월간 식대 및 연차 잔액 조회 (뷰어)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen pb-12">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-slate-700 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-slate-100">
+                    👁️
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 정산 대시보드 <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md ml-1.5 font-normal">조회 전용</span></h1>
+                    <p class="text-xs text-slate-500">선택 일자 기본 지급(+10,000원) - 지출 금액 = 당일 잔액 실시간 현황</p>
+                </div>
+            </div>
+            <div id="currentMonthDisplay" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
+                2026년 5월 현황
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        
+        <div class="mb-8">
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">멤버별 이번 달 누적 현황</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer">
+                </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
+                    이번 달 등록 내역 히스토리
+                </h3>
+                <span class="text-xs font-medium text-slate-500" id="totalCountDisplay">총 0건</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <th class="px-6 py-3">날짜</th>
+                            <th class="px-6 py-3">이름</th>
+                            <th class="px-6 py-3 text-center">정산 수식 (+10,000 - 금액)</th>
+                            <th class="px-6 py-3 text-right">당일 잔액 결과</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
+                        <tr>
+                            <td colspan="4" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중이거나 내역이 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcXfBc7kQQABI6-m8_xQeVmvaNLgjzA8s",
+            authDomain: "lunch-balance-system.firebaseapp.com",
+            projectId: "lunch-balance-system",
+            storageBucket: "lunch-balance-system.firebasestorage.app",
+            messagingSenderId: "737197500217",
+            appId: "1:737197500217:web:392fc2b81d6481df60aae8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
+        let allRecords = []; 
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('currentMonthDisplay').innerText = `${year}년 ${month}월 정산 현황`;
+
+            renderMemberCards({}, {}, {});
+            initRealtimeSync();
+        });
+
+        function initRealtimeSync() {
+            const q = query(collection(db, "lunch_records"), orderBy("date", "desc"));
+            onSnapshot(q, (snapshot) => {
+                allRecords = [];
+                snapshot.forEach((doc) => {
+                    allRecords.push({ id: doc.id, ...doc.data() });
+                });
+                calculateAndRender();
+            });
+        }
+
+        function calculateAndRender() {
+            const memberSpent = {};
+            const memberTotalDays = {};
+            const memberVacations = {};
+            
+            members.forEach(m => {
+                memberSpent[m] = 0;
+                memberTotalDays[m] = 0;
+                memberVacations[m] = 0;
+            });
+
+            const today = new Date();
+            const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+            // 이번 달 데이터 필터링
+            const filteredRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
+
+            filteredRecords.forEach(rec => {
+                if (rec.type === 'vacation') {
+                    if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
+                } else {
+                    if (memberSpent[rec.name] !== undefined) {
+                        memberSpent[rec.name] += Number(rec.amount || 0);
+                        memberTotalDays[rec.name] += 1;
+                    }
+                }
+            });
+
+            renderMemberCards(memberSpent, memberTotalDays, memberVacations);
+            renderHistoryTable(filteredRecords);
+            
+            document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${filteredRecords.length}건`;
+        }
+
+        function renderMemberCards(memberSpent, memberTotalDays, memberVacations) {
+            const container = document.getElementById('memberCardsContainer');
+            container.innerHTML = '';
+
+            members.forEach(name => {
+                const spent = memberSpent[name] || 0;
+                const activeDays = memberTotalDays[name] || 0;
+                const vacationDays = memberVacations[name] || 0;
+                
+                const totalGiven = activeDays * 10000;
+                const accumulativeBalance = totalGiven - spent;
+
+                let balanceColorClass = "text-indigo-600";
+                if (accumulativeBalance < 0) balanceColorClass = "text-rose-600 font-bold";
+                else if (accumulativeBalance === 0) balanceColorClass = "text-slate-500";
+
+                const card = document.createElement('div');
+                // 조회전용이므로 클릭 시 효과 및 포인터 스타일 변경
+                card.className = `bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold text-slate-900">${name}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 space-y-0.5">
+                            <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
+                            <div class="flex justify-between"><span>누적 지급액:</span><span>+${totalGiven.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-slate-600"><span>사용한 식대:</span><span>-${spent.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-emerald-600 font-medium pt-1 border-t border-dashed border-slate-100"><span>🌴 연차 사용:</span><span>${vacationDays}일</span></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">이번달 누적 잔액</span>
+                        <span class="text-sm font-bold ${balanceColorClass}">${accumulativeBalance.toLocaleString()}원</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderHistoryTable(records) {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">이번 달에 등록된 내역이 없습니다.</td></tr>`;
+                return;
+            }
+
+            records.forEach(rec => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+                
+                let formulaDisplay = "";
+                let resultDisplay = "";
+
+                if (rec.type === 'vacation') {
+                    formulaDisplay = `<span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded">정산 제외 (연차 휴가)</span>`;
+                    resultDisplay = `<span class="font-bold text-slate-400">0원</span>`;
+                } else {
+                    const singleBalance = 10000 - Number(rec.amount);
+                    formulaDisplay = `<span class="text-xs font-mono text-slate-500">+10,000 - ${Number(rec.amount).toLocaleString()}</span>`;
+                    
+                    if (singleBalance < 0) {
+                        resultDisplay = `<span class="font-bold text-rose-600">${singleBalance.toLocaleString()}원</span>`;
+                    } else {
+                        resultDisplay = `<span class="font-bold text-indigo-600">+${singleBalance.toLocaleString()}원</span>`;
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td class="px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
+                    <td class="px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${rec.name}</td>
+                    <td class="px-6 py-3.5 text-center whitespace-nowrap">${formulaDisplay}</td>
+                    <td class="px-6 py-3.5 text-right whitespace-nowrap">${resultDisplay}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>

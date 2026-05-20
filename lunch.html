@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>월간 식대 잔액 관리</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -11,10 +12,15 @@
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
             background-color: #f8fafc;
         }
+        .calendar-grid {
+            display: grid;
+            grid-template-cols: repeat(7, minmax(0, 1fr));
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen pb-12">
 
+    <!-- 상단 네비게이션 바 (월 이동 포함) -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -22,24 +28,48 @@
                     🍱
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 정산 대시보드</h1>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                        식대 정산 대시보드
+                        <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-md font-normal">관리자용</span>
+                    </h1>
                     <p class="text-xs text-slate-500">선택 일자 기본 지급(+10,000원) - 선택 메뉴 금액 - 추가금액 = 당일 잔액 관리</p>
                 </div>
             </div>
-            <div id="currentMonthDisplay" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
-                정산 현황
+            
+            <!-- 📅 월 이동 내비게이터 UI -->
+            <div class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
+                    &lt;
+                </button>
+                <span id="currentMonthDisplay" class="text-sm font-bold text-slate-800 px-2 min-w-[100px] text-center">
+                    2026년 05월
+                </span>
+                <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
+                    &gt;
+                </button>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
 
+        <!-- 1. 개인별 이번 달 누적 현황 카드 섹션 (클릭 선택 필터 지원) -->
         <div class="mb-8">
-            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">멤버별 이번 달 누적 현황 (카드를 클릭하여 선택)</h2>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 이번 달 누적 현황 (카드를 클릭하여 선택)</h2>
+                
+                <!-- 필터 안내 배지 -->
+                <div id="filterStatusBadge" class="hidden text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 font-bold flex items-center gap-1.5">
+                    <span>현재 <strong id="filteredMemberName" class="underline"></strong> 님의 내역 보는 중</span>
+                    <button onclick="clearMemberFilter()" class="hover:text-rose-600 font-bold ml-1 cursor-pointer">✕ 해제</button>
+                </div>
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- 2. 왼쪽: 일자별 기록 등록 폼 -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
                     <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center">
@@ -53,6 +83,7 @@
                     </div>
 
                     <form id="recordForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                        <!-- 등록 대상 -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1">등록 대상 멤버</label>
                             <div id="selectedMemberBadge" class="w-full bg-slate-50 text-slate-400 text-sm font-medium px-4 py-3 rounded-xl border border-slate-200 text-center">
@@ -61,12 +92,14 @@
                             <input type="hidden" id="selectedName" required>
                         </div>
 
+                        <!-- 선택 일자 -->
                         <div>
                             <label for="date" class="block text-xs font-semibold text-slate-500 mb-1">선택 일자</label>
                             <input type="date" id="date" onchange="updateCalculationPreview(); calculateAndRender();"
                                 class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all" required>
                         </div>
 
+                        <!-- JSON 기반 메뉴 선택 인풋 영역 -->
                         <div id="menuInputGroup" class="space-y-4">
                             <div>
                                 <label for="categorySelect" class="block text-xs font-semibold text-slate-500 mb-1">카테고리 선택</label>
@@ -84,6 +117,7 @@
                                 </select>
                             </div>
 
+                            <!-- 선택 메뉴 디테일 프리뷰 -->
                             <div id="selectedMenuPreview" class="hidden bg-indigo-50 border border-indigo-100 rounded-xl p-3">
                                 <div class="flex items-center gap-3">
                                     <img id="previewImage" src="" alt="" class="w-16 h-16 rounded-lg object-cover bg-white border border-indigo-100">
@@ -94,6 +128,7 @@
                                 </div>
                             </div>
 
+                            <!-- 추가금액 입력 -->
                             <div>
                                 <label for="extraAmount" class="block text-xs font-semibold text-slate-500 mb-1">추가금액 입력 (원)</label>
                                 <div class="relative">
@@ -104,6 +139,7 @@
                             </div>
                         </div>
 
+                        <!-- 실시간 당일 정산 미리보기 수식 -->
                         <div id="calcPreviewGroup" class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
                             <div class="font-semibold text-slate-600 mb-1">💡 선택일 정산 방식 미리보기</div>
                             <div class="flex justify-between text-slate-500">
@@ -124,10 +160,12 @@
                             </div>
                         </div>
 
+                        <!-- 연차 등록 안내 -->
                         <div id="vacationNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
                             💡 연차 등록일에는 기본 지급(+10,000원) 항목이 부여되지 않으며, 차감 금액도 계산되지 않습니다. (해당일 정산 제외)
                         </div>
 
+                        <!-- 제출 버튼 -->
                         <button type="submit" id="submitBtn" disabled
                             class="w-full bg-slate-200 text-slate-400 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all cursor-not-allowed text-sm">
                             멤버를 먼저 선택해 주세요
@@ -136,17 +174,24 @@
                 </div>
             </div>
 
+            <!-- 3. 오른쪽: 이번 달 실시간 정산 내역 및 전환형 뷰 -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50">
                         <h3 class="text-base font-bold text-slate-900 flex items-center">
                             <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
-                            이번 달 등록 내역 히스토리
+                            <span id="historyTitle">이번 달 등록 내역 히스토리</span>
                         </h3>
-                        <span class="text-xs font-medium text-slate-500" id="totalCountDisplay">총 0건</span>
+                        
+                        <!-- 📋 나열형 / 📅 달력형 토글 탭 -->
+                        <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto">
+                            <button id="viewTabList" onclick="switchViewMode('list')" class="px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all">📋 나열형 보기</button>
+                            <button id="viewTabCalendar" onclick="switchViewMode('calendar')" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all">📅 달력형 보기</button>
+                        </div>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <!-- 3-A. 나열형 (리스트) 보기 -->
+                    <div id="listViewContainer" class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -160,16 +205,33 @@
                             </thead>
                             <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중이거나 내역이 없습니다.</td>
+                                    <td colspan="6" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중입니다.</td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- 3-B. 달력형 (캘린더) 보기 -->
+                    <div id="calendarViewContainer" class="hidden p-4 md:p-6 bg-white">
+                        <!-- 요일 헤더 -->
+                        <div class="calendar-grid text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">
+                            <div class="text-rose-500 py-1">일</div><div class="py-1">월</div><div class="py-1">화</div><div class="py-1">수</div><div class="py-1">목</div><div class="py-1">금</div><div class="text-indigo-600 py-1">토</div>
+                        </div>
+                        <!-- 달력 날짜 그리드 -->
+                        <div id="calendarGrid" class="calendar-grid gap-1.5 md:gap-2">
+                            <!-- JS 동적 생성 -->
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 py-3 border-t border-slate-100 text-right bg-slate-50/20">
+                        <span class="text-xs font-medium text-slate-500" id="totalCountDisplay">총 0건</span>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- ─── Firebase 및 융합 제어 스크립트 ─── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
@@ -190,9 +252,16 @@
 
         const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
         let currentSelectedMember = "";
+        let filteredMember = ""; 
         let recordMode = "expense"; 
         let allRecords = []; 
         let selectedMenuData = null;
+        let currentViewMode = "list"; 
+
+        // 📅 달력 연도 및 월 변수 세팅
+        const sysDate = new Date();
+        let currentYear = sysDate.getFullYear();
+        let currentMonth = sysDate.getMonth() + 1;
 
         window.addEventListener('DOMContentLoaded', async () => {
             const today = new Date();
@@ -200,30 +269,78 @@
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             document.getElementById('date').value = `${year}-${month}-${day}`;
-            document.getElementById('currentMonthDisplay').innerText = `${year}년 ${month}월 정산 현황`;
 
+            updateMonthDisplay();
             await loadMenuData();
             renderMemberCards({}, {}, {});
             initRealtimeSync();
             updateCalculationPreview();
         });
 
+        // 📅 달력 이전 달 / 다음 달 이동
+        window.changeMonth = function(offset) {
+            currentMonth += offset;
+            if (currentMonth < 1) {
+                currentMonth = 12;
+                currentYear -= 1;
+            } else if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear += 1;
+            }
+            updateMonthDisplay();
+            calculateAndRender();
+        }
+
+        function updateMonthDisplay() {
+            const formattedMonth = String(currentMonth).padStart(2, '0');
+            document.getElementById('currentMonthDisplay').innerText = `${currentYear}년 ${formattedMonth}월`;
+        }
+
+        // 나열형 vs 달력형 뷰 토글
+        window.switchViewMode = function(mode) {
+            currentViewMode = mode;
+            const tabList = document.getElementById('viewTabList');
+            const tabCalendar = document.getElementById('viewTabCalendar');
+            const listContainer = document.getElementById('listViewContainer');
+            const calendarContainer = document.getElementById('calendarViewContainer');
+
+            if (mode === 'list') {
+                tabList.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
+                tabCalendar.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
+                listContainer.classList.remove('hidden');
+                calendarContainer.classList.add('hidden');
+            } else {
+                tabList.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
+                tabCalendar.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
+                listContainer.classList.add('hidden');
+                calendarContainer.classList.remove('hidden');
+            }
+            calculateAndRender();
+        }
+
+        // HTML 이스케이프 유틸리티 추가
+        function escapeHtml(str) {
+            if (!str) return "";
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // data.json 비동기 로딩
         async function loadMenuData() {
             const categorySelect = document.getElementById('categorySelect');
-
             try {
                 const response = await fetch('./data.json');
-
                 if (!response.ok) {
                     throw new Error('data.json 파일을 불러오지 못했습니다.');
                 }
-
                 MENU_DATA = await response.json();
-
                 if (!MENU_DATA.categories || !Array.isArray(MENU_DATA.categories)) {
                     throw new Error('data.json 안에 categories 배열이 없습니다.');
                 }
-
                 initMenuSelects();
             } catch (error) {
                 console.error(error);
@@ -244,7 +361,6 @@
         window.initMenuSelects = function() {
             const categorySelect = document.getElementById('categorySelect');
             categorySelect.innerHTML = '<option value="">카테고리 선택</option>';
-
             MENU_DATA.categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category.categoryName;
@@ -256,9 +372,7 @@
         window.handleCategoryChange = function() {
             const categorySelect = document.getElementById('categorySelect');
             const menuSelect = document.getElementById('menuSelect');
-
             if (!MENU_DATA) return;
-
             const selectedCategory = MENU_DATA.categories.find(category => category.categoryName === categorySelect.value);
 
             selectedMenuData = null;
@@ -273,23 +387,19 @@
 
             menuSelect.disabled = false;
             menuSelect.innerHTML = '<option value="">메뉴 선택</option>';
-
             selectedCategory.items.forEach((item, index) => {
                 const option = document.createElement('option');
                 option.value = String(index);
                 option.textContent = `${item.name} (${item.price}원)`;
                 menuSelect.appendChild(option);
             });
-
             updateCalculationPreview();
         }
 
         window.handleMenuChange = function() {
             const categorySelect = document.getElementById('categorySelect');
             const menuSelect = document.getElementById('menuSelect');
-
             if (!MENU_DATA) return;
-
             const selectedCategory = MENU_DATA.categories.find(category => category.categoryName === categorySelect.value);
 
             if (!selectedCategory || menuSelect.value === "") {
@@ -299,7 +409,6 @@
             }
 
             selectedMenuData = selectedCategory.items[Number(menuSelect.value)] || null;
-
             if (!selectedMenuData) {
                 resetMenuPreview();
                 return;
@@ -312,15 +421,10 @@
 
             image.src = selectedMenuData.image || "";
             image.alt = selectedMenuData.name || "";
-            image.onerror = () => {
-                image.style.display = "none";
-            };
-            image.onload = () => {
-                image.style.display = "block";
-            };
+            image.onerror = () => { image.style.display = "none"; };
+            image.onload = () => { image.style.display = "block"; };
 
             name.innerText = selectedMenuData.name || "";
-
             const metaParts = [];
             if (selectedMenuData.price) metaParts.push(`${selectedMenuData.price}원`);
             if (selectedMenuData.kcal) metaParts.push(`${selectedMenuData.kcal}kcal`);
@@ -389,30 +493,61 @@
                 vacationNotice.classList.remove('hidden');
                 calcPreview.classList.remove('hidden');
             }
-
             updateCalculationPreview();
-
-            if (currentSelectedMember) {
-                updateSubmitButton(currentSelectedMember);
-            }
+            if (currentSelectedMember) updateSubmitButton(currentSelectedMember);
         }
 
-        window.selectMember = function(name) {
-            currentSelectedMember = name;
-            document.getElementById('selectedName').value = name;
+        // 🎨 멤버 카드 클릭 시 "입력대상 타겟 지정" & "리스트/달력 멤버 필터링" 통합 바인딩
+        window.toggleMemberFilter = function(name) {
+            const badgeStatus = document.getElementById('filterStatusBadge');
+            const badgeName = document.getElementById('filteredMemberName');
 
-            const badge = document.getElementById('selectedMemberBadge');
-            badge.innerText = `선택됨: ${name}`;
-            badge.className = "w-full bg-indigo-50 text-indigo-700 text-sm font-bold px-4 py-3 rounded-xl border border-indigo-200 text-center ring-2 ring-indigo-100";
+            if (currentSelectedMember === name) {
+                // 한 번 더 선택 시 해제
+                currentSelectedMember = "";
+                filteredMember = "";
+                document.getElementById('selectedName').value = "";
+                document.getElementById('selectedMemberBadge').innerText = "위의 카드에서 멤버를 먼저 선택하세요";
+                document.getElementById('selectedMemberBadge').className = "w-full bg-slate-50 text-slate-400 text-sm font-medium px-4 py-3 rounded-xl border border-slate-200 text-center";
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').className = "w-full bg-slate-200 text-slate-400 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all cursor-not-allowed text-sm";
+                
+                badgeStatus.classList.add('hidden');
+                document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
+            } else {
+                currentSelectedMember = name;
+                filteredMember = name;
+                document.getElementById('selectedName').value = name;
+                
+                const badge = document.getElementById('selectedMemberBadge');
+                badge.innerText = `선택됨: ${name}`;
+                badge.className = "w-full bg-indigo-50 text-indigo-700 text-sm font-bold px-4 py-3 rounded-xl border border-indigo-200 text-center ring-2 ring-indigo-100";
+                
+                updateSubmitButton(name);
+                badgeName.innerText = name;
+                badgeStatus.classList.remove('hidden');
+                document.getElementById('historyTitle').innerText = `🎨 ${name}님의 등록 내역`;
+            }
+            calculateAndRender();
+        }
 
-            updateSubmitButton(name);
+        window.clearMemberFilter = function() {
+            currentSelectedMember = "";
+            filteredMember = "";
+            document.getElementById('selectedName').value = "";
+            document.getElementById('selectedMemberBadge').innerText = "위의 카드에서 멤버를 먼저 선택하세요";
+            document.getElementById('selectedMemberBadge').className = "w-full bg-slate-50 text-slate-400 text-sm font-medium px-4 py-3 rounded-xl border border-slate-200 text-center";
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').className = "w-full bg-slate-200 text-slate-400 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all cursor-not-allowed text-sm";
+            
+            document.getElementById('filterStatusBadge').classList.add('hidden');
+            document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
             calculateAndRender();
         }
 
         function updateSubmitButton(name) {
             const btn = document.getElementById('submitBtn');
             btn.disabled = false;
-
             if (recordMode === 'expense') {
                 btn.innerText = `${name}님 메뉴 기록 등록하기`;
                 btn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
@@ -424,14 +559,11 @@
 
         function initRealtimeSync() {
             const q = query(collection(db, "lunch_records"), orderBy("date", "desc"));
-
             onSnapshot(q, (snapshot) => {
                 allRecords = [];
-
                 snapshot.forEach((doc) => {
                     allRecords.push({ id: doc.id, ...doc.data() });
                 });
-
                 calculateAndRender();
             });
         }
@@ -447,16 +579,14 @@
                 memberVacations[m] = 0;
             });
 
-            const todayStr = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-            const currentYearMonth = todayStr.substring(0, 7);
+            // 선택된 조회 월에 맞춰 포맷팅
+            const currentYearMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
 
-            const filteredRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
-
-            filteredRecords.forEach(rec => {
+            // 요약 산출용 당월 전체 기록 필터
+            const baseMonthRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
+            baseMonthRecords.forEach(rec => {
                 if (rec.type === 'vacation') {
-                    if (memberVacations[rec.name] !== undefined) {
-                        memberVacations[rec.name] += 1;
-                    }
+                    if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
                 } else {
                     if (memberSpent[rec.name] !== undefined) {
                         memberSpent[rec.name] += Number(rec.amount || 0);
@@ -465,10 +595,21 @@
                 }
             });
 
-            renderMemberCards(memberSpent, memberTotalDays, memberVacations);
-            renderHistoryTable(filteredRecords);
+            // 하단 목록 표시용 데이터 필터링 적용
+            let displayRecords = baseMonthRecords;
+            if (filteredMember) {
+                displayRecords = baseMonthRecords.filter(rec => rec.name === filteredMember);
+            }
 
-            document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${filteredRecords.length}건`;
+            renderMemberCards(memberSpent, memberTotalDays, memberVacations);
+            
+            if (currentViewMode === 'list') {
+                renderHistoryTable(displayRecords);
+            } else {
+                renderCalendarView(displayRecords);
+            }
+
+            document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${displayRecords.length}건`;
         }
 
         function renderMemberCards(memberSpent, memberTotalDays, memberVacations) {
@@ -485,7 +626,6 @@
                 const isSelected = (name === currentSelectedMember);
 
                 let balanceColorClass = "text-indigo-600";
-
                 if (accumulativeBalance < 0) {
                     balanceColorClass = "text-rose-600 font-bold";
                 } else if (accumulativeBalance === 0) {
@@ -493,18 +633,16 @@
                 }
 
                 const card = document.createElement('div');
-
                 card.className = `bg-white rounded-xl border p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
                     isSelected ? 'border-indigo-600 ring-2 ring-indigo-100 bg-indigo-50/20' : 'border-slate-200 hover:border-slate-300'
                 }`;
-
-                card.setAttribute('onclick', `selectMember('${name}')`);
+                card.setAttribute('onclick', `toggleMemberFilter('${name}')`);
 
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-bold text-slate-900">${name}</span>
-                            ${isSelected ? '<span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>' : ''}
+                            ${isSelected ? '<span class="text-[10px] bg-indigo-600 text-white font-bold px-1.5 py-0.5 rounded">선택됨</span>' : ''}
                         </div>
                         <div class="text-[11px] text-slate-400 space-y-0.5">
                             <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
@@ -518,11 +656,11 @@
                         <span class="text-sm font-bold ${balanceColorClass}">${accumulativeBalance.toLocaleString()}원</span>
                     </div>
                 `;
-
                 container.appendChild(card);
             });
         }
 
+        // [나열형] 리스트 렌더링
         function renderHistoryTable(records) {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = '';
@@ -579,14 +717,87 @@
                         </button>
                     </td>
                 `;
-
                 tbody.appendChild(tr);
             });
         }
 
+        // [달력형] 캘린더 렌더링 (가독성 처리 적용)
+        function renderCalendarView(records) {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay(); 
+            const totalDays = new Date(currentYear, currentMonth, 0).getDate(); 
+
+            // 시작 요일 공백 채우기
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptyCell = document.createElement('div');
+                const isSun = (i === 0);
+                const isSat = (i === 6);
+                const isWeekend = isSun || isSat;
+                emptyCell.className = `min-h-[100px] border border-slate-100 rounded-xl ${isWeekend ? 'bg-slate-50/80' : 'bg-slate-50/30'}`;
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayRecords = records.filter(rec => rec.date === dateString);
+
+                const cellDayOfWeek = new Date(currentYear, currentMonth - 1, day).getDay();
+                const isWeekend = (cellDayOfWeek === 0 || cellDayOfWeek === 6);
+
+                const dateCell = document.createElement('div');
+                dateCell.className = `border border-slate-200 rounded-xl p-2 min-h-[110px] flex flex-col justify-between hover:border-slate-300 transition-all ${
+                    isWeekend ? 'bg-slate-50/70' : 'bg-white'
+                }`;
+
+                const today = new Date();
+                const isToday = (today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth && today.getDate() === day);
+                
+                let dayHeaderClass = "text-xs font-bold text-slate-700";
+                if (isToday) {
+                    dayHeaderClass = "text-xs font-bold bg-indigo-600 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-sm";
+                } else if (cellDayOfWeek === 0) {
+                    dayHeaderClass = "text-xs font-bold text-rose-500";
+                } else if (cellDayOfWeek === 6) {
+                    dayHeaderClass = "text-xs font-bold text-indigo-500";
+                }
+
+                let innerItemsHTML = '<div class="space-y-1 mt-1.5 max-h-[70px] overflow-y-auto">';
+                
+                if (dayRecords.length > 0) {
+                    dayRecords.forEach(rec => {
+                        if (rec.type === 'vacation') {
+                            innerItemsHTML += `
+                                <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1 py-0.5 rounded border border-emerald-100 flex justify-between truncate">
+                                    <span>${rec.name}</span><span>🌴 연차</span>
+                                </div>`;
+                        } else {
+                            const bal = 10000 - Number(rec.amount);
+                            const balColor = bal < 0 ? 'text-rose-600' : 'text-indigo-600';
+                            innerItemsHTML += `
+                                <div class="text-[10px] bg-slate-50 text-slate-700 font-medium px-1.5 py-0.8 rounded-md border border-slate-150 flex flex-col leading-tight">
+                                    <div class="flex justify-between font-bold text-slate-900"><span>${rec.name}</span><span>${Number(rec.amount).toLocaleString()}원</span></div>
+                                    <div class="text-right text-[9px] ${balColor} font-semibold">잔액: ${bal >= 0 ? '+' : ''}${bal.toLocaleString()}</div>
+                                </div>`;
+                        }
+                    });
+                }
+                innerItemsHTML += '</div>';
+
+                dateCell.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="${dayHeaderClass}">${day}</span>
+                        ${dayRecords.length > 0 ? `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 rounded-sm">총 ${dayRecords.length}건</span>` : ''}
+                    </div>
+                    ${innerItemsHTML}
+                `;
+                grid.appendChild(dateCell);
+            }
+        }
+
         window.handleFormSubmit = async function(e) {
             e.preventDefault();
-
             const name = document.getElementById('selectedName').value;
             const dateInput = document.getElementById('date');
             const extraInput = document.getElementById('extraAmount');
@@ -611,12 +822,10 @@
                     alert("카테고리를 선택해 주세요.");
                     return;
                 }
-
                 if (!selectedMenuData) {
                     alert("메뉴를 선택해 주세요.");
                     return;
                 }
-
                 if (extraAmount < 0 || isNaN(extraAmount)) {
                     alert("추가금액은 0원 이상으로 입력해 주세요.");
                     return;
@@ -647,13 +856,14 @@
                 btn.innerText = "저장 중...";
 
                 await addDoc(collection(db, "lunch_records"), saveData);
-
-                document.getElementById('categorySelect').value = "";
+                
+                // 폼 입력란 청소
+                extraInput.value = '';
+                document.getElementById('categorySelect').value = '';
                 document.getElementById('menuSelect').innerHTML = '<option value="">먼저 카테고리를 선택해주세요</option>';
                 document.getElementById('menuSelect').disabled = true;
-                extraInput.value = '';
-                selectedMenuData = null;
                 resetMenuPreview();
+                selectedMenuData = null;
 
                 btn.disabled = false;
                 updateSubmitButton(name);
@@ -661,7 +871,6 @@
             } catch (error) {
                 alert("저장 실패: " + error.message);
                 document.getElementById('submitBtn').disabled = false;
-                updateSubmitButton(name);
             }
         }
 
@@ -673,15 +882,6 @@
                     alert("삭제 실패: " + error.message);
                 }
             }
-        }
-
-        function escapeHtml(text) {
-            return String(text || "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
         }
     </script>
 </body>

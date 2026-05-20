@@ -22,8 +22,8 @@
                     🍱
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 잔액 정산 대시보드</h1>
-                    <p class="text-xs text-slate-500">지출 금액 입력 | 연차 등록 시 만원 자동 차감</p>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 정산 대시보드</h1>
+                    <p class="text-xs text-slate-500">선택 일자 기본 지급(+10,000원) - 지출 금액 = 당일 잔액 관리</p>
                 </div>
             </div>
             <div id="currentMonthDisplay" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -35,7 +35,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         
         <div class="mb-8">
-            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">멤버별 이번 달 잔액 현황 (카드를 클릭하여 선택)</h2>
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">멤버별 이번 달 누적 현황 (카드를 클릭하여 선택)</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer">
                 </div>
         </div>
@@ -45,7 +45,7 @@
                 <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
                     <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center">
                         <span class="w-2 h-4 bg-indigo-600 rounded-sm mr-2 block"></span>
-                        기록 등록
+                        일자별 정산 기록
                     </h3>
                     
                     <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold">
@@ -62,23 +62,39 @@
                             <input type="hidden" id="selectedName" required>
                         </div>
 
+                        <div>
+                            <label for="date" class="block text-xs font-semibold text-slate-500 mb-1">선택 일자</label>
+                            <input type="date" id="date" onchange="updateCalculationPreview()"
+                                class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all" required>
+                        </div>
+
+                        <div id="calcPreviewGroup" class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
+                            <div class="font-semibold text-slate-600 mb-1">💡 선택일 정산 방식 미리보기</div>
+                            <div class="flex justify-between text-slate-500">
+                                <span>지정일 기본 지급:</span>
+                                <span id="previewBase" class="font-medium text-indigo-600">+10,000원</span>
+                            </div>
+                            <div class="flex justify-between text-slate-500">
+                                <span>사용한 금액 차감:</span>
+                                <span id="previewExpense" class="font-medium text-rose-500">-0원</span>
+                            </div>
+                            <div class="border-t border-slate-200 pt-2 flex justify-between font-bold text-slate-800 text-sm">
+                                <span>정산 후 당일 잔액:</span>
+                                <span id="previewBalance" class="text-indigo-600">10,000원</span>
+                            </div>
+                        </div>
+
                         <div id="amountInputGroup">
                             <label for="amount" class="block text-xs font-semibold text-slate-500 mb-1">식대 지출 금액 (원)</label>
                             <div class="relative">
-                                <input type="number" id="amount" placeholder="예: 8500" min="0" step="10"
+                                <input type="number" id="amount" placeholder="예: 8500" min="0" step="10" oninput="updateCalculationPreview()"
                                     class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-right pr-8">
                                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium">원</span>
                             </div>
                         </div>
 
                         <div id="vacationNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
-                            💡 연차를 등록하면 이번 달 총 기준금액에서 <strong>10,000원이 자동 차감</strong>됩니다.
-                        </div>
-
-                        <div>
-                            <label for="date" class="block text-xs font-semibold text-slate-500 mb-1">날짜</label>
-                            <input type="date" id="date" 
-                                class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all" required>
+                            💡 연차 등록일에는 기본 지급(+10,000원) 항목이 부여되지 않으며, 차감 금액도 계산되지 않습니다. (해당일 정산 제외)
                         </div>
 
                         <button type="submit" id="submitBtn" disabled
@@ -105,13 +121,14 @@
                                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     <th class="px-6 py-3">날짜</th>
                                     <th class="px-6 py-3">이름</th>
-                                    <th class="px-6 py-3 text-right">금액 / 내용</th>
+                                    <th class="px-6 py-3 text-center">정산 수식 (+10,000 - 금액)</th>
+                                    <th class="px-6 py-3 text-right">당일 잔액 결과</th>
                                     <th class="px-6 py-3 text-center">관리</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
                                 <tr>
-                                    <td colspan="4" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중이거나 내역이 없습니다.</td>
+                                    <td colspan="5" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중이거나 내역이 없습니다.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -125,7 +142,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-        // 세아님이 보내주신 Firebase 프로젝트의 고유 식별 Key 자동 탑재 완료!
         const firebaseConfig = {
             apiKey: "AIzaSyAcXfBc7kQQABI6-m8_xQeVmvaNLgjzA8s",
             authDomain: "lunch-balance-system.firebaseapp.com",
@@ -151,22 +167,35 @@
             document.getElementById('date').value = `${year}-${month}-${day}`;
             document.getElementById('currentMonthDisplay').innerText = `${year}년 ${month}월 정산 현황`;
 
-            renderMemberCards({}, {});
+            renderMemberCards({}, {}, {});
             initRealtimeSync();
+            updateCalculationPreview();
         });
 
-        // 특정 년-월의 토/일 주말을 제외한 평일(영업일) 수 계산 함수 (다른 페이지 안정화 버전)
-        function getWorkingDaysCount(year, month) {
-            let count = 0;
-            let date = new Date(year, month - 1, 1);
-            while (date.getMonth() === month - 1) {
-                const dayOfWeek = date.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) { 
-                    count++;
+        // 사용자가 금액을 타이핑할 때 하단 미리보기 수식을 실시간 업데이트하는 함수
+        window.updateCalculationPreview = function() {
+            const previewBase = document.getElementById('previewBase');
+            const previewExpense = document.getElementById('previewExpense');
+            const previewBalance = document.getElementById('previewBalance');
+            const amountVal = Number(document.getElementById('amount').value) || 0;
+
+            if (recordMode === 'expense') {
+                previewBase.innerText = "+10,000원";
+                previewExpense.innerText = `-${amountVal.toLocaleString()}원`;
+                const balance = 10000 - amountVal;
+                previewBalance.innerText = `${balance.toLocaleString()}원`;
+                if (balance < 0) {
+                    previewBalance.className = "text-rose-600 font-bold";
+                } else {
+                    previewBalance.className = "text-indigo-600 font-bold";
                 }
-                date.setDate(date.getDate() + 1);
+            } else {
+                // 연차일 때는 정산 수식 제외
+                previewBase.innerText = "0원 (연차)";
+                previewExpense.innerText = "-0원";
+                previewBalance.innerText = "0원";
+                previewBalance.className = "text-slate-500 font-bold";
             }
-            return count;
         }
 
         window.setRecordMode = function(mode) {
@@ -175,6 +204,7 @@
             const tabVacation = document.getElementById('tabVacation');
             const amountGroup = document.getElementById('amountInputGroup');
             const vacationNotice = document.getElementById('vacationNoticeGroup');
+            const calcPreview = document.getElementById('calcPreviewGroup');
             const amountInput = document.getElementById('amount');
 
             if (mode === 'expense') {
@@ -182,15 +212,18 @@
                 tabVacation.className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
                 amountGroup.classList.remove('hidden');
                 vacationNotice.classList.add('hidden');
+                calcPreview.classList.remove('hidden');
                 amountInput.required = true;
             } else {
                 tabExpense.className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
                 tabVacation.className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
                 amountGroup.classList.add('hidden');
                 vacationNotice.classList.remove('hidden');
+                calcPreview.classList.remove('hidden');
                 amountInput.required = false;
                 amountInput.value = '';
             }
+            updateCalculationPreview();
             if(currentSelectedMember) updateSubmitButton(currentSelectedMember);
         }
 
@@ -210,10 +243,10 @@
             const btn = document.getElementById('submitBtn');
             btn.disabled = false;
             if (recordMode === 'expense') {
-                btn.innerText = `${name}님 식대 지출 입력`;
+                btn.innerText = `${name}님 식대 기록 등록하기`;
                 btn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
             } else {
-                btn.innerText = `🌴 ${name}님 연차 등록 (1만원 차감)`;
+                btn.innerText = `🌴 ${name}님 연차 등록하기`;
                 btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
             }
         }
@@ -231,53 +264,55 @@
 
         function calculateAndRender() {
             const memberSpent = {};
+            const memberTotalDays = {};
             const memberVacations = {};
+            
             members.forEach(m => {
                 memberSpent[m] = 0;
+                memberTotalDays[m] = 0;
                 memberVacations[m] = 0;
             });
 
             const todayStr = document.getElementById('date').value || new Date().toISOString().split('T')[0];
             const currentYearMonth = todayStr.substring(0, 7);
 
+            // 이번 달에 해당하는 내역 필터링
             const filteredRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
 
             filteredRecords.forEach(rec => {
                 if (rec.type === 'vacation') {
                     if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
                 } else {
-                    if (memberSpent[rec.name] !== undefined) memberSpent[rec.name] += Number(rec.amount || 0);
+                    if (memberSpent[rec.name] !== undefined) {
+                        memberSpent[rec.name] += Number(rec.amount || 0);
+                        memberTotalDays[rec.name] += 1; // 입력 기록이 추가된 일수 세기
+                    }
                 }
             });
 
-            renderMemberCards(memberSpent, memberVacations);
+            renderMemberCards(memberSpent, memberTotalDays, memberVacations);
             renderHistoryTable(filteredRecords);
             
             document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${filteredRecords.length}건`;
         }
 
-        function renderMemberCards(memberSpent, memberVacations) {
+        function renderMemberCards(memberSpent, memberTotalDays, memberVacations) {
             const container = document.getElementById('memberCardsContainer');
             container.innerHTML = '';
 
-            const todayStr = document.getElementById('date').value || new Date().toISOString().split('T')[0];
-            const year = Number(todayStr.substring(0, 4));
-            const month = Number(todayStr.substring(5, 7));
-
-            const workingDays = getWorkingDaysCount(year, month);
-            const baseBudget = workingDays * 10000; 
-
             members.forEach(name => {
                 const spent = memberSpent[name] || 0;
+                const activeDays = memberTotalDays[name] || 0;
                 const vacationDays = memberVacations[name] || 0;
                 
-                const finalAllowance = Math.max(0, baseBudget - (vacationDays * 10000));
-                const balance = finalAllowance - spent;
+                // 총 누적 지급액 = 입력 일수 * 10,000원
+                const totalGiven = activeDays * 10000;
+                const accumulativeBalance = totalGiven - spent;
                 const isSelected = (name === currentSelectedMember);
 
-                let balanceColorClass = "text-emerald-600";
-                if (balance < 0) balanceColorClass = "text-rose-600 font-bold";
-                else if (balance === 0) balanceColorClass = "text-slate-500";
+                let balanceColorClass = "text-indigo-600";
+                if (accumulativeBalance < 0) balanceColorClass = "text-rose-600 font-bold";
+                else if (accumulativeBalance === 0) balanceColorClass = "text-slate-500";
 
                 const card = document.createElement('div');
                 card.className = `bg-white rounded-xl border p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
@@ -292,14 +327,15 @@
                             ${isSelected ? '<span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>' : ''}
                         </div>
                         <div class="text-[11px] text-slate-400 space-y-0.5">
-                            <div class="flex justify-between"><span>이번달 기본지급:</span><span>${baseBudget.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-emerald-600 font-medium"><span>🌴 연차 사용:</span><span>${vacationDays}일 (-${(vacationDays*10000).toLocaleString()}원)</span></div>
-                            <div class="flex justify-between text-slate-600"><span>사용한 식대:</span><span>${spent.toLocaleString()}원</span></div>
+                            <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
+                            <div class="flex justify-between"><span>누적 지급액:</span><span>+${totalGiven.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-slate-600"><span>사용한 식대:</span><span>-${spent.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-emerald-600 font-medium pt-1 border-t border-dashed border-slate-100"><span>🌴 연차 사용:</span><span>${vacationDays}일</span></div>
                         </div>
                     </div>
                     <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col">
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">최종 남은 잔액</span>
-                        <span class="text-sm font-bold ${balanceColorClass}">${balance.toLocaleString()}원</span>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">이번달 누적 잔액</span>
+                        <span class="text-sm font-bold ${balanceColorClass}">${accumulativeBalance.toLocaleString()}원</span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -311,7 +347,7 @@
             tbody.innerHTML = '';
 
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">이번 달에 등록된 내역이 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">이번 달에 등록된 내역이 없습니다.</td></tr>`;
                 return;
             }
 
@@ -319,14 +355,28 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/80 transition-colors";
                 
-                let displayAmount = rec.type === 'vacation' 
-                    ? `<span class="px-2 py-0.5 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">🌴 연차 등록 (-10,000)</span>`
-                    : `<span class="font-semibold text-slate-800">${Number(rec.amount).toLocaleString()}원</span>`;
+                let formulaDisplay = "";
+                let resultDisplay = "";
+
+                if (rec.type === 'vacation') {
+                    formulaDisplay = `<span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded">정산 제외 (연차 휴가)</span>`;
+                    resultDisplay = `<span class="font-bold text-slate-400">0원</span>`;
+                } else {
+                    const singleBalance = 10000 - Number(rec.amount);
+                    formulaDisplay = `<span class="text-xs font-mono text-slate-500">+10,000 - ${Number(rec.amount).toLocaleString()}</span>`;
+                    
+                    if (singleBalance < 0) {
+                        resultDisplay = `<span class="font-bold text-rose-600">${singleBalance.toLocaleString()}원</span>`;
+                    } else {
+                        resultDisplay = `<span class="font-bold text-indigo-600">+${singleBalance.toLocaleString()}원</span>`;
+                    }
+                }
 
                 tr.innerHTML = `
                     <td class="px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
                     <td class="px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${rec.name}</td>
-                    <td class="px-6 py-3.5 text-right whitespace-nowrap">${displayAmount}</td>
+                    <td class="px-6 py-3.5 text-center whitespace-nowrap">${formulaDisplay}</td>
+                    <td class="px-6 py-3.5 text-right whitespace-nowrap">${resultDisplay}</td>
                     <td class="px-6 py-3.5 text-center whitespace-nowrap">
                         <button onclick="deleteRecord('${rec.id}', '${rec.name}')" class="text-xs font-semibold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-md transition-all cursor-pointer">
                             삭제
@@ -375,6 +425,7 @@
                 amountInput.value = '';
                 btn.disabled = false;
                 updateSubmitButton(name);
+                updateCalculationPreview();
             } catch (error) {
                 alert("저장 실패: " + error.message);
                 document.getElementById('submitBtn').disabled = false;

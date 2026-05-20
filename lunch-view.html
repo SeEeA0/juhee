@@ -86,7 +86,7 @@
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                             <th class="px-6 py-3">날짜</th>
-                            <th class="px-6 py-3">이름</th>
+                            <th class="px-6 py-3">이름 / 메뉴</th>
                             <th class="px-6 py-3 text-center">정산 수식 (+10,000 - 금액)</th>
                             <th class="px-6 py-3 text-right">당일 잔액 결과</th>
                         </tr>
@@ -342,7 +342,10 @@
 
                 tr.innerHTML = `
                     <td class="px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
-                    <td class="px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${rec.name}</td>
+                    <td class="px-6 py-3.5 whitespace-nowrap">
+                        <div class="font-bold text-slate-900">${rec.name}</div>
+                        <div class="text-xs text-slate-400 mt-0.5">${rec.type === 'vacation' ? '연차' : (rec.menuName || '메뉴명 없음')}</div>
+                    </td>
                     <td class="px-6 py-3.5 text-center whitespace-nowrap">${formulaDisplay}</td>
                     <td class="px-6 py-3.5 text-right whitespace-nowrap">${resultDisplay}</td>
                 `;

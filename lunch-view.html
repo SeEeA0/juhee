@@ -45,7 +45,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        
+
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 누적 현황 (선택 시 해당 멤버만 필터링)</h2>
@@ -56,6 +56,27 @@
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer"></div>
 
+
+            <!-- 전체 6명 합산 식대 기준 잔액: 개인선입금/이월금 제외 -->
+            <div class="mt-4 mb-3 bg-white border border-indigo-100 rounded-2xl shadow-sm px-4 py-3">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-indigo-50 text-sm">🍱</span>
+                        <div>
+                            <div class="text-xs font-bold text-slate-700">전체 6명 식대 기준 잔액</div>
+                            <div class="text-[11px] text-slate-400">개인선입금 / 이월금 제외</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 text-xs">
+                        <span class="text-slate-500">지급 <strong id="totalGivenAmount" class="text-slate-700">+0원</strong></span>
+                        <span class="text-slate-300">|</span>
+                        <span class="text-slate-500">사용 <strong id="totalSpentAmount" class="text-rose-500">-0원</strong></span>
+                        <span class="text-slate-300">|</span>
+                        <span class="text-slate-700 font-bold">잔액 <strong id="totalMealBalance" class="text-sm font-black text-indigo-600">0원</strong></span>
+                    </div>
+                </div>
+            </div>
             <div id="calendarLegend" class="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
                 <span class="font-bold text-slate-400 mr-1">색상 구분</span>
                 <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>황수석</span>
@@ -284,6 +305,7 @@
             }
 
             renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberDeposits, memberCarryovers);
+            updateTotalMealBalance(memberSpent, memberTotalDays);
 
             if (currentViewMode === 'list') {
                 renderHistoryTable(displayRecords);
@@ -292,6 +314,31 @@
             }
 
             document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${displayRecords.length}건`;
+        }
+
+        function updateTotalMealBalance(memberSpent, memberTotalDays) {
+            let totalGivenAll = 0;
+            let totalSpentAll = 0;
+
+            members.forEach(name => {
+                totalGivenAll += (memberTotalDays[name] || 0) * 10000;
+                totalSpentAll += memberSpent[name] || 0;
+            });
+
+            const realMealBalance = totalGivenAll - totalSpentAll;
+            const totalMealBalanceEl = document.getElementById('totalMealBalance');
+            const totalGivenAmountEl = document.getElementById('totalGivenAmount');
+            const totalSpentAmountEl = document.getElementById('totalSpentAmount');
+
+            if (!totalMealBalanceEl || !totalGivenAmountEl || !totalSpentAmountEl) return;
+
+            totalMealBalanceEl.innerText = `${realMealBalance >= 0 ? '+' : ''}${realMealBalance.toLocaleString()}원`;
+            totalGivenAmountEl.innerText = `+${totalGivenAll.toLocaleString()}원`;
+            totalSpentAmountEl.innerText = `-${totalSpentAll.toLocaleString()}원`;
+
+            totalMealBalanceEl.className = realMealBalance < 0
+                ? "text-sm font-black text-rose-600"
+                : "text-sm font-black text-indigo-600";
         }
 
         function renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberDeposits, memberCarryovers) {

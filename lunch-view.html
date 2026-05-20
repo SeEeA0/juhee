@@ -3,432 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>월간 식대 및 연차 잔액 조회 (뷰어)</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>식대 정산 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
-        body {
-            font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background-color: #f8fafc;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen pb-12">
+<body class="p-6">
 
-    <!-- 상단 네비게이션 바 (월 이동 내비게이터 추가) -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 bg-slate-700 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-slate-100">
-                    👁️
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                        식대 정산 대시보드
-                        <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md font-normal">조회 전용</span>
-                    </h1>
-                    <p class="text-xs text-slate-500">지급금 (+10,000원) - 사용 금액 = 당일 잔액 현황</p>
-                </div>
+    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-slate-800">5월 식대 정산 대시보드</h1>
+            <div class="flex gap-2">
+                <button class="px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-semibold text-sm">리스트형</button>
+                <button class="px-4 py-2 bg-slate-900 rounded-xl text-white font-semibold text-sm">달력형</button>
             </div>
-            
-            <!-- 📅 월 이동 내비게이터 UI -->
-            <div class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-                <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
-                    &lt;
-                </button>
-                <span id="currentMonthDisplay" class="text-sm font-bold text-slate-800 px-2 min-w-[100px] text-center">
-                    2026년 05월
-                </span>
-                <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
-                    &gt;
-                </button>
-            </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        
-        <!-- 1. 개인별 이번 달 누적 잔액 현황 카드 섹션 -->
-        <div class="mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 누적 현황 (선택 시 해당 멤버만 필터링)</h2>
-                
-                <!-- 필터 클리어 안내 배지 -->
-                <div id="filterStatusBadge" class="hidden text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 font-bold flex items-center gap-1.5">
-                    <span>현재 <strong id="filteredMemberName" class="underline"></strong> 님의 내역 보는 중</span>
-                    <button onclick="clearMemberFilter()" class="hover:text-rose-600 font-bold ml-1 cursor-pointer">✕ 해제</button>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer">
-                <!-- JS 동적 생성 -->
-            </div>
-        </div>
+        <!-- 달력 그리드 -->
+        <div class="grid grid-cols-7 gap-2">
+            <div class="text-center font-bold text-slate-400 text-xs py-2">일</div>
+            <div class="text-center font-bold text-slate-400 text-xs py-2">월</div>
+            <div class="text-center font-bold text-slate-400 text-xs py-2">화</div>
+            <div class="text-center font-bold text-slate-400 text-xs py-2">수</div>
+            <div class="text-center font-bold text-slate-400 text-xs py-2">목</div>
+            <div class="text-center font-bold text-slate-400 text-xs py-2">금</div>
+            <div class="text-center font-bold text-slate-400 text-xs py-2">토</div>
 
-        <!-- 2. 내역 표시 영역 (나열형 / 달력형 선택 탭) -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50">
-                <h3 class="text-base font-bold text-slate-900 flex items-center">
-                    <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
-                    <span id="historyTitle">전체 등록 내역</span>
-                </h3>
-                
-                <!-- 나열형 / 달력형 전환 탭 -->
-                <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto">
-                    <button id="viewTabList" onclick="switchViewMode('list')" class="px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all">📋 나열형 보기</button>
-                    <button id="viewTabCalendar" onclick="switchViewMode('calendar')" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all">📅 달력형 보기</button>
-                </div>
-            </div>
-            
-            <!-- 2-A. 나열형(리스트) 뷰 -->
-            <div id="listViewContainer" class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            <th class="px-6 py-3">날짜</th>
-                            <th class="px-6 py-3">이름</th>
-                            <th class="px-6 py-3 text-center">정산 수식 (+10,000 - 금액)</th>
-                            <th class="px-6 py-3 text-right">당일 잔액 결과</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
-                        <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중입니다.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <script>
+                const userPalette = {
+                    '황수석': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+                    '윤책임': { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' },
+                    '장책임': { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
+                    '김대리': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
+                    '이과장': { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
+                    '박사원': { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200' }
+                };
 
-            <!-- 2-B. 달력형(캘린더) 뷰 (오류 해결: native grid grid-cols-7 사용) -->
-            <div id="calendarViewContainer" class="hidden p-4 md:p-6 bg-white">
-                <!-- 요일 헤더 -->
-                <div class="grid grid-cols-7 text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">
-                    <div class="text-rose-500 py-1">일</div><div class="py-1">월</div><div class="py-1">화</div><div class="py-1">수</div><div class="py-1">목</div><div class="py-1">금</div><div class="text-indigo-600 py-1">토</div>
-                </div>
-                <!-- 달력 날짜 그리드 -->
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 md:gap-2">
-                    <!-- JS 동적 생성 -->
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- ─── Firebase 스크립트 연결 ─── -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAcXfBc7kQQABI6-m8_xQeVmvaNLgjzA8s",
-            authDomain: "lunch-balance-system.firebaseapp.com",
-            projectId: "lunch-balance-system",
-            storageBucket: "lunch-balance-system.firebasestorage.app",
-            messagingSenderId: "737197500217",
-            appId: "1:737197500217:web:392fc2b81d6481df60aae8"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
-        let allRecords = []; 
-        let filteredMember = ""; 
-        let currentViewMode = "list"; 
-
-        // 📅 달력 조회 연도 및 월 변수 (현재 기준 실시간 초기값 셋팅)
-        const sysDate = new Date();
-        let currentYear = sysDate.getFullYear();
-        let currentMonth = sysDate.getMonth() + 1; // 1 ~ 12
-
-        window.addEventListener('DOMContentLoaded', () => {
-            updateMonthDisplay();
-            initRealtimeSync();
-        });
-
-        // 📅 내비게이션 월 변경 제어
-        window.changeMonth = function(offset) {
-            currentMonth += offset;
-            if (currentMonth < 1) {
-                currentMonth = 12;
-                currentYear -= 1;
-            } else if (currentMonth > 12) {
-                currentMonth = 1;
-                currentYear += 1;
-            }
-            updateMonthDisplay();
-            calculateAndRender();
-        }
-
-        function updateMonthDisplay() {
-            const formattedMonth = String(currentMonth).padStart(2, '0');
-            document.getElementById('currentMonthDisplay').innerText = `${currentYear}년 ${formattedMonth}월`;
-        }
-
-        // 뷰 모드 스위칭
-        window.switchViewMode = function(mode) {
-            currentViewMode = mode;
-            const tabList = document.getElementById('viewTabList');
-            const tabCalendar = document.getElementById('viewTabCalendar');
-            const listContainer = document.getElementById('listViewContainer');
-            const calendarContainer = document.getElementById('calendarViewContainer');
-
-            if (mode === 'list') {
-                tabList.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
-                tabCalendar.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
-                listContainer.classList.remove('hidden');
-                calendarContainer.classList.add('hidden');
-            } else {
-                tabList.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
-                tabCalendar.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
-                listContainer.classList.add('hidden');
-                calendarContainer.classList.remove('hidden');
-            }
-            calculateAndRender();
-        }
-
-        // 특정 멤버 클릭 시 필터링 처리 함수
-        window.toggleMemberFilter = function(name) {
-            const badge = document.getElementById('filterStatusBadge');
-            const nameSpan = document.getElementById('filteredMemberName');
-
-            if (filteredMember === name) {
-                filteredMember = ""; 
-                badge.classList.add('hidden');
-                document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
-            } else {
-                filteredMember = name; 
-                nameSpan.innerText = name;
-                badge.classList.remove('hidden');
-                document.getElementById('historyTitle').innerText = `🎨 ${name}님의 등록 내역`;
-            }
-            calculateAndRender();
-        }
-
-        window.clearMemberFilter = function() {
-            filteredMember = "";
-            document.getElementById('filterStatusBadge').classList.add('hidden');
-            document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
-            calculateAndRender();
-        }
-
-        function initRealtimeSync() {
-            const q = query(collection(db, "lunch_records"), orderBy("date", "desc"));
-            onSnapshot(q, (snapshot) => {
-                allRecords = [];
-                snapshot.forEach((doc) => {
-                    allRecords.push({ id: doc.id, ...doc.data() });
-                });
-                calculateAndRender();
-            });
-        }
-
-        function calculateAndRender() {
-            const memberSpent = {};
-            const memberTotalDays = {};
-            const memberVacations = {};
-            
-            members.forEach(m => {
-                memberSpent[m] = 0;
-                memberTotalDays[m] = 0;
-                memberVacations[m] = 0;
-            });
-
-            // 지정된 연도 및 월 기준으로 데이터 필터링 문자열 제작
-            const currentYearMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-
-            // 1. 대시보드 상단 요약 카드를 위한 기본 정보 통합 정산 (지정 월 기준)
-            const baseMonthRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
-            baseMonthRecords.forEach(rec => {
-                if (rec.type === 'vacation') {
-                    if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
-                } else {
-                    if (memberSpent[rec.name] !== undefined) {
-                        memberSpent[rec.name] += Number(rec.amount || 0);
-                        memberTotalDays[rec.name] += 1;
-                    }
-                }
-            });
-
-            // 2. 하단 뷰어 영역에 표시할 데이터 필터링 처리
-            let displayRecords = baseMonthRecords;
-            if (filteredMember) {
-                displayRecords = baseMonthRecords.filter(rec => rec.name === filteredMember);
-            }
-
-            renderMemberCards(memberSpent, memberTotalDays, memberVacations);
-            
-            if (currentViewMode === 'list') {
-                renderHistoryTable(displayRecords);
-            } else {
-                renderCalendarView(displayRecords);
-            }
-        }
-
-        function renderMemberCards(memberSpent, memberTotalDays, memberVacations) {
-            const container = document.getElementById('memberCardsContainer');
-            container.innerHTML = '';
-
-            members.forEach(name => {
-                const spent = memberSpent[name] || 0;
-                const activeDays = memberTotalDays[name] || 0;
-                const vacationDays = memberVacations[name] || 0;
-                
-                const totalGiven = activeDays * 10000;
-                const accumulativeBalance = totalGiven - spent;
-                const isSelected = (name === filteredMember);
-
-                let balanceColorClass = "text-indigo-600";
-                if (accumulativeBalance < 0) balanceColorClass = "text-rose-600 font-bold";
-                else if (accumulativeBalance === 0) balanceColorClass = "text-slate-500";
-
-                const card = document.createElement('div');
-                card.className = `bg-white rounded-xl border p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
-                    isSelected ? 'border-indigo-600 ring-2 ring-indigo-100 bg-indigo-50/20' : 'border-slate-200 hover:border-slate-300'
-                }`;
-                card.setAttribute('onclick', `toggleMemberFilter('${name}')`);
-
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-slate-900">${name}</span>
-                            ${isSelected ? '<span class="text-[10px] bg-indigo-600 text-white font-bold px-1.5 py-0.5 rounded">필터됨</span>' : ''}
+                for (let i = 1; i <= 31; i++) {
+                    const isDay20 = (i === 20);
+                    document.write(`
+                        <div class="min-h-[120px] border border-slate-100 rounded-2xl p-2 bg-white hover:bg-slate-50 transition">
+                            <span class="text-xs font-bold text-slate-400">${i}</span>
+                            <div class="mt-2 space-y-1">
+                                ${isDay20 ? `
+                                    ${[
+                                        {name: '황수석', amount: 9900},
+                                        {name: '윤책임', amount: 9900},
+                                        {name: '장책임', amount: 7000}
+                                    ].map(item => `
+                                        <div class="flex items-center justify-between px-2 py-1 rounded border ${userPalette[item.name].bg} ${userPalette[item.border] ? userPalette[item.name].border : 'border-slate-200'}">
+                                            <span class="text-[10px] font-bold ${userPalette[item.name].text}">${item.name}</span>
+                                            <span class="text-[10px] font-bold ${userPalette[item.name].text}">${item.amount.toLocaleString()}</span>
+                                        </div>
+                                    `).join('')}
+                                ` : ''}
+                            </div>
                         </div>
-                        <div class="text-[11px] text-slate-400 space-y-0.5">
-                            <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
-                            <div class="flex justify-between"><span>누적 지급액:</span><span>+${totalGiven.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-slate-600"><span>사용한 식대:</span><span>-${spent.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-emerald-600 font-medium pt-1 border-t border-dashed border-slate-100"><span>🌴 연차 사용:</span><span>${vacationDays}일</span></div>
-                        </div>
-                    </div>
-                    <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col">
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">이번달 누적 잔액</span>
-                        <span class="text-sm font-bold ${balanceColorClass}">${accumulativeBalance.toLocaleString()}원</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // [나열형] 리스트 테이블 렌더링
-        function renderHistoryTable(records) {
-            const tbody = document.getElementById('historyTableBody');
-            tbody.innerHTML = '';
-
-            if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">이번 달 등록된 내역이 없습니다.</td></tr>`;
-                return;
-            }
-
-            records.forEach(rec => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition-colors";
-                
-                let formulaDisplay = "";
-                let resultDisplay = "";
-
-                if (rec.type === 'vacation') {
-                    formulaDisplay = `<span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded">정산 제외 (연차 휴가)</span>`;
-                    resultDisplay = `<span class="font-bold text-slate-400">0원</span>`;
-                } else {
-                    const singleBalance = 10000 - Number(rec.amount);
-                    formulaDisplay = `<span class="text-xs font-mono text-slate-500">+10,000 - ${Number(rec.amount).toLocaleString()}</span>`;
-                    
-                    if (singleBalance < 0) {
-                        resultDisplay = `<span class="font-bold text-rose-600">${singleBalance.toLocaleString()}원</span>`;
-                    } else {
-                        resultDisplay = `<span class="font-bold text-indigo-600">+${singleBalance.toLocaleString()}원</span>`;
-                    }
+                    `);
                 }
-
-                tr.innerHTML = `
-                    <td class="px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
-                    <td class="px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${rec.name}</td>
-                    <td class="px-6 py-3.5 text-center whitespace-nowrap">${formulaDisplay}</td>
-                    <td class="px-6 py-3.5 text-right whitespace-nowrap">${resultDisplay}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // [달력형] 캘린더 화면 렌더링
-        function renderCalendarView(records) {
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            const firstDayOfMonth = new Date(currentYear, currentMonth - 1, 1).getDay(); // 시작 요일 인덱스
-            const totalDays = new Date(currentYear, currentMonth, 0).getDate(); // 당월 총 일수
-
-            // 1. 시작 요일 맞추기용 공백 칸 생성 (주말 처리 배경 포함)
-            for (let i = 0; i < firstDayOfMonth; i++) {
-                const emptyCell = document.createElement('div');
-                const isSun = (i === 0);
-                const isSat = (i === 6);
-                const isWeekend = isSun || isSat;
-                emptyCell.className = `min-h-[100px] border border-slate-100 rounded-xl ${isWeekend ? 'bg-slate-50/80' : 'bg-slate-50/30'}`;
-                grid.appendChild(emptyCell);
-            }
-
-            // 2. 1일부터 말일까지 칸 생성
-            for (let day = 1; day <= totalDays; day++) {
-                const dateString = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                
-                // 해당 날짜에 등록된 내역 필터링
-                const dayRecords = records.filter(rec => rec.date === dateString);
-
-                // 주말 유무 가독성 검출
-                const cellDayOfWeek = new Date(currentYear, currentMonth - 1, day).getDay();
-                const isWeekend = (cellDayOfWeek === 0 || cellDayOfWeek === 6);
-
-                const dateCell = document.createElement('div');
-                dateCell.className = `border border-slate-200 rounded-xl p-2 min-h-[110px] flex flex-col justify-between hover:border-slate-300 transition-all ${
-                    isWeekend ? 'bg-slate-50/70' : 'bg-white'
-                }`;
-
-                // 오늘 날짜 강조 효과 추가
-                const today = new Date();
-                const isToday = (today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth && today.getDate() === day);
-                
-                let dayHeaderClass = "text-xs font-bold text-slate-700";
-                if (isToday) {
-                    dayHeaderClass = "text-xs font-bold bg-indigo-600 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-sm";
-                } else if (cellDayOfWeek === 0) {
-                    dayHeaderClass = "text-xs font-bold text-rose-500";
-                } else if (cellDayOfWeek === 6) {
-                    dayHeaderClass = "text-xs font-bold text-indigo-500";
-                }
-
-                let innerItemsHTML = '<div class="space-y-1 mt-1.5 max-h-[70px] overflow-y-auto">';
-                
-                if (dayRecords.length > 0) {
-                    dayRecords.forEach(rec => {
-                        if (rec.type === 'vacation') {
-                            innerItemsHTML += `
-                                <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1 py-0.5 rounded border border-emerald-100 flex justify-between truncate">
-                                    <span>${rec.name}</span><span>🌴 연차</span>
-                                </div>`;
-                        } else {
-                            const bal = 10000 - Number(rec.amount);
-                            const balColor = bal < 0 ? 'text-rose-600' : 'text-indigo-600';
-                            innerItemsHTML += `
-                                <div class="text-[10px] bg-white text-slate-700 font-medium px-1.5 py-0.8 rounded-md border border-slate-150 flex flex-col leading-tight shadow-sm">
-                                    <div class="flex justify-between font-bold text-slate-900"><span>${rec.name}</span><span>${Number(rec.amount).toLocaleString()}원</span></div>
-                                    <div class="text-right text-[9px] ${balColor} font-semibold">잔액: ${bal >= 0 ? '+' : ''}${bal.toLocaleString()}</div>
-                                </div>`;
-                        }
-                    });
-                }
-                innerItemsHTML += '</div>';
-
-                dateCell.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="${dayHeaderClass}">${day}</span>
-                        ${dayRecords.length > 0 ? `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 rounded-sm">총 ${dayRecords.length}건</span>` : ''}
-                    </div>
-                    ${innerItemsHTML}
-                `;
-                grid.appendChild(dateCell);
-            }
-        }
-    </script>
+            </script>
+        </div>
+    </div>
 </body>
 </html>

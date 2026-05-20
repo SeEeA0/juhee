@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>월간 식대 및 연차 잔액 관리</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen pb-12">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-100">
+                    🍱
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 잔액 정산 대시보드</h1>
+                    <p class="text-xs text-slate-500">지출 금액 입력 | 연차 등록 시 만원 자동 차감</p>
+                </div>
+            </div>
+            <div id="currentMonthDisplay" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
+                2026년 5월 현황
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        
+        <div class="mb-8">
+            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">멤버별 이번 달 잔액 현황 (카드를 클릭하여 선택)</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer">
+                </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-24">
+                    <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center">
+                        <span class="w-2 h-4 bg-indigo-600 rounded-sm mr-2 block"></span>
+                        기록 등록
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl mb-4 text-xs font-semibold">
+                        <button type="button" id="tabExpense" onclick="setRecordMode('expense')" class="py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer">💸 식대 지출 입력</button>
+                        <button type="button" id="tabVacation" onclick="setRecordMode('vacation')" class="py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer">🌴 연차 등록</button>
+                    </div>
+                    
+                    <form id="recordForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">등록 대상 멤버</label>
+                            <div id="selectedMemberBadge" class="w-full bg-slate-50 text-slate-400 text-sm font-medium px-4 py-3 rounded-xl border border-slate-200 text-center">
+                                위의 카드에서 멤버를 먼저 선택하세요
+                            </div>
+                            <input type="hidden" id="selectedName" required>
+                        </div>
+
+                        <div id="amountInputGroup">
+                            <label for="amount" class="block text-xs font-semibold text-slate-500 mb-1">식대 지출 금액 (원)</label>
+                            <div class="relative">
+                                <input type="number" id="amount" placeholder="예: 8500" min="0" step="10"
+                                    class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all text-right pr-8">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium">원</span>
+                            </div>
+                        </div>
+
+                        <div id="vacationNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
+                            💡 연차를 등록하면 이번 달 총 기준금액에서 <strong>10,000원이 자동 차감</strong>됩니다.
+                        </div>
+
+                        <div>
+                            <label for="date" class="block text-xs font-semibold text-slate-500 mb-1">날짜</label>
+                            <input type="date" id="date" 
+                                class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all" required>
+                        </div>
+
+                        <button type="submit" id="submitBtn" disabled
+                            class="w-full bg-slate-200 text-slate-400 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all cursor-not-allowed text-sm">
+                            멤버를 먼저 선택해 주세요
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <h3 class="text-base font-bold text-slate-900 flex items-center">
+                            <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
+                            이번 달 등록 내역 히스토리
+                        </h3>
+                        <span class="text-xs font-medium text-slate-500" id="totalCountDisplay">총 0건</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3">날짜</th>
+                                    <th class="px-6 py-3">이름</th>
+                                    <th class="px-6 py-3 text-right">금액 / 내용</th>
+                                    <th class="px-6 py-3 text-center">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중이거나 내역이 없습니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        // 세아님이 보내주신 Firebase 프로젝트의 고유 식별 Key 자동 탑재 완료!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcXfBc7kQQABI6-m8_xQeVmvaNLgjzA8s",
+            authDomain: "lunch-balance-system.firebaseapp.com",
+            projectId: "lunch-balance-system",
+            storageBucket: "lunch-balance-system.firebasestorage.app",
+            messagingSenderId: "737197500217",
+            appId: "1:737197500217:web:392fc2b81d6481df60aae8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
+        let currentSelectedMember = "";
+        let recordMode = "expense"; 
+        let allRecords = []; 
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${year}-${month}-${day}`;
+            document.getElementById('currentMonthDisplay').innerText = `${year}년 ${month}월 정산 현황`;
+
+            renderMemberCards({}, {});
+            initRealtimeSync();
+        });
+
+        // 특정 년-월의 토/일 주말을 제외한 평일(영업일) 수 계산 함수 (다른 페이지 안정화 버전)
+        function getWorkingDaysCount(year, month) {
+            let count = 0;
+            let date = new Date(year, month - 1, 1);
+            while (date.getMonth() === month - 1) {
+                const dayOfWeek = date.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { 
+                    count++;
+                }
+                date.setDate(date.getDate() + 1);
+            }
+            return count;
+        }
+
+        window.setRecordMode = function(mode) {
+            recordMode = mode;
+            const tabExpense = document.getElementById('tabExpense');
+            const tabVacation = document.getElementById('tabVacation');
+            const amountGroup = document.getElementById('amountInputGroup');
+            const vacationNotice = document.getElementById('vacationNoticeGroup');
+            const amountInput = document.getElementById('amount');
+
+            if (mode === 'expense') {
+                tabExpense.className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
+                tabVacation.className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
+                amountGroup.classList.remove('hidden');
+                vacationNotice.classList.add('hidden');
+                amountInput.required = true;
+            } else {
+                tabExpense.className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
+                tabVacation.className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
+                amountGroup.classList.add('hidden');
+                vacationNotice.classList.remove('hidden');
+                amountInput.required = false;
+                amountInput.value = '';
+            }
+            if(currentSelectedMember) updateSubmitButton(currentSelectedMember);
+        }
+
+        window.selectMember = function(name) {
+            currentSelectedMember = name;
+            document.getElementById('selectedName').value = name;
+            
+            const badge = document.getElementById('selectedMemberBadge');
+            badge.innerText = `선택됨: ${name}`;
+            badge.className = "w-full bg-indigo-50 text-indigo-700 text-sm font-bold px-4 py-3 rounded-xl border border-indigo-200 text-center ring-2 ring-indigo-100";
+            
+            updateSubmitButton(name);
+            calculateAndRender();
+        }
+
+        function updateSubmitButton(name) {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = false;
+            if (recordMode === 'expense') {
+                btn.innerText = `${name}님 식대 지출 입력`;
+                btn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
+            } else {
+                btn.innerText = `🌴 ${name}님 연차 등록 (1만원 차감)`;
+                btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
+            }
+        }
+
+        function initRealtimeSync() {
+            const q = query(collection(db, "lunch_records"), orderBy("date", "desc"));
+            onSnapshot(q, (snapshot) => {
+                allRecords = [];
+                snapshot.forEach((doc) => {
+                    allRecords.push({ id: doc.id, ...doc.data() });
+                });
+                calculateAndRender();
+            });
+        }
+
+        function calculateAndRender() {
+            const memberSpent = {};
+            const memberVacations = {};
+            members.forEach(m => {
+                memberSpent[m] = 0;
+                memberVacations[m] = 0;
+            });
+
+            const todayStr = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+            const currentYearMonth = todayStr.substring(0, 7);
+
+            const filteredRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
+
+            filteredRecords.forEach(rec => {
+                if (rec.type === 'vacation') {
+                    if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
+                } else {
+                    if (memberSpent[rec.name] !== undefined) memberSpent[rec.name] += Number(rec.amount || 0);
+                }
+            });
+
+            renderMemberCards(memberSpent, memberVacations);
+            renderHistoryTable(filteredRecords);
+            
+            document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${filteredRecords.length}건`;
+        }
+
+        function renderMemberCards(memberSpent, memberVacations) {
+            const container = document.getElementById('memberCardsContainer');
+            container.innerHTML = '';
+
+            const todayStr = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+            const year = Number(todayStr.substring(0, 4));
+            const month = Number(todayStr.substring(5, 7));
+
+            const workingDays = getWorkingDaysCount(year, month);
+            const baseBudget = workingDays * 10000; 
+
+            members.forEach(name => {
+                const spent = memberSpent[name] || 0;
+                const vacationDays = memberVacations[name] || 0;
+                
+                const finalAllowance = Math.max(0, baseBudget - (vacationDays * 10000));
+                const balance = finalAllowance - spent;
+                const isSelected = (name === currentSelectedMember);
+
+                let balanceColorClass = "text-emerald-600";
+                if (balance < 0) balanceColorClass = "text-rose-600 font-bold";
+                else if (balance === 0) balanceColorClass = "text-slate-500";
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-xl border p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
+                    isSelected ? 'border-indigo-600 ring-2 ring-indigo-100 bg-indigo-50/20' : 'border-slate-200 hover:border-slate-300'
+                }`;
+                card.setAttribute('onclick', `selectMember('${name}')`);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold text-slate-900">${name}</span>
+                            ${isSelected ? '<span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>' : ''}
+                        </div>
+                        <div class="text-[11px] text-slate-400 space-y-0.5">
+                            <div class="flex justify-between"><span>이번달 기본지급:</span><span>${baseBudget.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-emerald-600 font-medium"><span>🌴 연차 사용:</span><span>${vacationDays}일 (-${(vacationDays*10000).toLocaleString()}원)</span></div>
+                            <div class="flex justify-between text-slate-600"><span>사용한 식대:</span><span>${spent.toLocaleString()}원</span></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">최종 남은 잔액</span>
+                        <span class="text-sm font-bold ${balanceColorClass}">${balance.toLocaleString()}원</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderHistoryTable(records) {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">이번 달에 등록된 내역이 없습니다.</td></tr>`;
+                return;
+            }
+
+            records.forEach(rec => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+                
+                let displayAmount = rec.type === 'vacation' 
+                    ? `<span class="px-2 py-0.5 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">🌴 연차 등록 (-10,000)</span>`
+                    : `<span class="font-semibold text-slate-800">${Number(rec.amount).toLocaleString()}원</span>`;
+
+                tr.innerHTML = `
+                    <td class="px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
+                    <td class="px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${rec.name}</td>
+                    <td class="px-6 py-3.5 text-right whitespace-nowrap">${displayAmount}</td>
+                    <td class="px-6 py-3.5 text-center whitespace-nowrap">
+                        <button onclick="deleteRecord('${rec.id}', '${rec.name}')" class="text-xs font-semibold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-md transition-all cursor-pointer">
+                            삭제
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.handleFormSubmit = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('selectedName').value;
+            const amountInput = document.getElementById('amount');
+            const dateInput = document.getElementById('date');
+
+            if (!name) {
+                alert("멤버를 선택해 주세요.");
+                return;
+            }
+
+            let saveData = {
+                name: name,
+                date: dateInput.value,
+                type: recordMode,
+                createdAt: new Date().toISOString()
+            };
+
+            if (recordMode === 'expense') {
+                const amount = Number(amountInput.value);
+                if (amount < 0 || isNaN(amount) || amountInput.value === '') {
+                    alert("정확한 금액을 입력해 주세요.");
+                    return;
+                }
+                saveData.amount = amount;
+            } else {
+                saveData.amount = 0;
+            }
+
+            try {
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                btn.innerText = "저장 중...";
+
+                await addDoc(collection(db, "lunch_records"), saveData);
+                amountInput.value = '';
+                btn.disabled = false;
+                updateSubmitButton(name);
+            } catch (error) {
+                alert("저장 실패: " + error.message);
+                document.getElementById('submitBtn').disabled = false;
+            }
+        }
+
+        window.deleteRecord = async function(id, name) {
+            if (confirm(`정말로 ${name}님의 내역을 삭제하시겠습니까?`)) {
+                try {
+                    await deleteDoc(doc(db, "lunch_records", id));
+                } catch (error) {
+                    alert("삭제 실패: " + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -11,6 +11,10 @@
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
             background-color: #f8fafc;
         }
+        .calendar-grid {
+            display: grid;
+            grid-template-cols: repeat(7, minmax(0, 1fr));
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen pb-12">
@@ -23,7 +27,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold text-slate-900 tracking-tight">식대 정산 대시보드 <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md ml-1.5 font-normal">조회 전용</span></h1>
-                    <p class="text-xs text-slate-500">선택 일자 기본 지급(+10,000원) - 지출 금액 = 당일 잔액 실시간 현황</p>
+                    <p class="text-xs text-slate-500">멤버 카드를 클릭하면 해당 멤버의 내역만 필터링됩니다.</p>
                 </div>
             </div>
             <div id="currentMonthDisplay" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -35,21 +39,30 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         
         <div class="mb-8">
-            <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">멤버별 이번 달 누적 현황</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 이번 달 누적 현황 (선택 시 해당 멤버만 조회)</h2>
+                <button id="clearFilterBtn" onclick="clearMemberFilter()" class="hidden text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 transition-all cursor-pointer">
+                    🔄 전체 멤버 보기
+                </button>
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer">
                 </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50">
                 <h3 class="text-base font-bold text-slate-900 flex items-center">
                     <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
-                    이번 달 등록 내역 히스토리
+                    <span id="historyTitle">이번 달 전체 등록 내역</span>
                 </h3>
-                <span class="text-xs font-medium text-slate-500" id="totalCountDisplay">총 0건</span>
+                
+                <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto">
+                    <button id="viewTabList" onclick="switchViewMode('list')" class="px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all">📋 나열형 보기</button>
+                    <button id="viewTabCalendar" onclick="switchViewMode('calendar')" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all">📅 달력형 보기</button>
+                </div>
             </div>
             
-            <div class="overflow-x-auto">
+            <div id="listViewContainer" class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -61,10 +74,18 @@
                     </thead>
                     <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
                         <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중이거나 내역이 없습니다.</td>
+                            <td colspan="4" class="px-6 py-10 text-center text-slate-400">데이터를 불러오는 중입니다.</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div id="calendarViewContainer" class="hidden p-4 md:p-6 bg-white">
+                <div class="calendar-grid text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">
+                    <div class="text-rose-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-indigo-600">토</div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid gap-1.5 md:gap-2">
+                    </div>
             </div>
         </div>
     </main>
@@ -87,6 +108,8 @@
 
         const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
         let allRecords = []; 
+        let filteredMember = ""; // 현재 필터링된 멤버 이름 (비어있으면 전체)
+        let currentViewMode = "list"; // list 또는 calendar
 
         window.addEventListener('DOMContentLoaded', () => {
             const today = new Date();
@@ -94,9 +117,51 @@
             const month = String(today.getMonth() + 1).padStart(2, '0');
             document.getElementById('currentMonthDisplay').innerText = `${year}년 ${month}월 정산 현황`;
 
-            renderMemberCards({}, {}, {});
             initRealtimeSync();
         });
+
+        // 뷰 모드 스위칭 함수
+        window.switchViewMode = function(mode) {
+            currentViewMode = mode;
+            const tabList = document.getElementById('viewTabList');
+            const tabCalendar = document.getElementById('viewTabCalendar');
+            const listContainer = document.getElementById('listViewContainer');
+            const calendarContainer = document.getElementById('calendarViewContainer');
+
+            if (mode === 'list') {
+                tabList.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
+                tabCalendar.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
+                listContainer.classList.remove('hidden');
+                calendarContainer.classList.add('hidden');
+            } else {
+                tabList.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
+                tabCalendar.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
+                listContainer.classList.add('hidden');
+                calendarContainer.classList.remove('hidden');
+            }
+            calculateAndRender();
+        }
+
+        // 특정 멤버 클릭 시 필터링 처리 함수
+        window.toggleMemberFilter = function(name) {
+            if (filteredMember === name) {
+                filteredMember = ""; // 이미 선택된 멤버면 필터 해제
+                document.getElementById('clearFilterBtn').classList.add('hidden');
+                document.getElementById('historyTitle').innerText = "이번 달 전체 등록 내역";
+            } else {
+                filteredMember = name; // 해당 멤버로 필터 지정
+                document.getElementById('clearFilterBtn').classList.remove('hidden');
+                document.getElementById('historyTitle').innerText = `🎨 ${name}님의 등록 내역`;
+            }
+            calculateAndRender();
+        }
+
+        window.clearMemberFilter = function() {
+            filteredMember = "";
+            document.getElementById('clearFilterBtn').classList.add('hidden');
+            document.getElementById('historyTitle').innerText = "이번 달 전체 등록 내역";
+            calculateAndRender();
+        }
 
         function initRealtimeSync() {
             const q = query(collection(db, "lunch_records"), orderBy("date", "desc"));
@@ -123,10 +188,9 @@
             const today = new Date();
             const currentYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-            // 이번 달 데이터 필터링
-            const filteredRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
-
-            filteredRecords.forEach(rec => {
+            // 1. 대시보드 상단 요약 카드를 위한 기본 정보 통합 정산 (필터 유무 상관없이 상단 카드는 항상 전체 누적 유지)
+            const baseMonthRecords = allRecords.filter(rec => rec.date && rec.date.startsWith(currentYearMonth));
+            baseMonthRecords.forEach(rec => {
                 if (rec.type === 'vacation') {
                     if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
                 } else {
@@ -137,10 +201,19 @@
                 }
             });
 
+            // 2. 하단 뷰어 영역에 표시할 데이터 필터링 처리
+            let displayRecords = baseMonthRecords;
+            if (filteredMember) {
+                displayRecords = baseMonthRecords.filter(rec => rec.name === filteredMember);
+            }
+
             renderMemberCards(memberSpent, memberTotalDays, memberVacations);
-            renderHistoryTable(filteredRecords);
             
-            document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${filteredRecords.length}건`;
+            if (currentViewMode === 'list') {
+                renderHistoryTable(displayRecords);
+            } else {
+                renderCalendarView(displayRecords);
+            }
         }
 
         function renderMemberCards(memberSpent, memberTotalDays, memberVacations) {
@@ -154,19 +227,23 @@
                 
                 const totalGiven = activeDays * 10000;
                 const accumulativeBalance = totalGiven - spent;
+                const isSelected = (name === filteredMember);
 
                 let balanceColorClass = "text-indigo-600";
                 if (accumulativeBalance < 0) balanceColorClass = "text-rose-600 font-bold";
                 else if (accumulativeBalance === 0) balanceColorClass = "text-slate-500";
 
                 const card = document.createElement('div');
-                // 조회전용이므로 클릭 시 효과 및 포인터 스타일 변경
-                card.className = `bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between`;
+                card.className = `bg-white rounded-xl border p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
+                    isSelected ? 'border-indigo-600 ring-2 ring-indigo-100 bg-indigo-50/20' : 'border-slate-200 hover:border-slate-300'
+                }`;
+                card.setAttribute('onclick', `toggleMemberFilter('${name}')`);
 
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-bold text-slate-900">${name}</span>
+                            ${isSelected ? '<span class="text-[10px] bg-indigo-600 text-white font-bold px-1.5 py-0.5 rounded">필터됨</span>' : ''}
                         </div>
                         <div class="text-[11px] text-slate-400 space-y-0.5">
                             <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
@@ -184,12 +261,13 @@
             });
         }
 
+        // [나열형] 리스트 테이블 렌더링
         function renderHistoryTable(records) {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = '';
 
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">이번 달에 등록된 내역이 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">조건에 맞는 등록 내역이 없습니다.</td></tr>`;
                 return;
             }
 
@@ -222,6 +300,73 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // [달력형] 캘린더 화면 렌더링
+        function renderCalendarView(records) {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth(); // 0~11
+
+            const firstDayOfMonth = new Date(year, month, 1).getDay(); // 시작 요일 인덱스
+            const totalDays = new Date(year, month + 1, 0).getDate(); // 당월 총 일수
+
+            // 1. 시작 요일 맞추기용 공백 칸 생성
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = "bg-slate-50/50 min-h-[100px] border border-slate-100 rounded-xl";
+                grid.appendChild(emptyCell);
+            }
+
+            // 2. 1일부터 말일까지 칸 생성
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // 해당 날짜에 등록된 내역 필터링
+                const dayRecords = records.filter(rec => rec.date === dateString);
+
+                const dateCell = document.createElement('div');
+                dateCell.className = "bg-white border border-slate-200 rounded-xl p-2 min-h-[110px] flex flex-col justify-between hover:border-slate-300 transition-all";
+
+                // 날짜 표시 (오늘 날짜 강조 효과 추가)
+                const isToday = (today.getDate() === day);
+                let dayHeaderClass = "text-xs font-bold text-slate-700";
+                if (isToday) dayHeaderClass = "text-xs font-bold bg-indigo-600 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-sm";
+
+                let innerItemsHTML = '<div class="space-y-1 mt-1.5 max-h-[70px] overflow-y-auto">';
+                
+                if (dayRecords.length > 0) {
+                    dayRecords.forEach(rec => {
+                        if (rec.type === 'vacation') {
+                            innerItemsHTML += `
+                                <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1 py-0.5 rounded border border-emerald-100 flex justify-between truncate">
+                                    <span>${rec.name}</span><span>🌴 연차</span>
+                                </div>`;
+                        } else {
+                            const bal = 10000 - Number(rec.amount);
+                            const balColor = bal < 0 ? 'text-rose-600' : 'text-indigo-600';
+                            innerItemsHTML += `
+                                <div class="text-[10px] bg-slate-50 text-slate-700 font-medium px-1 py-0.5 rounded border border-slate-100 flex flex-col leading-tight">
+                                    <div class="flex justify-between font-bold text-slate-900"><span>${rec.name}</span><span>${Number(rec.amount).toLocaleString()}원</span></div>
+                                    <div class="text-right text-[9px] ${balColor} font-semibold">잔액: ${bal >= 0 ? '+' : ''}${bal.toLocaleString()}</div>
+                                </div>`;
+                        }
+                    });
+                }
+                innerItemsHTML += '</div>';
+
+                dateCell.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="${dayHeaderClass}">${day}</span>
+                        ${dayRecords.length > 0 ? `<span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 rounded-sm">총 ${dayRecords.length}건</span>` : ''}
+                    </div>
+                    ${innerItemsHTML}
+                `;
+                grid.appendChild(dateCell);
+            }
         }
     </script>
 </body>

@@ -209,7 +209,7 @@ footer b {
 
     <div id="comment-open-area">
         <div class="comment-form">
-            <input id="commentName" placeholder="이름 적어주세요">
+            <input id="commentName" placeholder="이름 적어주세요" required>
             <textarea id="commentText" placeholder="10:30분 마감입니다"></textarea>
             <button id="submitComment">메뉴 전송</button>
         </div>
@@ -320,12 +320,18 @@ submitBtn.addEventListener("click", async () => {
         return;
     }
 
+    if (!name) {
+    alert("이름을 입력해주세요.");
+    nameInput.focus();
+    return;
+}
+
     submitBtn.disabled = true;
     submitBtn.textContent = "전송 중...";
 
     try {
         await addDoc(commentsRef, {
-            name: name || "익명",
+            name,
             text,
             createdAt: serverTimestamp()
         });

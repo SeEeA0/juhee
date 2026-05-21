@@ -37,7 +37,7 @@
                         식대 정산 대시보드
                         <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-md font-normal">관리자용</span>
                     </h1>
-                    <p class="text-xs text-slate-500 truncate">식대 · 개인선입금 · 이월금 · 연차를 월별로 관리합니다</p>
+                    <p class="text-xs text-slate-500 truncate">식대 · 추가금 · 차감 · 연차를 월별로 관리합니다</p>
                 </div>
             </div>
 
@@ -80,8 +80,8 @@
 
                     <div class="grid grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl mb-4 text-[11px] font-semibold">
                         <button type="button" id="tabExpense" onclick="setRecordMode('expense')" class="py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer">💸 식대</button>
-                        <button type="button" id="tabDeposit" onclick="setRecordMode('deposit')" class="py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer">💰 선입금</button>
-                        <button type="button" id="tabCarryover" onclick="setRecordMode('carryover')" class="py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer">🔁 이월금</button>
+                        <button type="button" id="tabDeposit" onclick="setRecordMode('plus')" class="py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer">💰 추가금</button>
+                        <button type="button" id="tabDeduction" onclick="setRecordMode('deduction')" class="py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer">➖ 차감</button>
                         <button type="button" id="tabVacation" onclick="setRecordMode('vacation')" class="py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer">🌴 연차</button>
                     </div>
 
@@ -149,7 +149,7 @@
 
                             <div>
                                 <label for="moneyMemo" id="moneyMemoLabel" class="block text-xs font-semibold text-slate-500 mb-1">메모</label>
-                                <input type="text" id="moneyMemo" placeholder="예: 개인선입금 / 전월 이월금"
+                                <input type="text" id="moneyMemo" placeholder="예: 개인선입금 / 전월 이월금 / 공용비 차감"
                                     class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-medium focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all">
                             </div>
                         </div>
@@ -175,7 +175,7 @@
                         </div>
 
                         <div id="moneyNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
-                            💡 개인선입금/이월금은 식대 차감이 아니라, 해당 멤버의 월 누적 잔액에 플러스 금액으로 반영됩니다.
+                            💡 추가금은 월 누적 잔액에 플러스, 차감은 월 누적 잔액에서 마이너스로 반영됩니다.
                         </div>
 
                         <div id="vacationNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
@@ -210,7 +210,7 @@
                                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     <th class="px-6 py-3">날짜</th>
                                     <th class="px-6 py-3">이름</th>
-                                    <th class="px-6 py-3">구분/메뉴</th>
+                                    <th class="px-6 py-3">메뉴</th>
                                     <th class="px-6 py-3 text-center">정산 내용</th>
                                     <th class="px-6 py-3 text-right">금액/결과</th>
                                     <th class="px-6 py-3 text-center">관리</th>
@@ -487,7 +487,7 @@
         function resetTabClasses() {
             document.getElementById('tabExpense').className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
             document.getElementById('tabDeposit').className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
-            document.getElementById('tabCarryover').className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
+            document.getElementById('tabDeduction').className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
             document.getElementById('tabVacation').className = "py-2 rounded-lg text-center text-slate-500 hover:text-slate-800 cursor-pointer";
         }
 
@@ -511,7 +511,7 @@
                 moneyNotice.classList.add('hidden');
                 calcPreview.classList.remove('hidden');
 
-            } else if (mode === 'deposit') {
+            } else if (mode === 'plus') {
                 document.getElementById('tabDeposit').className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
 
                 menuGroup.classList.add('hidden');
@@ -520,12 +520,12 @@
                 moneyNotice.classList.remove('hidden');
                 calcPreview.classList.add('hidden');
 
-                document.getElementById('moneyAmountLabel').innerText = "개인선입금 금액";
-                document.getElementById('moneyMemoLabel').innerText = "개인선입금 메모";
-                document.getElementById('moneyMemo').placeholder = "예: 개인선입금 / 현금 입금";
+                document.getElementById('moneyAmountLabel').innerText = "추가금 금액";
+                document.getElementById('moneyMemoLabel').innerText = "추가금 항목 / 메모";
+                document.getElementById('moneyMemo').placeholder = "예: 개인선입금 / 전월 이월금 / 추가 입금";
 
-            } else if (mode === 'carryover') {
-                document.getElementById('tabCarryover').className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
+            } else if (mode === 'deduction') {
+                document.getElementById('tabDeduction').className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
 
                 menuGroup.classList.add('hidden');
                 moneyGroup.classList.remove('hidden');
@@ -533,9 +533,9 @@
                 moneyNotice.classList.remove('hidden');
                 calcPreview.classList.add('hidden');
 
-                document.getElementById('moneyAmountLabel').innerText = "이월금 금액";
-                document.getElementById('moneyMemoLabel').innerText = "이월금 메모";
-                document.getElementById('moneyMemo').placeholder = "예: 전월 이월금";
+                document.getElementById('moneyAmountLabel').innerText = "차감 금액";
+                document.getElementById('moneyMemoLabel').innerText = "차감 항목 / 메모";
+                document.getElementById('moneyMemo').placeholder = "예: 다같이 커피 / 공용 간식 / 선결제 차감";
 
             } else {
                 document.getElementById('tabVacation').className = "py-2 rounded-lg text-center bg-white text-slate-800 shadow-sm cursor-pointer";
@@ -608,12 +608,12 @@
             if (recordMode === 'expense') {
                 btn.innerText = `${name}님 식대 기록 등록하기`;
                 btn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
-            } else if (recordMode === 'deposit') {
-                btn.innerText = `💰 ${name}님 개인선입금 등록하기`;
+            } else if (recordMode === 'plus') {
+                btn.innerText = `💰 ${name}님 추가금 등록하기`;
                 btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
-            } else if (recordMode === 'carryover') {
-                btn.innerText = `🔁 ${name}님 이월금 등록하기`;
-                btn.className = "w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
+            } else if (recordMode === 'deduction') {
+                btn.innerText = `➖ ${name}님 차감 등록하기`;
+                btn.className = "w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
             } else {
                 btn.innerText = `🌴 ${name}님 연차 등록하기`;
                 btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer text-sm text-center";
@@ -635,15 +635,15 @@
             const memberSpent = {};
             const memberTotalDays = {};
             const memberVacations = {};
-            const memberDeposits = {};
-            const memberCarryovers = {};
+            const memberPluses = {};
+            const memberDeductions = {};
 
             members.forEach(m => {
                 memberSpent[m] = 0;
                 memberTotalDays[m] = 0;
                 memberVacations[m] = 0;
-                memberDeposits[m] = 0;
-                memberCarryovers[m] = 0;
+                memberPluses[m] = 0;
+                memberDeductions[m] = 0;
             });
 
             const currentYearMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
@@ -652,13 +652,14 @@
             baseMonthRecords.forEach(rec => {
                 if (rec.type === 'vacation') {
                     if (memberVacations[rec.name] !== undefined) memberVacations[rec.name] += 1;
-                } else if (rec.type === 'deposit') {
-                    if (memberDeposits[rec.name] !== undefined) {
-                        memberDeposits[rec.name] += Number(rec.depositAmount || rec.amount || 0);
+                } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
+                    // 기존에 저장된 개인선입금/이월금 데이터도 모두 추가금으로 합산
+                    if (memberPluses[rec.name] !== undefined) {
+                        memberPluses[rec.name] += Number(rec.plusAmount || rec.depositAmount || rec.carryoverAmount || rec.amount || 0);
                     }
-                } else if (rec.type === 'carryover') {
-                    if (memberCarryovers[rec.name] !== undefined) {
-                        memberCarryovers[rec.name] += Number(rec.carryoverAmount || rec.amount || 0);
+                } else if (rec.type === 'deduction') {
+                    if (memberDeductions[rec.name] !== undefined) {
+                        memberDeductions[rec.name] += Number(rec.deductionAmount || rec.amount || 0);
                     }
                 } else {
                     if (memberSpent[rec.name] !== undefined) {
@@ -673,7 +674,7 @@
                 displayRecords = baseMonthRecords.filter(rec => rec.name === filteredMember);
             }
 
-            renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberDeposits, memberCarryovers);
+            renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberPluses, memberDeductions);
 
             if (currentViewMode === 'list') {
                 renderHistoryTable(displayRecords);
@@ -684,7 +685,7 @@
             document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${displayRecords.length}건`;
         }
 
-        function renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberDeposits = {}, memberCarryovers = {}) {
+        function renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberPluses = {}, memberDeductions = {}) {
             const container = document.getElementById('memberCardsContainer');
             container.innerHTML = '';
 
@@ -692,11 +693,11 @@
                 const spent = memberSpent[name] || 0;
                 const activeDays = memberTotalDays[name] || 0;
                 const vacationDays = memberVacations[name] || 0;
-                const deposit = memberDeposits[name] || 0;
-                const carryover = memberCarryovers[name] || 0;
+                const plus = memberPluses[name] || 0;
+                const deduction = memberDeductions[name] || 0;
 
                 const totalGiven = activeDays * 10000;
-                const accumulativeBalance = totalGiven + deposit + carryover - spent;
+                const accumulativeBalance = totalGiven + plus - spent - deduction;
                 const isSelected = (name === currentSelectedMember);
                 const theme = memberTheme[name] || memberTheme["황수석"];
 
@@ -724,8 +725,8 @@
                         <div class="text-[11px] text-slate-500 space-y-0.5">
                             <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
                             <div class="flex justify-between"><span>기본 지급액:</span><span>+${totalGiven.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-emerald-600 font-medium"><span>개인선입금:</span><span>+${deposit.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-sky-600 font-medium"><span>이월금:</span><span>+${carryover.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-emerald-600 font-medium"><span>추가금:</span><span>+${plus.toLocaleString()}원</span></div>
+                            <div class="flex justify-between text-rose-600 font-medium"><span>차감:</span><span>-${deduction.toLocaleString()}원</span></div>
                             <div class="flex justify-between text-slate-600"><span>사용한 식대:</span><span>-${spent.toLocaleString()}원</span></div>
                             <div class="flex justify-between text-emerald-600 font-medium pt-1 border-t border-dashed border-slate-200"><span>🌴 연차 사용:</span><span>${vacationDays}일</span></div>
                         </div>
@@ -761,23 +762,24 @@
                     formulaDisplay = `<span class="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded">정산 제외</span>`;
                     resultDisplay = `<span class="font-bold text-slate-400">0원</span>`;
 
-                } else if (rec.type === 'deposit') {
-                    const amount = Number(rec.depositAmount || rec.amount || 0);
+                } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
+                    const amount = Number(rec.plusAmount || rec.depositAmount || rec.carryoverAmount || rec.amount || 0);
+                    const memo = rec.plusMemo || rec.depositMemo || rec.carryoverMemo || rec.memo || "";
                     contentDisplay = `
-                        <div class="font-bold text-emerald-700 whitespace-nowrap">💰 개인선입금</div>
-                        <div class="text-xs text-slate-400">${escapeHtml(rec.depositMemo || rec.memo || "")}</div>
+                        <div class="font-bold text-emerald-700 whitespace-nowrap">💰 추가금</div>
+                        <div class="text-xs text-slate-400">${escapeHtml(memo)}</div>
                     `;
                     formulaDisplay = `<span class="text-xs text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">월 잔액에 플러스 반영</span>`;
                     resultDisplay = `<span class="font-bold text-emerald-600">+${amount.toLocaleString()}원</span>`;
 
-                } else if (rec.type === 'carryover') {
-                    const amount = Number(rec.carryoverAmount || rec.amount || 0);
+                } else if (rec.type === 'deduction') {
+                    const amount = Number(rec.deductionAmount || rec.amount || 0);
                     contentDisplay = `
-                        <div class="font-bold text-sky-700 whitespace-nowrap">🔁 이월금</div>
-                        <div class="text-xs text-slate-400">${escapeHtml(rec.carryoverMemo || rec.memo || "")}</div>
+                        <div class="font-bold text-rose-700 whitespace-nowrap">➖ 차감</div>
+                        <div class="text-xs text-slate-400">${escapeHtml(rec.deductionMemo || rec.memo || "")}</div>
                     `;
-                    formulaDisplay = `<span class="text-xs text-sky-700 font-medium bg-sky-50 px-2 py-1 rounded">월 잔액에 플러스 반영</span>`;
-                    resultDisplay = `<span class="font-bold text-sky-600">+${amount.toLocaleString()}원</span>`;
+                    formulaDisplay = `<span class="text-xs text-rose-700 font-medium bg-rose-50 px-2 py-1 rounded">월 잔액에서 마이너스 반영</span>`;
+                    resultDisplay = `<span class="font-bold text-rose-600">-${amount.toLocaleString()}원</span>`;
 
                 } else {
                     const menuPrice = Number(rec.menuPrice || 0);
@@ -785,11 +787,10 @@
                     const amount = Number(rec.amount || 0);
                     const singleBalance = 10000 - amount;
 
-                    contentDisplay = `
-                        <div class="font-bold text-slate-900 whitespace-nowrap">${escapeHtml(rec.menuName || "메뉴명 없음")}</div>
-                        <div class="text-xs text-slate-400">${escapeHtml(rec.category || "")}</div>
-                    `;
-
+contentDisplay = `
+    <div class="font-bold text-slate-900 whitespace-nowrap">
+        ${escapeHtml(rec.menuName || "메뉴명 없음")} </div>
+`;
                     formulaDisplay = `
                         <div class="text-xs font-mono text-slate-500 whitespace-nowrap">+10,000 - ${menuPrice.toLocaleString()} - ${extraAmount.toLocaleString()}</div>
                         <div class="text-[11px] text-slate-400 mt-0.5">메뉴 ${menuPrice.toLocaleString()}원 + 추가 ${extraAmount.toLocaleString()}원</div>
@@ -869,17 +870,17 @@
                                 <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1 py-0.5 rounded border border-emerald-100 flex justify-between truncate">
                                     <span>${escapeHtml(rec.name)}</span><span>연차</span>
                                 </div>`;
-                        } else if (rec.type === 'deposit') {
-                            const amount = Number(rec.depositAmount || rec.amount || 0);
+                        } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
+                            const amount = Number(rec.plusAmount || rec.depositAmount || rec.carryoverAmount || rec.amount || 0);
                             innerItemsHTML += `
                                 <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1.5 py-1 rounded-md border border-emerald-100 flex justify-between leading-tight">
                                     <span class="truncate">${escapeHtml(rec.name)}</span><span>+${amount.toLocaleString()}</span>
                                 </div>`;
-                        } else if (rec.type === 'carryover') {
-                            const amount = Number(rec.carryoverAmount || rec.amount || 0);
+                        } else if (rec.type === 'deduction') {
+                            const amount = Number(rec.deductionAmount || rec.amount || 0);
                             innerItemsHTML += `
-                                <div class="text-[10px] bg-sky-50 text-sky-700 font-semibold px-1.5 py-1 rounded-md border border-sky-100 flex justify-between leading-tight">
-                                    <span class="truncate">${escapeHtml(rec.name)}</span><span>+${amount.toLocaleString()}</span>
+                                <div class="text-[10px] bg-rose-50 text-rose-700 font-semibold px-1.5 py-1 rounded-md border border-rose-100 flex justify-between leading-tight">
+                                    <span class="truncate">${escapeHtml(rec.name)}</span><span>-${amount.toLocaleString()}</span>
                                 </div>`;
                         } else {
                             const bal = 10000 - Number(rec.amount || 0);
@@ -954,38 +955,38 @@
                 saveData.weight = selectedMenuData.weight ?? null;
                 saveData.protein = selectedMenuData.protein ?? null;
 
-            } else if (recordMode === 'deposit') {
+            } else if (recordMode === 'plus') {
                 const moneyAmount = Number(document.getElementById('moneyAmount').value) || 0;
-                const moneyMemo = document.getElementById('moneyMemo').value || "개인선입금";
+                const moneyMemo = document.getElementById('moneyMemo').value || "추가금";
 
                 if (moneyAmount <= 0) {
-                    alert("개인선입금 금액을 입력해 주세요.");
+                    alert("추가금 금액을 입력해 주세요.");
                     return;
                 }
 
                 saveData.amount = moneyAmount;
-                saveData.menuName = "개인선입금";
+                saveData.menuName = "추가금";
                 saveData.menuPrice = 0;
                 saveData.extraAmount = 0;
-                saveData.depositAmount = moneyAmount;
-                saveData.depositMemo = moneyMemo;
+                saveData.plusAmount = moneyAmount;
+                saveData.plusMemo = moneyMemo;
                 saveData.memo = moneyMemo;
 
-            } else if (recordMode === 'carryover') {
+            } else if (recordMode === 'deduction') {
                 const moneyAmount = Number(document.getElementById('moneyAmount').value) || 0;
-                const moneyMemo = document.getElementById('moneyMemo').value || "이월금";
+                const moneyMemo = document.getElementById('moneyMemo').value || "차감";
 
                 if (moneyAmount <= 0) {
-                    alert("이월금 금액을 입력해 주세요.");
+                    alert("차감 금액을 입력해 주세요.");
                     return;
                 }
 
                 saveData.amount = moneyAmount;
-                saveData.menuName = "이월금";
+                saveData.menuName = "차감";
                 saveData.menuPrice = 0;
                 saveData.extraAmount = 0;
-                saveData.carryoverAmount = moneyAmount;
-                saveData.carryoverMemo = moneyMemo;
+                saveData.deductionAmount = moneyAmount;
+                saveData.deductionMemo = moneyMemo;
                 saveData.memo = moneyMemo;
 
             } else {

@@ -75,7 +75,11 @@
                         <span class="text-slate-300">|</span>
                         <span class="text-slate-500">차감 <strong id="totalDeductionAmount" class="text-rose-600">-0원</strong></span>
                         <span class="text-slate-300">|</span>
+                        <span class="text-slate-500">추가금 <strong id="totalPlusAmount" class="text-emerald-600">+0원</strong></span>
+                        <span class="text-slate-300">|</span>
                         <span class="text-slate-700 font-bold">잔액 <strong id="totalMealBalance" class="text-sm font-black text-indigo-600">0원</strong></span>
+                        <span class="text-slate-300">|</span>
+                        <span class="text-slate-700 font-bold">추가금 포함 잔액 <strong id="totalMealBalanceWithPlus" class="text-sm font-black text-emerald-600">0원</strong></span>
                     </div>
                 </div>
             </div>
@@ -327,32 +331,45 @@
 function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {}, memberDeductions = {}) {
     let totalGivenAll = 0;
     let totalSpentAll = 0;
+    let totalPlusAll = 0;
     let totalDeductionAll = 0;
 
     members.forEach(name => {
         totalGivenAll += (memberTotalDays[name] || 0) * 10000;
         totalSpentAll += memberSpent[name] || 0;
+        totalPlusAll += memberPluses[name] || 0;
         totalDeductionAll += memberDeductions[name] || 0;
     });
 
-    // 추가금은 개인이 낸 돈이므로 식대 잔액 계산에서 제외
+    // 기존 잔액: 추가금 제외 / 차감 포함
     const totalBalance = totalGivenAll - totalSpentAll - totalDeductionAll;
 
+    // 추가금 포함 잔액: 기존 잔액 + 개인 추가금
+    const totalBalanceWithPlus = totalBalance + totalPlusAll;
+
     const totalMealBalanceEl = document.getElementById('totalMealBalance');
+    const totalMealBalanceWithPlusEl = document.getElementById('totalMealBalanceWithPlus');
     const totalGivenAmountEl = document.getElementById('totalGivenAmount');
     const totalSpentAmountEl = document.getElementById('totalSpentAmount');
+    const totalPlusAmountEl = document.getElementById('totalPlusAmount');
     const totalDeductionAmountEl = document.getElementById('totalDeductionAmount');
 
-    if (!totalMealBalanceEl || !totalGivenAmountEl || !totalSpentAmountEl) return;
+    if (!totalMealBalanceEl || !totalMealBalanceWithPlusEl || !totalGivenAmountEl || !totalSpentAmountEl || !totalPlusAmountEl || !totalDeductionAmountEl) return;
 
     totalMealBalanceEl.innerText = `${totalBalance >= 0 ? '+' : ''}${totalBalance.toLocaleString()}원`;
+    totalMealBalanceWithPlusEl.innerText = `${totalBalanceWithPlus >= 0 ? '+' : ''}${totalBalanceWithPlus.toLocaleString()}원`;
     totalGivenAmountEl.innerText = `+${totalGivenAll.toLocaleString()}원`;
     totalSpentAmountEl.innerText = `-${totalSpentAll.toLocaleString()}원`;
+    totalPlusAmountEl.innerText = `+${totalPlusAll.toLocaleString()}원`;
     totalDeductionAmountEl.innerText = `-${totalDeductionAll.toLocaleString()}원`;
 
     totalMealBalanceEl.className = totalBalance < 0
         ? "text-sm font-black text-rose-600"
         : "text-sm font-black text-indigo-600";
+
+    totalMealBalanceWithPlusEl.className = totalBalanceWithPlus < 0
+        ? "text-sm font-black text-rose-600"
+        : "text-sm font-black text-emerald-600";
 }
 
         function renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberPluses, memberDeductions) {

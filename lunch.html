@@ -175,7 +175,7 @@
                         </div>
 
                         <div id="moneyNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
-                            💡 추가금은 월 누적 잔액에 플러스, 차감은 월 누적 잔액에서 마이너스로 반영됩니다.
+                            💡 추가금은 월 누적 잔액에 플러스, 차감은 현재 잔액이 0원이어도 마이너스로 등록됩니다.
                         </div>
 
                         <div id="vacationNoticeGroup" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-xl leading-relaxed">
@@ -204,8 +204,11 @@
                         </div>
                     </div>
 
+                    <div class="px-6 pt-3 text-[11px] text-slate-400 bg-white">
+                        식대는 같은 멤버/같은 날짜에 1개만 등록됩니다. 추가금과 차감은 여러 번 등록할 수 있습니다.
+                    </div>
                     <div id="listViewContainer" class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full min-w-[860px] text-left border-collapse">
                             <thead>
                                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     <th class="px-6 py-3">날짜</th>
@@ -213,7 +216,7 @@
                                     <th class="px-6 py-3">메뉴</th>
                                     <th class="px-6 py-3 text-center">정산 내용</th>
                                     <th class="px-6 py-3 text-right">금액/결과</th>
-                                    <th class="px-6 py-3 text-center">관리</th>
+                                    <th class="px-4 py-3 text-center sticky right-0 bg-slate-50 z-10 shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.45)]">관리</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
@@ -520,6 +523,9 @@
                 moneyNotice.classList.remove('hidden');
                 calcPreview.classList.add('hidden');
 
+                const moneyAmountInput = document.getElementById('moneyAmount');
+                moneyAmountInput.min = "0";
+                moneyAmountInput.placeholder = "예: 30000";
                 document.getElementById('moneyAmountLabel').innerText = "추가금 금액";
                 document.getElementById('moneyMemoLabel').innerText = "추가금 항목 / 메모";
                 document.getElementById('moneyMemo').placeholder = "예: 개인선입금 / 전월 이월금 / 추가 입금";
@@ -533,6 +539,9 @@
                 moneyNotice.classList.remove('hidden');
                 calcPreview.classList.add('hidden');
 
+                const moneyAmountInput = document.getElementById('moneyAmount');
+                moneyAmountInput.removeAttribute('min');
+                moneyAmountInput.placeholder = "예: 30000 또는 -30000";
                 document.getElementById('moneyAmountLabel').innerText = "차감 금액";
                 document.getElementById('moneyMemoLabel').innerText = "차감 항목 / 메모";
                 document.getElementById('moneyMemo').placeholder = "예: 다같이 커피 / 공용 간식 / 선결제 차감";
@@ -809,7 +818,7 @@ contentDisplay = `
                     <td class="px-6 py-3.5">${contentDisplay}</td>
                     <td class="px-6 py-3.5 text-center">${formulaDisplay}</td>
                     <td class="px-6 py-3.5 text-right whitespace-nowrap">${resultDisplay}</td>
-                    <td class="px-6 py-3.5 text-center whitespace-nowrap">
+                    <td class="px-4 py-3.5 text-center whitespace-nowrap sticky right-0 bg-white z-10 shadow-[-8px_0_12px_-12px_rgba(15,23,42,0.45)]">
                         <button onclick="deleteRecord('${rec.id}', '${escapeHtml(rec.name)}')" class="text-xs font-semibold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-md transition-all cursor-pointer">
                             삭제
                         </button>
@@ -868,26 +877,26 @@ contentDisplay = `
                         if (rec.type === 'vacation') {
                             innerItemsHTML += `
                                 <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1 py-0.5 rounded border border-emerald-100 flex justify-between truncate">
-                                    <span>${escapeHtml(rec.name)}</span><span>연차</span>
+                                    <span class="truncate">${escapeHtml(rec.name)}</span><span class="flex items-center gap-1 shrink-0">연차 <button type="button" onclick="event.stopPropagation(); deleteRecord('${rec.id}', '${escapeHtml(rec.name)}')" class="w-4 h-4 rounded bg-white/80 text-rose-500 hover:bg-rose-100 font-bold leading-none">×</button></span>
                                 </div>`;
                         } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
                             const amount = Number(rec.plusAmount || rec.depositAmount || rec.carryoverAmount || rec.amount || 0);
                             innerItemsHTML += `
                                 <div class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-1.5 py-1 rounded-md border border-emerald-100 flex justify-between leading-tight">
-                                    <span class="truncate">${escapeHtml(rec.name)}</span><span>+${amount.toLocaleString()}</span>
+                                    <span class="truncate">${escapeHtml(rec.name)}</span><span class="flex items-center gap-1 shrink-0">+${amount.toLocaleString()} <button type="button" onclick="event.stopPropagation(); deleteRecord('${rec.id}', '${escapeHtml(rec.name)}')" class="w-4 h-4 rounded bg-white/80 text-rose-500 hover:bg-rose-100 font-bold leading-none">×</button></span>
                                 </div>`;
                         } else if (rec.type === 'deduction') {
                             const amount = Number(rec.deductionAmount || rec.amount || 0);
                             innerItemsHTML += `
                                 <div class="text-[10px] bg-rose-50 text-rose-700 font-semibold px-1.5 py-1 rounded-md border border-rose-100 flex justify-between leading-tight">
-                                    <span class="truncate">${escapeHtml(rec.name)}</span><span>-${amount.toLocaleString()}</span>
+                                    <span class="truncate">${escapeHtml(rec.name)}</span><span class="flex items-center gap-1 shrink-0">-${amount.toLocaleString()} <button type="button" onclick="event.stopPropagation(); deleteRecord('${rec.id}', '${escapeHtml(rec.name)}')" class="w-4 h-4 rounded bg-white/80 text-rose-500 hover:bg-rose-100 font-bold leading-none">×</button></span>
                                 </div>`;
                         } else {
                             const bal = 10000 - Number(rec.amount || 0);
                             const balColor = bal < 0 ? 'text-rose-600' : 'text-indigo-600';
                             innerItemsHTML += `
                                 <div class="text-[10px] ${theme.bg} text-slate-700 font-medium px-1.5 py-1 rounded-md border ${theme.border} flex flex-col leading-tight">
-                                    <div class="flex justify-between font-bold text-slate-900"><span>${escapeHtml(rec.name)}</span><span>${Number(rec.amount || 0).toLocaleString()}원</span></div>
+                                    <div class="flex justify-between font-bold text-slate-900 gap-1"><span class="truncate">${escapeHtml(rec.name)}</span><span class="flex items-center gap-1 shrink-0">${Number(rec.amount || 0).toLocaleString()}원 <button type="button" onclick="event.stopPropagation(); deleteRecord('${rec.id}', '${escapeHtml(rec.name)}')" class="w-4 h-4 rounded bg-white/80 text-rose-500 hover:bg-rose-100 font-bold leading-none">×</button></span></div>
                                     <div class="text-right text-[9px] ${balColor} font-semibold">잔액: ${bal >= 0 ? '+' : ''}${bal.toLocaleString()}</div>
                                 </div>`;
                         }
@@ -942,6 +951,17 @@ contentDisplay = `
                     return;
                 }
 
+                const alreadyExpenseRegistered = allRecords.some(rec =>
+                    rec.name === name &&
+                    rec.date === dateInput.value &&
+                    (rec.type === 'expense' || !rec.type)
+                );
+
+                if (alreadyExpenseRegistered) {
+                    alert(`${name}님은 ${dateInput.value}에 이미 식대가 등록되어 있습니다. 식대는 하루 1개만 등록할 수 있어요. 기존 식대 내역을 삭제한 뒤 다시 등록해주세요. 추가금/차감은 각 탭에서 여러 번 등록 가능합니다.`);
+                    return;
+                }
+
                 const menuPrice = getNumberFromPrice(selectedMenuData.price);
                 const totalAmount = menuPrice + extraAmount;
 
@@ -973,11 +993,14 @@ contentDisplay = `
                 saveData.memo = moneyMemo;
 
             } else if (recordMode === 'deduction') {
-                const moneyAmount = Number(document.getElementById('moneyAmount').value) || 0;
+                // 차감은 현재 잔액이 0원이어도 등록 가능해야 합니다.
+                // 사용자가 30000처럼 양수로 입력해도, -30000처럼 음수로 입력해도 동일하게 30,000원 차감으로 저장합니다.
+                const rawMoneyAmount = Number(document.getElementById('moneyAmount').value);
+                const moneyAmount = Math.abs(rawMoneyAmount) || 0;
                 const moneyMemo = document.getElementById('moneyMemo').value || "차감";
 
-                if (moneyAmount <= 0) {
-                    alert("차감 금액을 입력해 주세요.");
+                if (!Number.isFinite(rawMoneyAmount) || moneyAmount <= 0) {
+                    alert("차감 금액을 입력해 주세요. 예: 30000 또는 -30000");
                     return;
                 }
 

@@ -7,118 +7,152 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap');
+
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
             background-color: #f8fafc;
+        }
+
+        .thin-scroll::-webkit-scrollbar {
+            height: 4px;
+            width: 4px;
+        }
+        .thin-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding-bottom: 24px;
+            }
         }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen pb-12">
 
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 bg-slate-700 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center space-x-3 min-w-0 w-full">
+                <div class="w-9 h-9 bg-slate-700 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-slate-100 shrink-0">
                     👁️
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                        식대 정산 대시보드
-                        <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md font-normal">조회 전용</span>
+                <div class="min-w-0">
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 truncate">
+                        <span class="truncate">식대 정산 대시보드</span>
+                        <span class="text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-md font-normal shrink-0">조회 전용</span>
                     </h1>
-                    <p class="text-xs text-slate-500">기본 지급 - 사용 금액 - 차감 금액 = 월 누적 잔액</p>
+                    <p class="text-xs text-slate-500 truncate">기본 지급 - 사용 금액 - 차감 금액 = 월 누적 잔액</p>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-                <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
+            <div class="flex items-center justify-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 w-full sm:w-auto">
+                <button onclick="changeMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm" aria-label="이전 달">
                     &lt;
                 </button>
-                <span id="currentMonthDisplay" class="text-sm font-bold text-slate-800 px-2 min-w-[100px] text-center">
+                <span id="currentMonthDisplay" class="text-sm font-bold text-slate-800 px-2 min-w-[108px] text-center">
                     2026년 05월
                 </span>
-                <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm">
+                <button onclick="changeMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-slate-600 font-bold transition-all cursor-pointer text-sm" aria-label="다음 달">
                     &gt;
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-8">
 
-        <div class="mb-8">
+        <div class="mb-6 sm:mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 누적 현황 (선택 시 해당 멤버만 필터링)</h2>
-                <div id="filterStatusBadge" class="hidden text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 font-bold flex items-center gap-1.5">
+                <h2 class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 누적 현황</h2>
+                <div id="filterStatusBadge" class="hidden text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 font-bold items-center gap-1.5 w-fit">
                     <span>현재 <strong id="filteredMemberName" class="underline"></strong> 님의 내역 보는 중</span>
                     <button onclick="clearMemberFilter()" class="hover:text-rose-600 font-bold ml-1 cursor-pointer">✕ 해제</button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="memberCardsContainer"></div>
 
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4" id="memberCardsContainer"></div>
 
-            <!-- 전체 6명 합산 월 누적 잔액: 추가금/차감 포함 -->
-            <div class="mt-4 mb-3 bg-white border border-indigo-100 rounded-2xl shadow-sm px-4 py-3">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-indigo-50 text-sm">🍱</span>
-                        <div>
-                            <div class="text-xs font-bold text-slate-700">전체 6명 월 누적 잔액</div>
-                            <div class="text-[11px] text-slate-400">추가금 제외 / 차감 포함</div>
+            <!-- 전체 6명 합산 월 누적 잔액 -->
+            <div class="mt-4 mb-3 bg-white border border-indigo-100 rounded-2xl shadow-sm px-4 py-4">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-50 text-sm shrink-0">🍱</span>
+                        <div class="min-w-0">
+                            <div class="text-xs font-bold text-slate-700 truncate">전체 6명 월 잔액 요약</div>
+                            <div class="text-[11px] text-slate-400 truncate">기본 잔액과 추가금 포함 최종 잔액을 함께 표시합니다</div>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-3 text-xs">
-                        <span class="text-slate-500">지급 <strong id="totalGivenAmount" class="text-slate-700">+0원</strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span class="text-slate-500">사용 <strong id="totalSpentAmount" class="text-rose-500">-0원</strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span class="text-slate-500">차감 <strong id="totalDeductionAmount" class="text-rose-600">-0원</strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span class="text-slate-500">추가금 <strong id="totalPlusAmount" class="text-emerald-600">+0원</strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span class="text-slate-700 font-bold">잔액 <strong id="totalMealBalance" class="text-sm font-black text-indigo-600">0원</strong></span>
-                        <span class="text-slate-300">|</span>
-                        <span class="text-slate-700 font-bold">추가금 포함 잔액 <strong id="totalMealBalanceWithPlus" class="text-sm font-black text-emerald-600">0원</strong></span>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-center gap-2 text-xs">
+                        <div class="bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
+                            <div class="text-slate-400">지급</div>
+                            <strong id="totalGivenAmount" class="text-slate-700">+0원</strong>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
+                            <div class="text-slate-400">사용</div>
+                            <strong id="totalSpentAmount" class="text-rose-500">-0원</strong>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
+                            <div class="text-slate-400">차감</div>
+                            <strong id="totalDeductionAmount" class="text-rose-600">-0원</strong>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
+                            <div class="text-slate-400">추가금</div>
+                            <strong id="totalPlusAmount" class="text-emerald-600">+0원</strong>
+                        </div>
+                        <div class="bg-indigo-50 rounded-xl px-3 py-2 border border-indigo-100">
+                            <div class="text-indigo-500">기본 잔액</div>
+                            <strong id="totalMealBalance" class="text-sm font-black text-indigo-600">0원</strong>
+                        </div>
+                        <div class="bg-emerald-50 rounded-xl px-3 py-2 border border-emerald-100">
+                            <div class="text-emerald-600">최종 잔액</div>
+                            <strong id="totalMealBalanceWithPlus" class="text-sm font-black text-emerald-600">0원</strong>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="calendarLegend" class="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
-                <span class="font-bold text-slate-400 mr-1">색상 구분</span>
-                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>황수석</span>
-                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>윤책임</span>
-                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>장책임</span>
-                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>이선임</span>
-                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>조주임</span>
-                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1"><span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>신대리</span>
-                <span class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-full px-2.5 py-1">💰 + 추가금</span>
-                <span class="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-100 text-rose-700 rounded-full px-2.5 py-1">➖ - 차감</span>
+
+            <div id="calendarLegend" class="mt-4 flex gap-2 text-xs text-slate-500 overflow-x-auto thin-scroll pb-1 sm:flex-wrap">
+                <span class="font-bold text-slate-400 mr-1 shrink-0 inline-flex items-center">색상 구분</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>황수석</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>윤책임</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>장책임</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>이선임</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>조주임</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>신대리</span>
+                <span class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-full px-2.5 py-1 shrink-0">💰 + 추가금</span>
+                <span class="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-100 text-rose-700 rounded-full px-2.5 py-1 shrink-0">➖ - 차감</span>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50">
-                <h3 class="text-base font-bold text-slate-900 flex items-center">
-                    <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block"></span>
-                    <span id="historyTitle">전체 등록 내역</span>
+            <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50">
+                <h3 class="text-base font-bold text-slate-900 flex items-center min-w-0">
+                    <span class="w-2 h-4 bg-amber-500 rounded-sm mr-2 block shrink-0"></span>
+                    <span id="historyTitle" class="truncate">전체 등록 내역</span>
                 </h3>
-                
-                <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto">
-                    <button id="viewTabList" onclick="switchViewMode('list')" class="px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all">📋 나열형 보기</button>
-                    <button id="viewTabCalendar" onclick="switchViewMode('calendar')" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all">📅 달력형 보기</button>
+
+                <div class="flex bg-slate-200 p-1 rounded-xl text-xs font-semibold w-full sm:w-auto">
+                    <button id="viewTabList" onclick="switchViewMode('list')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all">📋 나열형</button>
+                    <button id="viewTabCalendar" onclick="switchViewMode('calendar')" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all">📅 달력형</button>
                 </div>
             </div>
-            
-            <div id="listViewContainer" class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+
+            <!-- 모바일 카드형 리스트 -->
+            <div id="mobileListContainer" class="sm:hidden divide-y divide-slate-100"></div>
+
+            <!-- 태블릿/PC 테이블 -->
+            <div id="listViewContainer" class="hidden sm:block overflow-x-auto thin-scroll">
+                <table class="w-full min-w-[760px] text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            <th class="px-6 py-3">날짜</th>
-                            <th class="px-6 py-3">이름</th>
-                            <th class="px-6 py-3">내용</th>
-                            <th class="px-6 py-3 text-right">누적잔액</th>
-                            <th class="px-6 py-3 text-right">내역</th>
-                            <th class="px-6 py-3 text-right">잔액</th>
+                            <th class="px-3 sm:px-6 py-3">날짜</th>
+                            <th class="px-3 sm:px-6 py-3">이름</th>
+                            <th class="px-3 sm:px-6 py-3">내용</th>
+                            <th class="px-3 sm:px-6 py-3 text-right">이전 잔액</th>
+                            <th class="px-3 sm:px-6 py-3 text-right">내역</th>
+                            <th class="px-3 sm:px-6 py-3 text-right">누적 잔액</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody" class="divide-y divide-slate-100 text-sm">
@@ -129,14 +163,16 @@
                 </table>
             </div>
 
-            <div id="calendarViewContainer" class="hidden p-4 md:p-6 bg-white">
-                <div class="grid grid-cols-7 text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">
-                    <div class="text-rose-500 py-1">일</div><div class="py-1">월</div><div class="py-1">화</div><div class="py-1">수</div><div class="py-1">목</div><div class="py-1">금</div><div class="text-indigo-600 py-1">토</div>
+            <div id="calendarViewContainer" class="hidden p-3 sm:p-4 md:p-6 bg-white overflow-x-auto thin-scroll">
+                <div class="min-w-[720px]">
+                    <div class="grid grid-cols-7 text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-2">
+                        <div class="text-rose-500 py-1">일</div><div class="py-1">월</div><div class="py-1">화</div><div class="py-1">수</div><div class="py-1">목</div><div class="py-1">금</div><div class="text-indigo-600 py-1">토</div>
+                    </div>
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 md:gap-2"></div>
                 </div>
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 md:gap-2"></div>
             </div>
 
-            <div class="px-6 py-3 border-t border-slate-100 text-right bg-slate-50/20">
+            <div class="px-4 sm:px-6 py-3 border-t border-slate-100 text-right bg-slate-50/20">
                 <span class="text-xs font-medium text-slate-500" id="totalCountDisplay">총 0건</span>
             </div>
         </div>
@@ -219,17 +255,21 @@
             const tabList = document.getElementById('viewTabList');
             const tabCalendar = document.getElementById('viewTabCalendar');
             const listContainer = document.getElementById('listViewContainer');
+            const mobileListContainer = document.getElementById('mobileListContainer');
             const calendarContainer = document.getElementById('calendarViewContainer');
 
             if (mode === 'list') {
-                tabList.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
-                tabCalendar.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
-                listContainer.classList.remove('hidden');
+                tabList.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
+                tabCalendar.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
+                listContainer.classList.remove('sm:hidden');
+                listContainer.classList.add('hidden', 'sm:block');
+                mobileListContainer.classList.remove('hidden');
                 calendarContainer.classList.add('hidden');
             } else {
-                tabList.className = "px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
-                tabCalendar.className = "px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
+                tabList.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 cursor-pointer transition-all";
+                tabCalendar.className = "flex-1 sm:flex-none px-4 py-2 rounded-lg bg-white text-slate-800 shadow-sm cursor-pointer transition-all";
                 listContainer.classList.add('hidden');
+                mobileListContainer.classList.add('hidden');
                 calendarContainer.classList.remove('hidden');
             }
             calculateAndRender();
@@ -242,11 +282,13 @@
             if (filteredMember === name) {
                 filteredMember = "";
                 badge.classList.add('hidden');
+                badge.classList.remove('flex');
                 document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
             } else {
                 filteredMember = name;
                 nameSpan.innerText = name;
                 badge.classList.remove('hidden');
+                badge.classList.add('flex');
                 document.getElementById('historyTitle').innerText = `🎨 ${name}님의 등록 내역`;
             }
             calculateAndRender();
@@ -254,7 +296,9 @@
 
         window.clearMemberFilter = function() {
             filteredMember = "";
-            document.getElementById('filterStatusBadge').classList.add('hidden');
+            const badge = document.getElementById('filterStatusBadge');
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
             document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
             calculateAndRender();
         }
@@ -321,6 +365,7 @@
 
             if (currentViewMode === 'list') {
                 renderHistoryTable(displayRecords);
+                renderMobileHistoryCards(displayRecords);
             } else {
                 renderCalendarView(displayRecords);
             }
@@ -328,49 +373,46 @@
             document.getElementById('totalCountDisplay').innerText = `이번 달 기록 총 ${displayRecords.length}건`;
         }
 
-function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {}, memberDeductions = {}) {
-    let totalGivenAll = 0;
-    let totalSpentAll = 0;
-    let totalPlusAll = 0;
-    let totalDeductionAll = 0;
+        function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {}, memberDeductions = {}) {
+            let totalGivenAll = 0;
+            let totalSpentAll = 0;
+            let totalPlusAll = 0;
+            let totalDeductionAll = 0;
 
-    members.forEach(name => {
-        totalGivenAll += (memberTotalDays[name] || 0) * 10000;
-        totalSpentAll += memberSpent[name] || 0;
-        totalPlusAll += memberPluses[name] || 0;
-        totalDeductionAll += memberDeductions[name] || 0;
-    });
+            members.forEach(name => {
+                totalGivenAll += (memberTotalDays[name] || 0) * 10000;
+                totalSpentAll += memberSpent[name] || 0;
+                totalPlusAll += memberPluses[name] || 0;
+                totalDeductionAll += memberDeductions[name] || 0;
+            });
 
-    // 기존 잔액: 추가금 제외 / 차감 포함
-    const totalBalance = totalGivenAll - totalSpentAll - totalDeductionAll;
+            const totalBalance = totalGivenAll - totalSpentAll - totalDeductionAll;
+            const totalBalanceWithPlus = totalBalance + totalPlusAll;
 
-    // 추가금 포함 잔액: 기존 잔액 + 개인 추가금
-    const totalBalanceWithPlus = totalBalance + totalPlusAll;
+            const totalMealBalanceEl = document.getElementById('totalMealBalance');
+            const totalMealBalanceWithPlusEl = document.getElementById('totalMealBalanceWithPlus');
+            const totalGivenAmountEl = document.getElementById('totalGivenAmount');
+            const totalSpentAmountEl = document.getElementById('totalSpentAmount');
+            const totalPlusAmountEl = document.getElementById('totalPlusAmount');
+            const totalDeductionAmountEl = document.getElementById('totalDeductionAmount');
 
-    const totalMealBalanceEl = document.getElementById('totalMealBalance');
-    const totalMealBalanceWithPlusEl = document.getElementById('totalMealBalanceWithPlus');
-    const totalGivenAmountEl = document.getElementById('totalGivenAmount');
-    const totalSpentAmountEl = document.getElementById('totalSpentAmount');
-    const totalPlusAmountEl = document.getElementById('totalPlusAmount');
-    const totalDeductionAmountEl = document.getElementById('totalDeductionAmount');
+            if (!totalMealBalanceEl || !totalMealBalanceWithPlusEl || !totalGivenAmountEl || !totalSpentAmountEl || !totalPlusAmountEl || !totalDeductionAmountEl) return;
 
-    if (!totalMealBalanceEl || !totalMealBalanceWithPlusEl || !totalGivenAmountEl || !totalSpentAmountEl || !totalPlusAmountEl || !totalDeductionAmountEl) return;
+            totalMealBalanceEl.innerText = `${totalBalance >= 0 ? '+' : ''}${totalBalance.toLocaleString()}원`;
+            totalMealBalanceWithPlusEl.innerText = `${totalBalanceWithPlus >= 0 ? '+' : ''}${totalBalanceWithPlus.toLocaleString()}원`;
+            totalGivenAmountEl.innerText = `+${totalGivenAll.toLocaleString()}원`;
+            totalSpentAmountEl.innerText = `-${totalSpentAll.toLocaleString()}원`;
+            totalPlusAmountEl.innerText = `+${totalPlusAll.toLocaleString()}원`;
+            totalDeductionAmountEl.innerText = `-${totalDeductionAll.toLocaleString()}원`;
 
-    totalMealBalanceEl.innerText = `${totalBalance >= 0 ? '+' : ''}${totalBalance.toLocaleString()}원`;
-    totalMealBalanceWithPlusEl.innerText = `${totalBalanceWithPlus >= 0 ? '+' : ''}${totalBalanceWithPlus.toLocaleString()}원`;
-    totalGivenAmountEl.innerText = `+${totalGivenAll.toLocaleString()}원`;
-    totalSpentAmountEl.innerText = `-${totalSpentAll.toLocaleString()}원`;
-    totalPlusAmountEl.innerText = `+${totalPlusAll.toLocaleString()}원`;
-    totalDeductionAmountEl.innerText = `-${totalDeductionAll.toLocaleString()}원`;
+            totalMealBalanceEl.className = totalBalance < 0
+                ? "text-sm font-black text-rose-600"
+                : "text-sm font-black text-indigo-600";
 
-    totalMealBalanceEl.className = totalBalance < 0
-        ? "text-sm font-black text-rose-600"
-        : "text-sm font-black text-indigo-600";
-
-    totalMealBalanceWithPlusEl.className = totalBalanceWithPlus < 0
-        ? "text-sm font-black text-rose-600"
-        : "text-sm font-black text-emerald-600";
-}
+            totalMealBalanceWithPlusEl.className = totalBalanceWithPlus < 0
+                ? "text-sm font-black text-rose-600"
+                : "text-sm font-black text-emerald-600";
+        }
 
         function renderMemberCards(memberSpent, memberTotalDays, memberVacations, memberPluses, memberDeductions) {
             const container = document.getElementById('memberCardsContainer');
@@ -392,24 +434,24 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
                 else if (accumulativeBalance === 0) balanceColorClass = "text-slate-500";
 
                 const card = document.createElement('div');
-                card.className = `bg-white rounded-xl border p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
+                card.className = `bg-white rounded-xl border p-3 sm:p-4 shadow-sm cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between ${
                     isSelected ? 'border-indigo-600 ring-2 ring-indigo-100 bg-indigo-50/20' : 'border-slate-200 hover:border-slate-300'
                 }`;
                 card.setAttribute('onclick', `toggleMemberFilter('${name}')`);
 
                 card.innerHTML = `
                     <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-slate-900">${name}</span>
-                            ${isSelected ? '<span class="text-[10px] bg-indigo-600 text-white font-bold px-1.5 py-0.5 rounded">필터됨</span>' : ''}
+                        <div class="flex items-center justify-between mb-2 gap-2">
+                            <span class="text-sm font-bold text-slate-900 truncate">${name}</span>
+                            ${isSelected ? '<span class="text-[10px] bg-indigo-600 text-white font-bold px-1.5 py-0.5 rounded shrink-0">필터됨</span>' : ''}
                         </div>
                         <div class="text-[11px] text-slate-400 space-y-0.5">
-                            <div class="flex justify-between"><span>등록된 일수:</span><span class="text-slate-700 font-medium">${activeDays}일</span></div>
-                            <div class="flex justify-between"><span>기본 지급액:</span><span>+${totalGiven.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-emerald-600 font-medium"><span>추가금:</span><span>+${plus.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-rose-600 font-medium"><span>차감:</span><span>-${deduction.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-slate-600 pt-1 border-t border-dashed border-slate-100"><span>사용한 식대:</span><span>-${spent.toLocaleString()}원</span></div>
-                            <div class="flex justify-between text-emerald-600 font-medium"><span>🌴 연차 사용:</span><span>${vacationDays}일</span></div>
+                            <div class="flex justify-between gap-2"><span>등록된 일수:</span><span class="text-slate-700 font-medium whitespace-nowrap">${activeDays}일</span></div>
+                            <div class="flex justify-between gap-2"><span>기본 지급액:</span><span class="whitespace-nowrap">+${totalGiven.toLocaleString()}원</span></div>
+                            <div class="flex justify-between gap-2 text-emerald-600 font-medium"><span>추가금:</span><span class="whitespace-nowrap">+${plus.toLocaleString()}원</span></div>
+                            <div class="flex justify-between gap-2 text-rose-600 font-medium"><span>차감:</span><span class="whitespace-nowrap">-${deduction.toLocaleString()}원</span></div>
+                            <div class="flex justify-between gap-2 text-slate-600 pt-1 border-t border-dashed border-slate-100"><span>사용한 식대:</span><span class="whitespace-nowrap">-${spent.toLocaleString()}원</span></div>
+                            <div class="flex justify-between gap-2 text-emerald-600 font-medium"><span>🌴 연차 사용:</span><span class="whitespace-nowrap">${vacationDays}일</span></div>
                         </div>
                     </div>
                     <div class="mt-3 pt-2 border-t border-slate-100 flex flex-col">
@@ -471,6 +513,19 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
             return records.map(rec => ({ ...rec, _running: balanceMap[rec.id] || { before: 0, delta: getRecordDelta(rec), after: getRecordDelta(rec) } }));
         }
 
+        function getContentDisplay(rec) {
+            if (rec.type === 'vacation') {
+                return `<span class="text-emerald-600 font-bold">🌴 연차</span>`;
+            } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
+                const memo = getMemoText(rec, '추가금');
+                return `<span class="text-emerald-600 font-bold">+ ${escapeHtml(memo)}</span>`;
+            } else if (rec.type === 'deduction') {
+                const memo = getMemoText(rec, '차감');
+                return `<span class="text-rose-600 font-bold">- ${escapeHtml(memo)}</span>`;
+            }
+            return `<span class="font-semibold text-slate-900">${escapeHtml(rec.menuName || '메뉴명 없음')}</span>`;
+        }
+
         function renderHistoryTable(records) {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = '';
@@ -486,33 +541,66 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/80 transition-colors";
 
-                let contentDisplay = "";
-
-                if (rec.type === 'vacation') {
-                    contentDisplay = `<span class="text-emerald-600 font-bold">🌴 연차</span>`;
-                } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
-                    const memo = getMemoText(rec, '추가금');
-                    contentDisplay = `<span class="text-emerald-600 font-bold">+ ${escapeHtml(memo)}</span>`;
-                } else if (rec.type === 'deduction') {
-                    const memo = getMemoText(rec, '차감');
-                    contentDisplay = `<span class="text-rose-600 font-bold">- ${escapeHtml(memo)}</span>`;
-                } else {
-                    contentDisplay = `<span class="font-semibold text-slate-900">${escapeHtml(rec.menuName || '메뉴명 없음')}</span>`;
-                }
-
                 const before = rec._running.before;
                 const delta = rec._running.delta;
                 const after = rec._running.after;
 
                 tr.innerHTML = `
-                    <td class="px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
-                    <td class="px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${escapeHtml(rec.name)}</td>
-                    <td class="px-6 py-3.5 whitespace-nowrap">${contentDisplay}</td>
-                    <td class="px-6 py-3.5 text-right whitespace-nowrap font-bold ${balanceClass(before)}">${before >= 0 ? '+' : ''}${before.toLocaleString()}원</td>
-                    <td class="px-6 py-3.5 text-right whitespace-nowrap font-bold ${changeClass(delta)}">${formatSignedWon(delta)}</td>
-                    <td class="px-6 py-3.5 text-right whitespace-nowrap font-extrabold ${balanceClass(after)}">${after >= 0 ? '+' : ''}${after.toLocaleString()}원</td>
+                    <td class="px-3 sm:px-6 py-3.5 font-medium text-slate-600 whitespace-nowrap">${rec.date}</td>
+                    <td class="px-3 sm:px-6 py-3.5 font-bold text-slate-900 whitespace-nowrap">${escapeHtml(rec.name)}</td>
+                    <td class="px-3 sm:px-6 py-3.5 whitespace-nowrap">${getContentDisplay(rec)}</td>
+                    <td class="px-3 sm:px-6 py-3.5 text-right whitespace-nowrap font-bold ${balanceClass(before)}">${before >= 0 ? '+' : ''}${before.toLocaleString()}원</td>
+                    <td class="px-3 sm:px-6 py-3.5 text-right whitespace-nowrap font-bold ${changeClass(delta)}">${formatSignedWon(delta)}</td>
+                    <td class="px-3 sm:px-6 py-3.5 text-right whitespace-nowrap font-extrabold ${balanceClass(after)}">${after >= 0 ? '+' : ''}${after.toLocaleString()}원</td>
                 `;
                 tbody.appendChild(tr);
+            });
+        }
+
+        function renderMobileHistoryCards(records) {
+            const container = document.getElementById('mobileListContainer');
+            container.innerHTML = '';
+
+            if (records.length === 0) {
+                container.innerHTML = `<div class="px-4 py-10 text-center text-sm text-slate-400">이번 달 등록된 내역이 없습니다.</div>`;
+                return;
+            }
+
+            const rows = getRecordsWithRunningBalance(records);
+
+            rows.forEach(rec => {
+                const before = rec._running.before;
+                const delta = rec._running.delta;
+                const after = rec._running.after;
+
+                const card = document.createElement('div');
+                card.className = "p-4 bg-white";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div class="min-w-0">
+                            <div class="text-xs text-slate-400 font-medium">${rec.date}</div>
+                            <div class="text-sm font-extrabold text-slate-900 mt-0.5">${escapeHtml(rec.name)}</div>
+                        </div>
+                        <div class="text-right min-w-0">
+                            <div class="text-sm truncate">${getContentDisplay(rec)}</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <div class="rounded-xl bg-slate-50 border border-slate-100 px-2.5 py-2">
+                            <div class="text-slate-400">이전</div>
+                            <div class="font-bold ${balanceClass(before)} whitespace-nowrap">${before >= 0 ? '+' : ''}${before.toLocaleString()}</div>
+                        </div>
+                        <div class="rounded-xl bg-slate-50 border border-slate-100 px-2.5 py-2">
+                            <div class="text-slate-400">내역</div>
+                            <div class="font-bold ${changeClass(delta)} whitespace-nowrap">${formatSignedWon(delta).replace('원', '')}</div>
+                        </div>
+                        <div class="rounded-xl bg-indigo-50 border border-indigo-100 px-2.5 py-2">
+                            <div class="text-indigo-500">잔액</div>
+                            <div class="font-extrabold ${balanceClass(after)} whitespace-nowrap">${after >= 0 ? '+' : ''}${after.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
 
@@ -543,7 +631,7 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
 
                 const today = new Date();
                 const isToday = (today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth && today.getDate() === day);
-                
+
                 let dayHeaderClass = "text-xs font-bold text-slate-700";
                 if (isToday) {
                     dayHeaderClass = "text-xs font-bold bg-indigo-600 text-white w-5 h-5 flex items-center justify-center rounded-full shadow-sm";
@@ -553,7 +641,7 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
                     dayHeaderClass = "text-xs font-bold text-indigo-500";
                 }
 
-                let innerItemsHTML = '<div class="space-y-1.5 mt-2 max-h-[92px] overflow-y-auto pr-0.5">';
+                let innerItemsHTML = '<div class="space-y-1.5 mt-2 max-h-[92px] overflow-y-auto pr-0.5 thin-scroll">';
 
                 if (dayRecords.length > 0) {
                     dayRecords.forEach(rec => {
@@ -563,14 +651,14 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
                             innerItemsHTML += `
                                 <div title="${escapeHtml(rec.name)} 연차" class="h-8 ${color.bg} ${color.text} ${color.border} border rounded-full px-2 flex items-center justify-between gap-1 shadow-sm">
                                     <span class="w-2 h-2 rounded-full ${color.dot} shrink-0"></span>
-                                    <span class="text-[10px] font-bold truncate">연차</span>
+                                    <span class="text-[10px] font-bold truncate">${escapeHtml(rec.name)} 연차</span>
                                 </div>`;
                         } else if (rec.type === 'deposit' || rec.type === 'carryover' || rec.type === 'plus') {
                             const amount = getRecordAmount(rec);
                             const memo = getMemoText(rec, '추가금');
                             innerItemsHTML += `
                                 <div title="${escapeHtml(rec.name)} · + ${escapeHtml(memo)} · ${amount.toLocaleString()}원" class="h-8 bg-emerald-50 border border-emerald-100 rounded-full px-2 flex items-center justify-between gap-1 shadow-sm">
-                                    <span class="text-[10px] font-bold text-emerald-700 truncate">+ ${escapeHtml(memo)}</span>
+                                    <span class="text-[10px] font-bold text-emerald-700 truncate">+ ${escapeHtml(rec.name)}</span>
                                     <span class="text-[10px] font-extrabold text-emerald-700">+${amount.toLocaleString()}</span>
                                 </div>`;
                         } else if (rec.type === 'deduction') {
@@ -578,7 +666,7 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
                             const memo = getMemoText(rec, '차감');
                             innerItemsHTML += `
                                 <div title="${escapeHtml(rec.name)} · - ${escapeHtml(memo)} · ${amount.toLocaleString()}원" class="h-8 bg-rose-50 border border-rose-100 rounded-full px-2 flex items-center justify-between gap-1 shadow-sm">
-                                    <span class="text-[10px] font-bold text-rose-700 truncate">- ${escapeHtml(memo)}</span>
+                                    <span class="text-[10px] font-bold text-rose-700 truncate">- ${escapeHtml(rec.name)}</span>
                                     <span class="text-[10px] font-extrabold text-rose-700">-${amount.toLocaleString()}</span>
                                 </div>`;
                         } else {
@@ -589,7 +677,7 @@ function updateTotalMealBalance(memberSpent, memberTotalDays, memberPluses = {},
                             innerItemsHTML += `
                                 <div title="${escapeHtml(rec.name)} · ${escapeHtml(rec.menuName || '')} · ${amount.toLocaleString()}원" class="h-8 ${color.bg} ${color.border} border rounded-full px-2 flex items-center justify-between gap-1 shadow-sm">
                                     <span class="w-2 h-2 rounded-full ${color.dot} shrink-0"></span>
-                                    <span class="text-[11px] font-extrabold text-slate-900 tracking-tight">${amount.toLocaleString()}원</span>
+                                    <span class="text-[10px] font-bold text-slate-700 truncate">${escapeHtml(rec.name)}</span>
                                     <span class="text-[9px] font-bold ${bal < 0 ? 'text-rose-500' : color.text}">${balanceText}</span>
                                 </div>`;
                         }

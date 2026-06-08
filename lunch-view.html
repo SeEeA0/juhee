@@ -66,20 +66,20 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                 <h2 class="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">멤버별 누적 현황</h2>
                 <div id="filterStatusBadge" class="hidden text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg px-3 py-1.5 font-bold items-center gap-1.5 w-fit">
-                    <span>현재 <strong id="filteredMemberName" class="underline"></strong> 님의 내역 보는 중</span>
+                    <span>현재 <strong id="filteredMemberName" class="underline"></strong>의 내역 보는 중</span>
                     <button onclick="clearMemberFilter()" class="hover:text-rose-600 font-bold ml-1 cursor-pointer">✕ 해제</button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4" id="memberCardsContainer"></div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4" id="memberCardsContainer"></div>
 
-            <!-- 전체 6명 합산 월 누적 잔액 -->
+            <!-- 전체 7명 합산 월 누적 잔액 -->
             <div class="mt-4 mb-3 bg-white border border-indigo-100 rounded-2xl shadow-sm px-4 py-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div class="flex items-center gap-2 min-w-0">
                         <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-50 text-sm shrink-0">🍱</span>
                         <div class="min-w-0">
-                            <div class="text-xs font-bold text-slate-700 truncate">전체 6명 월 잔액 요약</div>
+                            <div class="text-xs font-bold text-slate-700 truncate">전체 7명 월 잔액 요약</div>
                             <div class="text-[11px] text-slate-400 truncate">기본 잔액과 추가금 포함 최종 잔액을 함께 표시합니다</div>
                         </div>
                     </div>
@@ -120,6 +120,7 @@
                 <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>장책임</span>
                 <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>이선임</span>
                 <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>조주임</span>
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>나영님</span>
                 <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-2.5 py-1 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-pink-400"></span>신대리</span>
                 <span class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-full px-2.5 py-1 shrink-0">💰 + 추가금</span>
                 <span class="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-100 text-rose-700 rounded-full px-2.5 py-1 shrink-0">➖ - 차감</span>
@@ -194,7 +195,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "신대리"];
+        const members = ["황수석", "윤책임", "장책임", "이선임", "조주임", "나영님", "신대리"];
 
         const memberColors = {
             "황수석": { dot: "bg-slate-400", bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200" },
@@ -202,11 +203,16 @@
             "장책임": { dot: "bg-sky-400", bg: "bg-sky-50", text: "text-sky-600", border: "border-sky-100" },
             "이선임": { dot: "bg-green-400", bg: "bg-green-50", text: "text-green-600", border: "border-green-100" },
             "조주임": { dot: "bg-yellow-400", bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-100" },
+            "나영님": { dot: "bg-cyan-400", bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-100" },
             "신대리": { dot: "bg-pink-400", bg: "bg-pink-50", text: "text-pink-600", border: "border-pink-100" }
         };
 
         function getMemberColor(name) {
             return memberColors[name] || { dot: "bg-slate-400", bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-100" };
+        }
+
+        function getMemberDisplayName(name) {
+            return String(name || "").endsWith("님") ? String(name || "") : `${name}님`;
         }
 
         function escapeHtml(str) {
@@ -286,10 +292,10 @@
                 document.getElementById('historyTitle').innerText = `${currentMonth}월 등록 내역`;
             } else {
                 filteredMember = name;
-                nameSpan.innerText = name;
+                nameSpan.innerText = getMemberDisplayName(name);
                 badge.classList.remove('hidden');
                 badge.classList.add('flex');
-                document.getElementById('historyTitle').innerText = `🎨 ${name}님의 등록 내역`;
+                document.getElementById('historyTitle').innerText = `🎨 ${getMemberDisplayName(name)}의 등록 내역`;
             }
             calculateAndRender();
         }

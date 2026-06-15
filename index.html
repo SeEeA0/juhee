@@ -306,7 +306,7 @@ const isLiveTime =
     day <= 5 &&
     (
         hours === 9 ||
-        (hours === 11 && minutes < 30)
+        (hours === 10 && minutes < 30)
     );
 
 const openArea = document.getElementById("comment-open-area");
@@ -338,7 +338,7 @@ submitBtn.addEventListener("click", async () => {
         checkDay <= 5 &&
         (
             checkHours === 9 ||
-            (checkHours === 11 && checkMinutes < 30)
+            (checkHours === 10 && checkMinutes < 30)
         );
 
     if (!canSubmit) {

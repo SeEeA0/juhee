@@ -368,22 +368,19 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.disabled = true;
     submitBtn.textContent = "전송 중...";
 
-    try {
-await addDoc(commentsRef, {
-    name,
-    text,
-    createdAt: serverTimestamp()
-});
+try {
+        await addDoc(commentsRef, {
+            name,
+            text,
+            createdAt: serverTimestamp()
+        });
 
         textInput.value = "";
+        alert("메뉴가 전송되었습니다!");
     } catch (error) {
         alert("메뉴 등록에 실패했습니다.");
         console.error(error);
     }
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "메뉴 전송";
-});
 
 const q = query(commentsRef, orderBy("createdAt", "desc"));
 

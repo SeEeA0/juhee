@@ -325,8 +325,7 @@ if (!isLiveTime) {
     closedMsg.style.display = "block";
 }
 
-const todayDocRef = doc(db, "lunch-comments", today);
-const commentsRef = collection(todayDocRef, "comments");
+const commentsRef = collection(db, "lunch-comments");
     
 submitBtn.addEventListener("click", async () => {
     const checkNow = new Date(
@@ -369,12 +368,13 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.textContent = "전송 중...";
 
 try {
-        await addDoc(commentsRef, {
-            name,
-            text,
-            createdAt: serverTimestamp()
-        });
-
+await addDoc(commentsRef, {
+    name,
+    text,
+    date: today, // 오늘 날짜 정보 추가
+    createdAt: serverTimestamp()
+});
+    
 textInput.value = "";
         alert("메뉴가 전송되었습니다!");
     } catch (error) {

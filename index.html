@@ -164,7 +164,8 @@ h1 {
     color: #aaa;
     margin-top: 6px;
 }
-    .list-link-wrapper {
+
+.list-link-wrapper {
     width: 100%;
 }
 
@@ -270,7 +271,9 @@ import {
     query,
     orderBy,
     onSnapshot,
-    serverTimestamp
+    serverTimestamp,
+    doc,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -322,6 +325,7 @@ if (!isLiveTime) {
     closedMsg.style.display = "block";
 }
 
+const todayDocRef = doc(db, "lunch-comments", today);
 const commentsRef = collection(db, "lunch-comments", today, "comments");
 
 submitBtn.addEventListener("click", async () => {
@@ -356,15 +360,20 @@ submitBtn.addEventListener("click", async () => {
     }
 
     if (!name) {
-    alert("이름을 입력해주세요.");
-    nameInput.focus();
-    return;
-}
+        alert("이름을 입력해주세요.");
+        nameInput.focus();
+        return;
+    }
 
     submitBtn.disabled = true;
     submitBtn.textContent = "전송 중...";
 
     try {
+        await setDoc(todayDocRef, {
+            date: today,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+
         await addDoc(commentsRef, {
             name,
             text,

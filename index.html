@@ -325,9 +325,8 @@ if (!isLiveTime) {
     closedMsg.style.display = "block";
 }
 
-const todayDocRef = doc(db, "lunch-comments", today);
-const commentsRef = collection(db, "lunch-comments", today, "comments");
-
+const commentsRef = collection(db, "lunch-comments");
+    
 submitBtn.addEventListener("click", async () => {
     const checkNow = new Date(
         new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" })
@@ -369,16 +368,12 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.textContent = "전송 중...";
 
     try {
-        await setDoc(todayDocRef, {
-            date: today,
-            updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        await addDoc(commentsRef, {
-            name,
-            text,
-            createdAt: serverTimestamp()
-        });
+await addDoc(commentsRef, {
+    name,
+    text,
+    date: today,
+    createdAt: serverTimestamp()
+});
 
         textInput.value = "";
     } catch (error) {
@@ -390,7 +385,11 @@ submitBtn.addEventListener("click", async () => {
     submitBtn.textContent = "메뉴 전송";
 });
 
-const q = query(commentsRef, orderBy("createdAt", "desc"));
+const q = query(
+    commentsRef, 
+    where("date", "==", today), 
+    orderBy("createdAt", "desc")
+);
 
 onSnapshot(q, (snapshot) => {
     commentList.innerHTML = "";

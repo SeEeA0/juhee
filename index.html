@@ -325,7 +325,8 @@ if (!isLiveTime) {
     closedMsg.style.display = "block";
 }
 
-const commentsRef = collection(db, "lunch-comments");
+const todayDocRef = doc(db, "lunch-comments", today);
+const commentsRef = collection(todayDocRef, "comments");
     
 submitBtn.addEventListener("click", async () => {
     const checkNow = new Date(
@@ -371,7 +372,6 @@ submitBtn.addEventListener("click", async () => {
 await addDoc(commentsRef, {
     name,
     text,
-    date: today,
     createdAt: serverTimestamp()
 });
 
@@ -385,26 +385,19 @@ await addDoc(commentsRef, {
     submitBtn.textContent = "메뉴 전송";
 });
 
-const q = query(
-    commentsRef, 
-    orderBy("createdAt", "desc")
-);
+const q = query(commentsRef, orderBy("createdAt", "desc"));
 
 onSnapshot(q, (snapshot) => {
     commentList.innerHTML = "";
     
-    // 오늘 날짜 데이터만 필터링
-    const todayData = snapshot.docs.filter(doc => doc.data().date === today);
-    
-    commentCount.textContent = `픽 완료 ${todayData.length}명`;
+    // 이제 하위 컬렉션을 직접 보므로, snapshot.size만으로 바로 카운트 가능합니다.
+    commentCount.textContent = `픽 완료 ${snapshot.size}명`;
 
-    todayData.forEach((doc) => {
+    snapshot.forEach((doc) => {
         const data = doc.data();
-        // ... (이후 item 생성 및 표시 로직은 동일)
         const item = document.createElement("div");
         item.className = "comment-item";
         
-        // ... 기존 코드 유지
         const date = data.createdAt?.toDate
             ? data.createdAt.toDate().toLocaleTimeString("ko-KR", {
                 hour: "2-digit",

@@ -321,8 +321,8 @@ const commentList = document.getElementById("commentList");
 const commentCount = document.getElementById("commentCount");
 
 if (!isLiveTime) {
-    openArea.style.display = "none";
-    closedMsg.style.display = "block";
+    openArea.style.display = "block";
+    closedMsg.style.display = "none";
 }
 
 // 오늘 날짜를 문서 ID로 사용
@@ -340,16 +340,17 @@ submitBtn.addEventListener("click", async () => {
     const checkHours = checkNow.getHours();
     const checkMinutes = checkNow.getMinutes();
 
-    const canSubmit =
-        checkDay >= 1 &&
-        checkDay <= 5 &&
-        (
-            checkHours === 9 ||
-            (checkHours === 10 && checkMinutes < 30)
-        );
+const canSubmit =
+    checkDay >= 1 &&
+    checkDay <= 5 &&
+    (
+        checkHours === 8 ||
+        checkHours === 9 ||
+        (checkHours === 10 && checkMinutes < 30)
+    );
 
     if (!canSubmit) {
-        alert("메뉴 전송은 평일 오전 9:00부터 10:30까지만 가능합니다.");
+        alert("메뉴 전송은 평일 오전 8:00부터 10:30까지만 가능합니다.");
         location.reload();
         return;
     }
